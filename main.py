@@ -28,7 +28,7 @@ def parse_excel_sensor_A6(file):
     return df
 
 if __name__ == '__main__':
-    path = "data.xlsx"
+    path = "D:\GitHub\TUG-CPS\hybridcosim\Data\Inffeldgasse\Datasets_Occupancy_WeatherData\cps_data.xlsx"
     data = parse_excel_cps_data(path)
 
     # Added: Preprocessing - Smooth features
