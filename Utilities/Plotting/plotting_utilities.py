@@ -100,7 +100,7 @@ def printHeatMap(dataframe):
 Parameters:
 - DataFrame
 '''
-def scatterplot(y_pred, y_true, legend=None, **kwargs):
+def scatterplot(y_pred, y_true, results_path, filename, legend=None, **kwargs):
     fig, ax = plt_utils.create_figure('Correlation', figsize=kwargs.pop('figsize', None))
     ax.scatter(y_true,y_pred,alpha=0.5,
                 color='blue', label=legend)
@@ -112,5 +112,6 @@ def scatterplot(y_pred, y_true, legend=None, **kwargs):
     #plt.xlim(limits)
     #plt.ylim(limits)
     ax.legend()
+    plt_utils.save_figure(results_path, filename)
     plt.show()
 

@@ -1,14 +1,10 @@
 import logging
 from typing import List
 import pandas as pd
-import numpy as np
 import os
-
-from numpy import asarray
 import Utilities.Plotting.plotting_utilities as plt_utils
 import ModelTrainingUtilities.training_utils as train_utils
 from Utilities.Parameters import TrainingParams, TrainingResults
-from sklearn.metrics import mean_absolute_error
 import datamodels.datamodels
 import datamodels.datamodels.processing
 import keras

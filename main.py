@@ -49,7 +49,7 @@ if __name__ == '__main__':
     metrs = [metrics.all_metrics(y_true=result.test_target, y_pred=np.array(result.test_prediction)) for result in results]
     print(metrs)
     for result in results:
-        plt_utils.scatterplot(np.array(result.test_prediction), result.test_target)
+        plt_utils.scatterplot(np.array(result.test_prediction), result.test_target, results_path, model_type)
 
     if model_type == 'SymbolicRegression':
         print(models[0].model._program)
