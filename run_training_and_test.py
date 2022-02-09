@@ -2,6 +2,7 @@ import logging
 from typing import List
 import pandas as pd
 import numpy as np
+import os
 
 from numpy import asarray
 import Utilities.Plotting.plotting_utilities as plt_utils
@@ -26,9 +27,9 @@ def train_model(model, x_train, y_train):
 
 
 def create_model(training_params: TrainingParams, **kwargs):
-    model_type = getattr(ModelTraining.datamodels.datamodels, training_params.model_type)
-    normalizer = getattr(ModelTraining.datamodels.datamodels.processing, training_params.normalizer)
-    expanders = [getattr(ModelTraining.datamodels.datamodels.processing, expander_name) for expander_name in
+    model_type = getattr(datamodels.datamodels, training_params.model_type)
+    normalizer = getattr(datamodels.datamodels.processing, training_params.normalizer)
+    expanders = [getattr(datamodels.datamodels.processing, expander_name) for expander_name in
                  training_params.expansion]
     return model_type(x_scaler_class=normalizer, name=str(training_params.target_features), train_function=train_model,
                        expander_classes=expanders, **kwargs)
@@ -53,8 +54,8 @@ def predict(model, x, y_true, training_params):
 
 
 def run_training_and_test(data, list_training_parameters: List[TrainingParams],
-                          results_dir_path, plot_dir_name="Plots", do_predict=True,
-                          prediction_type="History", **kwargs):
+                          results_dir_path, plot_dir_name="plots", do_predict=True,
+                          **kwargs):
     models = []
     results = []
 
@@ -76,7 +77,7 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
 
             result.test_prediction = result_prediction[[f"predicted_{feature}" for feature in training_params.target_features]]
             title = f"{training_params.model_type}: {training_params.model_name}"
-            plot_dir = os.makdirs(os.path.join(results_dir_path, plot_dir_name), exist_ok=True)
+            plot_dir = os.makedirs(os.path.join(results_dir_path, plot_dir_name), exist_ok=True)
             plt_utils.plot_result(result_prediction, plot_dir, title)
             #plot_training_results(result, title, os.path.join(plot_dir, title))
 
