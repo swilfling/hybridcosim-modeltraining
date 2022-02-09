@@ -77,7 +77,8 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
 
             result.test_prediction = result_prediction[[f"predicted_{feature}" for feature in training_params.target_features]]
             title = f"{training_params.model_type}: {training_params.model_name}"
-            plot_dir = os.makedirs(os.path.join(results_dir_path, plot_dir_name), exist_ok=True)
+            plot_dir = os.path.join(results_dir_path, plot_dir_name)
+            os.makedirs(plot_dir, exist_ok=True)
             plt_utils.plot_result(result_prediction, plot_dir, title)
             #plot_training_results(result, title, os.path.join(plot_dir, title))
 

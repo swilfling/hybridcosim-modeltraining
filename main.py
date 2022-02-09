@@ -39,7 +39,7 @@ if __name__ == '__main__':
                                        training_split=train_frac,
                                        normalizer=normalizer,
                                        expansion=expansion)
-    results_path = os.path.join('./plots')
+    results_path = "./results"
     feature_set = FeatureSet('Configuration/FeatureSet/FeatureSet_cps_data.csv')
     list_training_parameters = [train_utils.set_train_params_model(trainparams_basic, feature_set, feature, model_type)
                                 for feature in feature_set.get_output_feature_names() ]

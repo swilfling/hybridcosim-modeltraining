@@ -18,7 +18,7 @@ Parameters:
 - output file name
 - labels
 '''
-def plot_result(data, plot_path, output_file_name, store_to_csv=True, **kwargs):
+def plot_result(data, plot_path, output_file_name, store_to_csv=False, **kwargs):
     fig, ax = plt_utils.create_figure(output_file_name, **kwargs)
     if kwargs.get('ylim',None):
         plt.set_ylim(kwargs.pop('ylim'))
@@ -113,3 +113,4 @@ def scatterplot(y_pred, y_true, legend=None, **kwargs):
     #plt.ylim(limits)
     ax.legend()
     plt.show()
+
