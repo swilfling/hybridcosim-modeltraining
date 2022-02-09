@@ -2,8 +2,9 @@ import os
 from Utilities.Parameters import TrainingResults, TrainingParams
 import ModelTrainingUtilities.training_utils as train_utils
 import Utilities.Plotting.plotting_utilities as plt_utils
-import Utilities.argparsing as parsing_utils
 import datamodels.datamodels.validation.metrics as metrics
+from Utilities.feature_set import FeatureSet
+import pandas as pd
 from run_training_and_test import run_training_and_test
 
 def parse_excel(file, index_col="datetime"):
@@ -27,8 +28,8 @@ def parse_excel_sensor_A6(file):
     return df
 
 if __name__ == '__main__':
-    path = "C:/"
-    parse_excel_cps_data(path)
+    path = "data.xlsx"
+    data = parse_excel_cps_data(path)
 
     # Added: Preprocessing - Smooth features
     #smoothe_data = True
@@ -49,7 +50,8 @@ if __name__ == '__main__':
                                        training_split=train_frac,
                                        normalizer=normalizer,
                                        expansion=expansion)
-    results_path = os.path.join(hybridcosim_path, 'ModelTraining', 'results')
+    results_path = os.path.join('./plots')
+    feature_set = FeatureSet('Configuration/FeatureSet/FeatureSet_cps_data.csv')
     list_training_parameters = [train_utils.set_train_params_model(trainparams_basic, feature_set, feature, model_type)
                                 for feature in feature_set.get_output_feature_names() ]
     models, results = run_training_and_test(data, list_training_parameters, results_path, do_predict=True, prediction_type=predict_type,

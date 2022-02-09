@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 import copy
 from Utilities.Parameters import TrainingParams
-from ModelTraining.datamodels.datamodels.processing.shape import split_into_target_segments
+from datamodels.datamodels.processing.shape import split_into_target_segments
 from sklearn.model_selection import KFold
 
 
