@@ -1,0 +1,11 @@
+EnergyConsumption;;;;;;
+Name;In_Out;Init;Stat_Dyn;Predictions;Type;Description
+temperature;input;26;static;energy;Real;
+weekday;input;0;static;energy;Real;
+holiday;input;0;static;energy;Real;
+daytime;input;25;static;energy;Real;
+radiation;input;0;static;energy;Real;
+humidity;input;58;static;energy;Real;
+daylight;input;0;static;energy;Real;
+energy;output;170;;energy;Real;
+energy_start;parameter;40;;energy;Real;

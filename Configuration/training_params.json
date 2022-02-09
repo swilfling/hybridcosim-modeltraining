@@ -1,0 +1,20 @@
+{
+    "Type": "TrainingParams",
+    "Parameters": {
+        "model_type": "LinearRegression",
+        "model_name": "",
+        "static_input_features": [],
+        "dynamic_input_features": [],
+        "target_features": [],
+        "lookback_horizon": 4,
+        "prediction_horizon": 1,
+        "training_split": 0.7,
+        "flatten_dynamic_input_features": true,
+        "normalizer": "IdentityScaler",
+        "expansion": [
+            "PolynomialExpansion"
+        ],
+        "epochs": 0,
+        "static_feature_names_expanded": null
+    }
+}
