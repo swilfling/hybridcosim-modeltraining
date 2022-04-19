@@ -54,7 +54,7 @@ if __name__ == '__main__':
     list_feature_select_params = [[FeatureSelectionParams('MIC-value',0.05), FeatureSelectionParams('R-value',0.05)]]
 
     # Results output
-    results_path = os.path.join(root_dir, 'ModelTraining', 'results')
+    results_path = os.path.join(root_dir, 'results')
     metrics_names = {'FeatureSelect': ['selected_features', 'all_features'], 'Metrics': ['R2_SKLEARN', 'CV-RMS', 'MAPE', 'RA_SKLEARN'], 'pvalues': ['pvalue_lm', 'pvalue_f']}
     results_index = [f'{model}' for model in model_names]
     if ['PolynomialExpansion'] in expansion_types:
