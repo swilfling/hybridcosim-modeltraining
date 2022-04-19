@@ -1,0 +1,11 @@
+GasConsumption;;;;;;
+Name;In_Out;Init;Stat_Dyn;Predictions;Type;Description
+TAmbient;input;0;static;B20Gas;Real;
+SGlobalH;input;0;static;B20Gas;Real;
+humidity;input;0;static;B20Gas;Real;
+rain;input;0;static;B20Gas;Real;
+lumB20LR;input;0;static;B20Gas;Real;
+lumB20BR1;input;0;static;B20Gas;Real;
+TB20;input;0;static;B20Gas;Real;
+B20Gas;output;0;;B20Gas;Real;
+B20Gas_start;parameter;0;B20Gas;Real;

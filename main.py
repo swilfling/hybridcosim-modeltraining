@@ -1,55 +1,147 @@
 import os
-from Utilities.Parameters import TrainingResults, TrainingParams
-import ModelTrainingUtilities.training_utils as train_utils
-import Utilities.Plotting.plotting_utilities as plt_utils
-import datamodels.datamodels.validation.metrics as metrics
-from Utilities.feature_set import FeatureSet
-import pandas as pd
-from run_training_and_test import run_training_and_test
+import logging
+import numpy as np
+from sklearn.model_selection import TimeSeriesSplit
 
-def parse_excel(file, index_col="datetime"):
-    df = pd.read_excel(file)
-    df = df.rename({'time':'daytime'},axis=1)
-    index = pd.Index(pd.to_datetime(df[index_col]))
-    df = df.set_index(index)
-    df = df.drop([index_col], axis=1)
-    df = df.rename({df.columns[0]: 'energy'}, axis=1)
-    return df
+import ModelTraining.TrainingUtilities.preprocessing
+from ModelTraining.Utilities.Parameters import TrainingResults, TrainingParams
+import ModelTraining.TrainingUtilities.training_utils as train_utils
+import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
+from ModelTraining.Training.ModelCreation import create_model
+from ModelTraining.Training.predict import predict, predict_with_history
+import ModelTraining.Utilities.file_utilities as file_utils
+import ModelTraining.Utilities.DataProcessing.data_preprocessing as dp_utils
+import ModelTraining.Utilities.DataProcessing.data_import as data_import
+import ModelTraining.datamodels.datamodels.validation.metrics as metrics
 
 
 if __name__ == '__main__':
-    path = "data/data.xlsx"
-    data = parse_excel(path)
+    hybridcosim_path = "../"
+    usecase_config_path = os.path.join(hybridcosim_path,'ModelTraining', 'Configuration','UseCaseConfig')
+    name = 'CPS-Data'
+    dict_usecase = data_import.load_from_json(os.path.join(usecase_config_path, f"{name}.json"))
+
+    data, feature_set = data_import.get_data_and_feature_set(os.path.join(hybridcosim_path, dict_usecase['dataset']), os.path.join("./", dict_usecase['fmu_interface']))
+
+    # Get training and target features
+    target_features = feature_set.get_output_feature_names()
+    input_features = feature_set.get_input_feature_names()
 
     # Added: Preprocessing - Smooth features
-    #smoothe_data = True
+    smoothe_data = False
+    dp_utils.preprocess_data(data, feature_set, smoothe_data=smoothe_data)
+
+
     print("Starting Training")
+
     # Training parameters
-    model_type = "LinearRegression"
+    model_type = "RandomForestRegression"
     normalizer = "IdentityScaler"
-    train_frac = 0.8
+    train_frac = 0.9
     prediction_horizon = 1
     lookback_horizon = 4
 
-    expansion = ["IdentityExpander"]
+    training_results_path = os.path.join(hybridcosim_path, "ModelTraining/results/")
 
-    trainparams_basic = TrainingParams(model_type=model_type,
-                                       lookback_horizon=lookback_horizon,
-                                       prediction_horizon=prediction_horizon,
-                                       training_split=train_frac,
-                                       normalizer=normalizer,
-                                       expansion=expansion)
-    results_path = "./results"
-    feature_set = FeatureSet('Configuration/FeatureSet/FeatureSet_cps_data.csv')
-    list_training_parameters = [train_utils.set_train_params_model(trainparams_basic, feature_set, feature, model_type)
-                                for feature in feature_set.get_output_feature_names() ]
-    models, results = run_training_and_test(data, list_training_parameters, results_path, do_predict=True)
-    # Save Model
-    import numpy as np
-    metrs = [metrics.all_metrics(y_true=result.test_target, y_pred=np.array(result.test_prediction)) for result in results]
-    print(metrs)
-    for result in results:
-        plt_utils.scatterplot(np.array(result.test_prediction), result.test_target, results_path, model_type)
+    plot_dir_name = "results/Plots"
 
-    if model_type == 'SymbolicRegression':
-        print(models[0].model._program)
+    prediction_options = {
+        "ground_truth": predict,
+        "history": predict_with_history
+    }
+
+    predict_type = "ground_truth"
+
+    list_training_parameters = []
+    models = []
+    results = []
+
+    expansion = ["PolynomialExpansion"]
+
+    static_feature_names = feature_set.get_static_feature_names()
+    static_feature_data = data[static_feature_names]
+
+    cross_validation = False
+
+    for feature in target_features:
+        static_features = feature_set.get_static_feature_names(feature)
+        dynamic_features = feature_set.get_dynamic_feature_names(feature)
+        training_parameters = TrainingParams(model_type=model_type,
+                                             model_name=feature,
+                                             lookback_horizon=lookback_horizon,
+                                             target_features=[feature],
+                                             prediction_horizon=prediction_horizon,
+                                             static_input_features=static_features,
+                                             dynamic_input_features=dynamic_features,
+                                             training_split=train_frac,
+                                             normalizer=normalizer,
+                                             expansion=expansion)
+
+        # Get data and reshape
+        index, x, y, _ = ModelTraining.TrainingUtilities.preprocessing.extract_training_and_test_set(data, training_parameters)
+        ## Training process
+        model = create_model(training_parameters)
+        model.expanders[0].selected_outputs = range(2)
+        rmse_best = None
+        train_ind_best = []
+        test_ind_best = []
+        if cross_validation:
+            ts_kf = TimeSeriesSplit(n_splits=4)
+            for train_ind, test_ind in ts_kf.split(x, y):
+                x_train_k, x_test_k = x[train_ind, :], x[test_ind, :]
+                y_train_k, y_test_k = y[train_ind], y[test_ind]
+                model.train(x_train_k, y_train_k)
+                result_k = TrainingResults(train_index=train_ind, train_target=y_train_k,
+                                           test_index=test_ind, test_target=y_test_k)
+                result_prediction_k = predict_with_history(model, data.iloc[test_ind], training_parameters,
+                                                           feature_set=feature_set)
+                result_k.test_prediction = np.expand_dims(result_prediction_k[f"predicted_{feature}"], axis=-1)
+                measures = metrics.all_metrics(y_true=result_k.test_target, y_pred=result_k.test_prediction)
+                if rmse_best is None:
+                    rmse_best = measures["CV-RMS"]
+                    train_ind_best = train_ind
+                    test_ind_best = test_ind
+                else:
+                    if rmse_best > measures["CV-RMS"]:
+                        rmse_best = measures["CV-RMS"]
+                        train_ind_best = train_ind
+                        test_ind_best = test_ind
+
+            index_train, x_train, y_train, index_test, x_test, y_test = index[train_ind_best], x[train_ind_best, :], y[
+                train_ind_best], \
+                                                                        index[test_ind_best], x[test_ind_best, :], y[
+                                                                            test_ind_best]
+        else:
+            index_train, x_train, y_train, index_test, x_test, y_test = ModelTraining.TrainingUtilities.preprocessing.split_into_training_and_test_set(
+                index, x, y, training_parameters.training_split)
+        # Expanded feature names
+        print(training_parameters.static_feature_names_expanded)
+
+        logging.info(f"Training model with input of shape: {x_train.shape} and targets of shape {y_train.shape}")
+
+        model.train(x_train, y_train)
+        models.append(model)
+
+        result = TrainingResults(train_index=index_train, train_target=y_train,
+                                 test_index=index_test, test_target=y_test)
+        result_prediction = predict_with_history(model, data.loc[index_test], training_parameters,
+                                                 feature_set=feature_set)
+        result.test_prediction = np.expand_dims(result_prediction[f"predicted_{feature}"], axis=-1)
+
+        title = f"{training_parameters.model_type}: {training_parameters.model_name}"
+        plot_dir = file_utils.create_dir(os.path.join(training_results_path, plot_dir_name))
+        print(result_prediction.columns)
+        plt_utils.plot_result(result_prediction, plot_dir, title)
+        results.append(result)
+        # Calculate metrics
+        metrs = []
+        # Check lengths for metrics
+        for result in results:
+            metrs.append(metrics.all_metrics(y_true=result.test_target, y_pred=result.test_prediction))
+        print("Metrics:")
+        print(metrs)
+        # Save Model
+        train_utils.save_model_and_parameters(training_results_path, model, training_parameters)
+        plt_utils.scatterplot(result.test_prediction, result.test_target, './results/', 'Scatterplot')
+
+    print('Experiment finished')

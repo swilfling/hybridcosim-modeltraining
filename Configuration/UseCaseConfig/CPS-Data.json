@@ -1,0 +1,20 @@
+{
+    "name": "CPS-Data",
+    "fmu_interface": "Configuration/FMUInterface/Inffeld/FMUInterface_cps_data.csv",
+    "dataset": "Data/Inffeldgasse/Datasets_Occupancy_WeatherData/cps_data.xlsx",
+    "stat_feats": [
+        "temperature",
+        "registrations"
+    ],
+    "stat_vals": [
+
+    ],
+    "stat_ws": 24,
+    "cyclical_feats": [
+        "daytime_cos"
+    ],
+    "onehot_feats": [
+        "hours",
+        "weekdays"
+    ]
+}

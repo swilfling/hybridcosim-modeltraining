@@ -1,0 +1,8 @@
+{
+    "name":"Beyond_B12_Gas",
+    "fmu_interface":"Configuration/FMUInterface/Beyond/B12/FMUInterface_B12_Gas.csv",
+    "dataset":"Data/Beyond/Beyond_B12_full.csv",
+    "stat_feats": ["SGlobalH", "vWind", "humidity", "TAmbient", "rain"],
+    "stat_vals": ["tmin","tmax"],
+    "stat_ws": 24
+}

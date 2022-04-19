@@ -1,0 +1,24 @@
+{
+    "name": "SensorA6",
+    "fmu_interface": "Configuration/FMUInterface/Inffeld/FMUInterface_sensor_A6.csv",
+    "dataset": "Data/Inffeldgasse/Datasets_Occupancy_WeatherData/sensor_A6.xlsx",
+    "stat_feats": [
+        "radiation",
+        "humidity",
+        "temperature"
+    ],
+    "stat_vals": [
+
+    ],
+    "stat_ws": 24,
+    "cyclical_feats": [
+        "weekday_sin",
+        "weekday_cos",
+        "daytime_sin",
+        "daytime_cos"
+    ],
+    "onehot_feats": [
+        "hours",
+        "weekdays"
+    ]
+}

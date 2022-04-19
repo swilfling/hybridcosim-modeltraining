@@ -1,0 +1,8 @@
+SolarCollector;;;;;;
+Name;In_Out;Init;Stat_Dyn;Predictions;Type;Description
+VDSolar_inv;input;0;static;TSolarVL;Real;
+TAussen;input;25;static;TSolarVL;Real;
+SGlobal;input;25;static;TSolarVL;Real;
+TSolarRL;input;25;static;TSolarVL;Real;
+TSolarVL;output;26;;TSolarVL;Real;
+TSolarVL_start;parameter;25;;;Real;

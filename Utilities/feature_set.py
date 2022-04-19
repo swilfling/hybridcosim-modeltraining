@@ -55,11 +55,32 @@ class FeatureSet:
     def get_input_feature_names(self, model_name=""):
         return self.get_feature_names_for_model(self.input_features, model_name)
 
+    def get_dynamic_input_feature_names(self, model_name=""):
+        dynamic_features = [feature for feature in self.dynamic_features if feature.name in self.get_input_feature_names()]
+        return self.get_feature_names_for_model(dynamic_features, model_name)
+
+    def get_dynamic_output_feature_names(self, model_name=""):
+        dynamic_features = [feature for feature in self.dynamic_features if feature.name in self.get_output_feature_names()]
+        return self.get_feature_names_for_model(dynamic_features, model_name)
+
+    def get_static_input_feature_names(self, model_name=""):
+        static_features = [feature for feature in self.static_features if feature.name in self.get_input_feature_names()]
+        return self.get_feature_names_for_model(static_features, model_name)
+
     def get_all_features_for_model(self, model_name=""):
          return {"Static Features": self.get_static_feature_names(model_name),
                  "Dynamic Features": self.get_dynamic_feature_names(model_name),
                  "Inputs": self.get_input_feature_names(model_name),
                  "Outputs": self.get_output_feature_names(model_name)}
+
+    def add_static_input_feature(self, name='', models=['']):
+        new_feat = Feature(name=f"{name}", feature_type='static', models=models)
+        self.static_features.append(new_feat)
+        self.input_features.append(new_feat)
+
+    def add_static_input_features(self, names=[], models=[]):
+        for name in names:
+            self.add_static_input_feature(name, models)
 
     @staticmethod
     def _get_selected_features_from_file(data, selector, select_value):

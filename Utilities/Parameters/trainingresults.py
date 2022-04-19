@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from Utilities.Parameters import Parameters
+from ModelTraining.Utilities.Parameters import Parameters
 import numpy as np
 import pandas as pd
 

@@ -1,0 +1,10 @@
+IndoorTemperature;;;;;;
+Name;In_Out;Init;Stat_Dyn;Predictions;Type;Description
+TAmbient;input;0;static;TB12BR1;Real;
+SGlobalH;input;0;static;TB12BR1;Real;
+vWind;input;0;static;TB12BR1;Real;
+humidity;input;0;static;TB12BR1;Real;
+rain;input;0;static;TB12BR1;Real;
+B12Gas;input;0;static;TB12BR1;Real;
+TB12BR1;output;0;;TB12BR1;Real;
+TB12BR1_start;parameter;0;TB12BR1;Real;

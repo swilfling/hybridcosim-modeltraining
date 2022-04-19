@@ -1,0 +1,17 @@
+StorageTank;;;;;;
+Name;In_Out;Init;Stat_Dyn;Predictions;Type;Description
+TSolStor;input;26;static;TPuffero;Real;
+TVLOfenn;input;25;static;TPuffero;Real;
+TFBHRL;input;25;static;TPuffero;Real;
+TRLSchwimmbad;input;25;static;TPuffero;Real;
+TWPVL;input;25;static;TPuffero;Real;
+VDSolarStorage;input;0;static;TPuffero;Real;
+VDStoragePool;input;0;static;TPuffero;Real;
+VDOfen;input;0;static;TPuffero;Real;
+VDWP;input;0;static;TPuffero;Real;
+VDPoolTot;input;0;static;TPuffero;Real;
+VDFBHSchwimmbad;input;0;static;TPuffero;Real;
+TSchwimmbadRaum;input;25;static;TPuffero;Real;
+PCondition;input;0;static;TPuffero;Real;
+TPuffero;output;53;static;TPuffero;Real;
+TPuffero_start;parameter;53;;TPuffero;Real;

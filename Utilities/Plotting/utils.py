@@ -2,17 +2,19 @@ import os
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import datetime
+import tikzplotlib
 import pandas as pd
 '''
 Parameters:
 - plot dir
 - output file name
 '''
-def save_figure(plot_path, output_file_name, format="png"):
+def save_figure(plot_path, output_file_name, format="png",store_tikz=True):
     filename = str(output_file_name).replace(" ", "_")
     plt.savefig(os.path.join(plot_path, f"{filename}.{format}"), format=format)
-
-
+    if store_tikz:
+        tikzplotlib.save(os.path.join(plot_path, f"{filename}.tex"))
+    plt.show()
 '''
 Parameters:
 - output file name
@@ -22,7 +24,7 @@ def create_figure(output_file_name, **kwargs):
     fig = plt.figure(figsize=kwargs.pop('figsize',(20, 10)))
     #plt.tight_layout(pad=2.0, w_pad=0.5, h_pad=2.0)
     plt.tight_layout()
-    plt.xlabel('Time')
+    #plt.xlabel('Time')
     plt.grid('both')
     plot_title = str(output_file_name).replace("_", " ")
     plt.suptitle(plot_title)
@@ -57,6 +59,8 @@ Parameters:
 '''
 def plot_df(ax: plt.Axes, simulation_results: pd.DataFrame, **kwargs):
     if simulation_results is not None:
+        if kwargs.pop('show_legend',True):
+            ax.legend(simulation_results.columns)
         if kwargs.pop('show_ylabel', False):
             ax.set_ylabel(label_list_to_str(list(simulation_results.columns)))
         if kwargs.pop('set_colors', False):
@@ -71,7 +75,6 @@ def plot_df(ax: plt.Axes, simulation_results: pd.DataFrame, **kwargs):
             ax.set_xlabel("Time [Days]")
         else:
             ax.plot(simulation_results, **kwargs)
-        ax.legend(simulation_results.columns)
 
 
 def plot_df_twinx(ax, data, **kwargs):

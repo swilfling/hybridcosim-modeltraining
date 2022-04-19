@@ -1,0 +1,8 @@
+SolarCollector_Solarhouse2;;;;;;
+Name;In_Out;Init;Stat_Dyn;Predictions;Type;Description
+Vd_Solar_inv;input;0;static;T_Solar_VL;Real;
+T_Aussen;input;0;static;T_Solar_VL;Real;
+R_Global;input;0;static;T_Solar_VL;Real;
+T_Solar_RL;input;0;static;T_Solar_VL;Real;
+T_Solar_VL;output;26;;T_Solar_VL;Real;
+T_Solar_VL_start;parameter;25;;;Real;
