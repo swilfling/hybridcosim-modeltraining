@@ -7,7 +7,6 @@ import pandas as pd
 import scipy
 
 import ModelTraining.Utilities.dataframe_utils as df_utils
-from ModelTraining.Utilities import file_utilities as file_utils
 from ModelTraining.Utilities.DataProcessing import signal_processing_utils as sigutils
 from ModelTraining.Utilities.DataProcessing.feature_creation import add_cyclical_features, holiday_weekend
 from ModelTraining.Utilities.feature_set import FeatureSet
@@ -171,7 +170,7 @@ def create_cyclical_features(df, features_to_select=[]):
 
 def get_data_and_feature_set(data_filename, interface_filename):
     extension = data_filename.split('.')[-1]
-    filename = file_utils.get_filename(data_filename).split('.')[0]
+    filename = get_filename(data_filename).split('.')[0]
     # Check extension and parse hd5
     if extension == "hd5":
         data = parse_hdf_solarhouse2(data_filename)
@@ -194,3 +193,8 @@ def get_data_and_feature_set(data_filename, interface_filename):
     data = data.astype('float')
     feature_set = FeatureSet(interface_filename)
     return data, feature_set
+
+def get_filename(src_path):
+    return list(os.path.split(src_path))[-1]
+
+

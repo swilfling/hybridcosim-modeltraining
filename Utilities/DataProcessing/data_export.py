@@ -1,8 +1,9 @@
 import json
 import os
+from datetime import datetime
 
 import pandas as pd
-import ModelTraining.Utilities.file_utilities as file_utils
+
 
 
 def store_to_csv(df, csv_file_path):
@@ -28,7 +29,7 @@ def create_df_empty(keys = []):
 
 
 def store_all_metrics(df_full, results_path, metrics_names):
-    timestamp = file_utils.create_file_name_timestamp()
+    timestamp = create_file_name_timestamp()
     df_full.to_csv(os.path.join(results_path, f'AllMetrics_full_{timestamp}.csv'),index_label='Model', float_format='%.3f')
 
     df_metrics = get_df_subset(df_full, 'Metrics')
@@ -49,3 +50,7 @@ def get_df_subset(df, label):
     df_subset = df[cols]
     df_subset.columns = ["_".join(col.split("_")[:-1]) for col in cols]
     return df_subset
+
+
+def create_file_name_timestamp():
+    return "Experiment_" + datetime.now().strftime("%Y%m%d_%H%M%S")

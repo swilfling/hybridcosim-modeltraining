@@ -23,10 +23,6 @@ def join_list_df(list_simulation_results):
     return pd.concat(list_simulation_results)
 
 
-def get_indices_from_columns(columns, features, index_offset=1):
-    return [columns.get_loc(name) + index_offset for name in features]
-
-
 def create_labels(list_outputs, units=[]):
     if len(units) > 0:
         return [[f"Prediction: {output} [{unit}]", f"Measurement: {output} [{unit}]"] for output, unit in zip(list_outputs, units)]
