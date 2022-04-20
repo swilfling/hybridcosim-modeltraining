@@ -7,6 +7,19 @@ This folder contains tools for model training.
 - Feature Selection
 - Training Utilities
 - General Utilities
+- Configuration
+
+## Setup Instructions
+
+The ModelTraining repository contains the submodule datamodels. 
+
+After cloning the ModelTraining repository, please execute the following instructions:
+git submodule init
+git submodule update
+
+These instructions register the datamodels submodule.
+
+Now, in the datamodels submodule, all git commands can be executed for the datamodels submodule. 
 
 ## FMU Interface:
 
