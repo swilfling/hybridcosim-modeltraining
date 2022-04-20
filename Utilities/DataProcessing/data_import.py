@@ -1,6 +1,5 @@
 import os
 import json
-from datetime import datetime
 
 from math import ceil
 
@@ -8,7 +7,6 @@ import numpy as np
 import pandas as pd
 import scipy
 
-import ModelTraining.Utilities.dataframe_utils as df_utils
 from ModelTraining.Utilities.DataProcessing import signal_processing_utils as sigutils
 from ModelTraining.Utilities.DataProcessing.feature_creation import add_cyclical_features, holiday_weekend
 from ModelTraining.Utilities.feature_set import FeatureSet
@@ -16,7 +14,9 @@ from ModelTraining.Utilities.feature_set import FeatureSet
 
 def import_data(csv_input_file="Resampled15min.csv", freq='15T', sep=';',info=False, index_col='Zeitraum'):
     data = pd.read_csv(csv_input_file, sep=sep, encoding='latin-1', header=0, low_memory=False)
-    data = df_utils.df_set_date_index(data, index_col)
+    data[index_col] = pd.to_datetime(data[index_col], dayfirst=True)
+    data = data.set_index(index_col)
+
     if info:
         data.info()
         data.dtypes
@@ -84,7 +84,7 @@ def parse_excel_sensor_A6(file):
 
 def parse_hdf_solarhouse2(filename, keep_nans=False):
     df = parse_hdf(filename)
-    df = df_utils.remove_spaces_from_labels(df)
+    df = df.rename(columns={label: label.split(" ")[0] for label in df.columns})
 
     ############ Rename labels #########################################
     df = df.rename(columns={'T_P_oo': 'T_P_top'})
@@ -167,12 +167,10 @@ def create_statistical_features(df, features_to_select=[],
             df[f'{col}_if'] = df[f'{col}_tmax'] // mean
     return df
 
-def create_cyclical_features(df, features_to_select=[]):
-    pass
 
 def get_data_and_feature_set(data_filename, interface_filename):
     extension = data_filename.split('.')[-1]
-    filename = get_filename(data_filename).split('.')[0]
+    filename = list(os.path.split(data_filename))[-1].split('.')[0]
     # Check extension and parse hd5
     if extension == "hd5":
         data = parse_hdf_solarhouse2(data_filename)
@@ -181,7 +179,7 @@ def get_data_and_feature_set(data_filename, interface_filename):
     else:
         if filename == 'Beyond_B20_full' or filename == 'Beyond_B12_full':
             data = import_data(data_filename, sep=',',freq='1H', index_col='dt')
-            data = data.drop(df_utils.create_date_range(2014, 4, 13, 2014, 4, 24), axis=0)
+            data = data.drop(create_date_range(2014, 4, 13, 2014, 4, 24), axis=0)
             if filename == 'Beyond_B20_full':
                 data['TB20'] = np.mean(data[['TB20BR1','TB20BR2','TB20BR3','TB20LR']], axis=1)
             if filename == 'Beyond_B12_full':
@@ -197,10 +195,10 @@ def get_data_and_feature_set(data_filename, interface_filename):
     return data, feature_set
 
 
-def create_file_name_timestamp():
-    return "Experiment_" + datetime.now().strftime("%Y%m%d_%H%M%S")
+def create_date_range(y1, m1, d1, y2, m2, d2, freq='1H'):
+    return [timestamp for timestamp in
+     pd.date_range(pd.Timestamp(y1, m1, d1), pd.Timestamp(y2, m2, d2), freq=freq)]
 
-def get_filename(src_path):
-    return list(os.path.split(src_path))[-1]
+
 
 
