@@ -1,9 +1,12 @@
-# Model Training and FMU Generation
+# Model Training 
 
-This folder contains tools for model training and FMU generation. 
+This folder contains tools for model training. 
 
 ## Structure:
-- modelTraining: Contains model training and preprocessing. The main file is run.py.
+- Training
+- Feature Selection
+- Training Utilities
+- General Utilities
 
 ## FMU Interface:
 
