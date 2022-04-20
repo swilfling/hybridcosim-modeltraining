@@ -1,5 +1,7 @@
 import os
 import json
+from datetime import datetime
+
 from math import ceil
 
 import numpy as np
@@ -193,6 +195,10 @@ def get_data_and_feature_set(data_filename, interface_filename):
     data = data.astype('float')
     feature_set = FeatureSet(interface_filename)
     return data, feature_set
+
+
+def create_file_name_timestamp():
+    return "Experiment_" + datetime.now().strftime("%Y%m%d_%H%M%S")
 
 def get_filename(src_path):
     return list(os.path.split(src_path))[-1]

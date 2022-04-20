@@ -24,7 +24,7 @@ class MetricsExport:
             df = pd.DataFrame(data=rvals, index=feature_names)
             df.to_csv(os.path.join(results_dir_path, f'{selector.__class__.__name__} - {expander.__class__.__name__}.csv'), index_label='Feature')
             if self.plot_enabled:
-                plt_utils.barplot(df.columns, df.values, fig_save_path=results_dir_path,
+                plt_utils.barplot(df.columns, df.values.flatten(), fig_save_path=results_dir_path,
                                   fig_title=f'{selector.__class__.__name__} - {expander.__class__.__name__}',
                                   ylabel=str(selector.__class__.__name__), figsize=(30, 7))
 

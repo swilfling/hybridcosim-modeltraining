@@ -1,6 +1,4 @@
-import numpy as np
 import pandas as pd
-from pandas import DataFrame
 
 
 def remove_spaces_from_labels(df):
