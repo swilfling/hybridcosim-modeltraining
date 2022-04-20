@@ -10,12 +10,12 @@ def add_cyclical_features(data):
     data['weekday'] = data.index.weekday
     data['daytime'] = data.index.hour
     data["month"] = data.index[:].month
-    data = onehot_hours(data, label='daytime')
-    data = onehot_months(data, label='month')
-    data = onehot_days(data,'day')
+    data = onehot(data, 'daytime', 24, div_fact=1, dst_label='hour')
+    data = onehot(data, 'month', 12)
+    data = onehot(data, 'day', 31)
     data = onehot_weekdays(data, feature_label='weekday')
-    data = create_cyclical_features(data,'weekday',7)
-    data = create_cyclical_features(data,'daytime',24)
+    data = create_cyclical_features(data, 'weekday', 7)
+    data = create_cyclical_features(data, 'daytime', 24)
     return data
 
 
@@ -24,25 +24,11 @@ def onehot_weekdays(df, feature_label='weekday',weekday_labels=['mon', 'tue', 'w
         df[weekday] = pd.to_numeric(df[feature_label] == day)
     return df
 
-
-def onehot_hours(df, label='daytime', div_fact=1):
-    range_ = div_fact * np.array(range(int(24/div_fact)))
-    for time in range_:
-        df[f'hour_{time}'] = pd.to_numeric(df[label] < time+div_fact) * pd.to_numeric(df[label] >= time)
-    return df
-
-
-def onehot_months(df, label='month'):
-    range_ = np.array(range(12))
-    for time in range_:
-        df[f'month_{time}'] = pd.to_numeric(df[label] < time+1) * pd.to_numeric(df[label] >= time)
-    return df
-
-
-def onehot_days(df, label='day'):
-    range_ = np.array(range(31))
-    for time in range_:
-        df[f'day_{time}'] = pd.to_numeric(df[label] < time+1) * pd.to_numeric(df[label] >= time)
+def onehot(df, label='month', timerange=31, div_fact=1, dst_label=None):
+    if dst_label is None:
+        dst_label = label
+    for time in np.arange(0,timerange, div_fact):
+        df[f'{dst_label}_{time}'] = pd.to_numeric(df[label] < time+div_fact) * pd.to_numeric(df[label] >= time)
     return df
 
 
