@@ -15,9 +15,8 @@ The ModelTraining repository contains the submodule datamodels.
 
 After cloning the ModelTraining repository, please execute the following instructions:
 
-*git submodule init*
-
-*git submodule update*
+``git submodule init``
+``git submodule update``
 
 These instructions register the datamodels submodule.
 
