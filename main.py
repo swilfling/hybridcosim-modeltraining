@@ -1,6 +1,7 @@
 import os
 import logging
 import numpy as np
+import pathlib
 from sklearn.model_selection import TimeSeriesSplit
 
 import ModelTraining.TrainingUtilities.preprocessing
@@ -9,7 +10,7 @@ import ModelTraining.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.predict import predict, predict_with_history
-import ModelTraining.Utilities.file_utilities as file_utils
+
 import ModelTraining.Utilities.DataProcessing.data_preprocessing as dp_utils
 import ModelTraining.Utilities.DataProcessing.data_import as data_import
 import ModelTraining.datamodels.datamodels.validation.metrics as metrics
@@ -129,7 +130,9 @@ if __name__ == '__main__':
         result.test_prediction = np.expand_dims(result_prediction[f"predicted_{feature}"], axis=-1)
 
         title = f"{training_parameters.model_type}: {training_parameters.model_name}"
-        plot_dir = file_utils.create_dir(os.path.join(training_results_path, plot_dir_name))
+
+        plot_dir = pathlib.Path(os.path.join(training_results_path, plot_dir_name))
+        os.makedirs(os.path.join(training_results_path, plot_dir_name), exist_ok=True)
         print(result_prediction.columns)
         plt_utils.plot_result(result_prediction, plot_dir, title)
         results.append(result)
