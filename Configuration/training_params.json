@@ -15,6 +15,6 @@
             "PolynomialExpansion"
         ],
         "epochs": 0,
-        "static_feature_names_expanded": null
+        "dynamic_output_features": []
     }
 }
