@@ -13,7 +13,7 @@ from ModelTraining.Training.predict import predict_with_history, predict_gt
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import prepare_data_for_fit, create_pipeline
 from ModelTraining.FeatureSelection.FeatureSelector import FeatureSelector
-from ModelTraining.FeatureSelection.feature_selection import configure_feature_select
+import ModelTraining.FeatureSelection.feature_selection as feat_select
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
 from ModelTraining.FeatureSelection.feature_selection_params import FeatureSelectionParams
 
@@ -55,13 +55,10 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
         print(f"Best parameters are {search.best_params_}")
         # Configure model
         model.model.set_params(**search.best_params_)
-        configure_feature_select(model.expanders,selectors)
+        feat_select.configure_feature_select(model.expanders, selectors)
         # Train model
         model.train(x_train, y_train)
         models.append(model)
-
-        # Export feature selection metrics
-        metrics_exp.export_rvals(model.expanders, selectors, model.feature_names)
         # Save Model
         train_utils.save_model_and_parameters(os.path.join(results_dir_path, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[0]}"), model, training_params)
         # Predict test data
@@ -85,6 +82,8 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
             results.append(TrainingResults(train_index=index_train, train_target=y_train,
                                      test_index=index_test, test_target=y_test, test_prediction=test_prediction))
 
+        # Export feature selection metrics
+        metrics_exp.export_rvals(model.expanders, selectors, model.feature_names)
         for selector in selectors:
             df_metrics_full = metr_exp.update_metr_df(df_metrics_full, selector.get_metrics(),
                                                       prefix=f'{training_params.model_name}_{selector.__class__.__name__}_',
