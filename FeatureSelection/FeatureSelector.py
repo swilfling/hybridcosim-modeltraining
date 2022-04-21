@@ -23,6 +23,10 @@ class FeatureSelector(SelectorMixin):
         selector_class = dict_selectors.get(name, identity)
         return selector_class
 
+    @staticmethod
+    def from_params(params):
+        return FeatureSelector.from_name(params.sel_type)(thresh=params.threshold, omit_zero_samples=params.omit_zero_samples)
+
     def __init__(self, thresh, **kwargs):
         self.thresh = thresh
         self.omit_zero_samples = kwargs.pop('omit_zero_samples', False)
@@ -37,8 +41,9 @@ class FeatureSelector(SelectorMixin):
             self.coef_ = np.zeros(X.shape[-1])
             self.coef_[self.nz_idx] = coef
         else:
-            self.coef_ = self.fit_transform(X, y, **fit_params)
-        return self
+            self.coef_ = self._fit_transform(X, y, **fit_params)
+
+        return X[:,self.get_support()]
 
     # Override this method
     def _fit_transform(self, X, y, **fit_params):
@@ -55,7 +60,7 @@ class FeatureSelector(SelectorMixin):
         return {'selected_features': np.sum(self.get_support()), 'all_features': len(self.get_support())}
 
     def print_metrics(self):
-        logging.info(f'Selecting features: {np.sum(self.get_support())} of {len(self.get_support())}')
+        print(f'Selecting features: {np.sum(self.get_support())} of {len(self.get_support())}')
 
 
 class f_threshold(FeatureSelector):
@@ -67,7 +72,9 @@ class f_threshold(FeatureSelector):
 
 class r_threshold(FeatureSelector):
     def _fit_transform(self, X, y=None, **fit_params):
-        return np.abs(r_regression(X, y))
+        if X.shape[-1] > 0:
+            return np.abs(r_regression(X, y))
+        return None
 
 
 class identity(FeatureSelector):
@@ -104,8 +111,7 @@ class MIC_R_selector(FeatureSelector):
         self.mic_thresh.fit_transform(X, y, **fit_params)
         self.r_thresh.fit_transform(X, y, **fit_params)
         self.coef_ = np.array([self.mic_thresh.coef_, self.r_thresh.coef_]).T
-        print(self.coef_)
-        return self
+        return X[self.get_support()]
 
     def _get_support_mask(self,indices=False):
         # Select features to expand based on MIC value
