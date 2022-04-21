@@ -1,14 +1,9 @@
 pandas
 numpy
 matplotlib
-pyzmq
-lxml
-unifmu
-FMPy
 seaborn
 requests~=2.25.1
 holidays~=0.11.1
-buildingspy
 future
 setuptools~=57.1.0
 scipy
@@ -20,7 +15,6 @@ xlrd
 tables~=3.6.1
 pydotplus
 gplearn
-pythonfmu
 openpyxl
 mlxtend
 tikzplotlib
