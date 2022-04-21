@@ -10,8 +10,10 @@ from ModelTraining.TrainingUtilities import export_metrics as metr_exp, training
 from ModelTraining.Training.predict import predict_with_history, predict
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import best_estimator
-from ModelTraining.FeatureSelection.feature_selection import feature_sel_model
-from ModelTraining.Utilities.Parameters import TrainingParams, FeatureSelectionParams, TrainingResults
+from ModelTraining.FeatureSelection.feature_selection import create_selector_pipeline
+from ModelTraining.FeatureSelection.FeatureSelector import FeatureSelector
+from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
+from ModelTraining.FeatureSelection.feature_selection_params import FeatureSelectionParams
 from ModelTraining.Utilities.feature_set import FeatureSet
 
 
@@ -42,8 +44,13 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
         model = create_model(training_params, expander_parameters=expander_parameters, feature_names=feature_names)
 
         # Select features
-        selectors = feature_sel_model(model, x_train, y_train, feature_select_params, training_params=training_params)
-
+        selectors = [FeatureSelector.from_params(params) for params in feature_select_params]
+        pipeline = create_selector_pipeline(model.expanders, selectors)
+        pipeline.fit_transform(x_train, y_train)
+        # Set feature select for model
+        for expander, selector in zip(model.expanders, selectors):
+            expander.set_feature_select(selector.get_support())
+            selector.print_metrics()
         # Export feature selection metrics
         metrics_exp.export_rvals(model.expanders, selectors, model.feature_names)
 

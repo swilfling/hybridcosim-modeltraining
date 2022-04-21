@@ -2,11 +2,11 @@ from mlxtend.feature_selection import SequentialFeatureSelector as SFS
 from sklearn.linear_model import LinearRegression
 from sklearn.inspection import permutation_importance
 import matplotlib.pyplot as plt
-
+from functools import reduce
+from operator import concat
+from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 
-from ModelTraining.FeatureSelection.FeatureSelector import FeatureSelector
-from ModelTraining.Utilities.Parameters import FeatureSelectionParams
 
 
 def forward_select(x, y, training_params):
@@ -62,19 +62,8 @@ def permutation(x_train, y_train, features_names):
         # plt.show()
 
 
-def feature_sel_model(model, x_train, y_train, feature_select_params=[FeatureSelectionParams()], training_params=None):
-    selectors = []
-    for expander, params in zip(model.expanders, feature_select_params):
-        # Expand features and do feature selection
-        expander.fit(x_train, y_train)
-        selector = FeatureSelector.from_name(params.sel_type)(thresh=params.threshold,
-                                                              omit_zero_samples=params.omit_zero_samples,
-                                                              num_basic_features=x_train.shape[-1],
-                                                              feature_names=expander.get_feature_names(
-                                                                  model.feature_names))
-        selector.fit_transform(expander.transform(x_train), y_train, training_params=training_params)
-        expander.set_feature_select(selector.get_support())
-        selector.print_metrics()
-        selectors.append(selector)
-        x_train = expander.fit_transform(x_train, y_train)
-    return selectors
+def create_selector_pipeline(expanders, selectors):
+    list_selectors = reduce(concat, [[expander, selector] for expander, selector in zip(expanders, selectors)])
+    return make_pipeline(*list_selectors, 'passthrough')
+
+
