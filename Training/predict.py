@@ -18,10 +18,8 @@ def predict_gt(model, df_index, x, y_true, training_params):
     return new_df
 
 
-
 def predict_with_history(model, index_test, x_test, y_true, training_params):
     """ Predict function using history of dynamical features for testing ML"""
-    # import static feats data, shape should be (# samples, 1, # feats)
     num_lookback_states = training_params.lookback_horizon + 1
     queues = {f'{feature_name}_queue': deque([0] * num_lookback_states, maxlen=num_lookback_states) for feature_name in training_params.dynamic_output_features}    # Fill queues with lookback values
 
@@ -36,6 +34,8 @@ def predict_with_history(model, index_test, x_test, y_true, training_params):
                 queues[f'{feature_name}_queue'].append(initial_values[i, n_feat])
 
     predictions = pd.DataFrame(index=index_test, columns=[f'predicted_{feature}' for feature in training_params.target_features])
+    # Find dynamic output feature indices
+    index_dyn_feats = {feature:np.where(training_params.target_features == feature) for feature in training_params.dynamic_output_features}
 
    # y = predict_autorecursive(model, training_params, feature_set,
    #                       static_features,
@@ -51,10 +51,9 @@ def predict_with_history(model, index_test, x_test, y_true, training_params):
         # Do prediction
         predicted_vals = model.predict(x)[0]
         ## update the queue
-        cnt_outp = 0
-        for feature in training_params.dynamic_output_features:
-            queues[f'{feature}_queue'].append(predicted_vals[cnt_outp])
-            cnt_outp += 1
+        for feature, index in index_dyn_feats.items():
+            queues[f'{feature}_queue'].append(predicted_vals[index])
+        # update predictions
         for i, feature in enumerate(training_params.target_features):
             predictions[f'predicted_{feature}'][index] = float(predicted_vals[i])
     target_features = pd.DataFrame(y_true, columns=training_params.target_features, index=index_test)
