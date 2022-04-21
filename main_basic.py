@@ -1,5 +1,7 @@
 import os
 import logging
+
+from ModelTraining.TrainingUtilities.MetricsExport import MetricsExport
 import ModelTraining.Utilities.DataProcessing.data_preprocessing as dp_utils
 import ModelTraining.Utilities.DataProcessing.data_import as data_import
 import ModelTraining.datamodels.datamodels.validation.white_test
@@ -60,7 +62,7 @@ if __name__ == '__main__':
 
     # Calculate and export metrics
     results = []
-    metrics_exp = metr_exp.MetricsExport(plot_enabled=plot_enabled, results_root=results_dir_path)
+    metrics_exp = MetricsExport(plot_enabled=plot_enabled, results_root=results_dir_path)
     for feature in training_params.target_features:
         y_true = result_prediction[feature].to_numpy()
         y_pred = result_prediction[f"predicted_{feature}"].to_numpy()

@@ -131,3 +131,7 @@ def barplot(feature_names, values, fig_save_path = './', fig_title='Features', *
         plt.ylabel(kwargs.pop('ylabel'))
     ax.set_xticks(index, labels=feature_names, rotation=90)
     plt_utils.save_figure(fig_save_path, fig_title)
+
+
+def barplot_df(df, fig_save_path = './', fig_title='Features', **kwargs):
+    barplot(df.columns, df.values.flatten(), fig_save_path, fig_title, **kwargs)

@@ -2,9 +2,6 @@ from mlxtend.feature_selection import SequentialFeatureSelector as SFS
 from sklearn.linear_model import LinearRegression
 from sklearn.inspection import permutation_importance
 import matplotlib.pyplot as plt
-from functools import reduce
-from operator import concat
-from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import train_test_split
 
 
@@ -62,8 +59,7 @@ def permutation(x_train, y_train, features_names):
         # plt.show()
 
 
-def create_selector_pipeline(expanders, selectors):
-    list_selectors = reduce(concat, [[expander, selector] for expander, selector in zip(expanders, selectors)])
-    return make_pipeline(*list_selectors, 'passthrough')
-
-
+def configure_feature_select(expanders, selectors):
+    for expander, selector in zip(expanders, selectors):
+        expander.set_feature_select(selector.get_support())
+        selector.print_metrics()

@@ -3,15 +3,17 @@ import os
 from typing import List
 
 import pandas as pd
+from sklearn.model_selection import GridSearchCV
 
+from ModelTraining.TrainingUtilities import MetricsExport
 import ModelTraining.TrainingUtilities.preprocessing
 import ModelTraining.datamodels.datamodels.validation.white_test
 from ModelTraining.TrainingUtilities import export_metrics as metr_exp, training_utils as train_utils
 from ModelTraining.Training.predict import predict_with_history, predict
 from ModelTraining.Training.ModelCreation import create_model
-from ModelTraining.Training.GridSearch import best_estimator
-from ModelTraining.FeatureSelection.feature_selection import create_selector_pipeline
+from ModelTraining.Training.GridSearch import prepare_data_for_fit, create_pipeline
 from ModelTraining.FeatureSelection.FeatureSelector import FeatureSelector
+from ModelTraining.FeatureSelection.feature_selection import configure_feature_select
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
 from ModelTraining.FeatureSelection.feature_selection_params import FeatureSelectionParams
 from ModelTraining.Utilities.feature_set import FeatureSet
@@ -24,7 +26,7 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
     models, results = [], []
     df_metrics_full = pd.DataFrame(index=[list_training_parameters[0].model_type])
 
-    metrics_exp = metr_exp.MetricsExport(plot_enabled=plot_enabled, results_root=results_dir_path)
+    metrics_exp = MetricsExport(plot_enabled=plot_enabled, results_root=results_dir_path)
     # Get optional arguments
     model_parameters = kwargs.get('model_parameters', None)
     expander_parameters = kwargs.get('expander_parameters',{})
@@ -43,24 +45,25 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
         logging.info(f"Training model with input of shape: {x_train.shape} and targets of shape {y_train.shape}")
         model = create_model(training_params, expander_parameters=expander_parameters, feature_names=feature_names)
 
-        # Select features
+        # Select features + Grid Search
         selectors = [FeatureSelector.from_params(params) for params in feature_select_params]
-        pipeline = create_selector_pipeline(model.expanders, selectors)
-        pipeline.fit_transform(x_train, y_train)
-        # Set feature select for model
-        for expander, selector in zip(model.expanders, selectors):
-            expander.set_feature_select(selector.get_support())
-            selector.print_metrics()
-        # Export feature selection metrics
-        metrics_exp.export_rvals(model.expanders, selectors, model.feature_names)
-
-        # Grid search
-        best_params = best_estimator(model, x_train, y_train, parameters=model_parameters)
-        model.model.set_params(**best_params)
+        search = GridSearchCV(model.model, model_parameters,
+                              scoring=['r2', 'neg_mean_squared_error', 'neg_mean_absolute_error'], refit='r2',
+                              verbose=4)
+        pipeline = create_pipeline(model.expanders, selectors, search)
+        pipeline.fit(*prepare_data_for_fit(model, x_train, y_train))
+        # Set grid search params
+        print(f"Best score for model {model.__class__.__name__} is: {search.best_score_}")
+        print(f"Best parameters are {search.best_params_}")
+        # Configure model
+        model.model.set_params(**search.best_params_)
+        configure_feature_select(model.expanders,selectors)
         # Train model
         model.train(x_train, y_train)
         models.append(model)
 
+        # Export feature selection metrics
+        metrics_exp.export_rvals(model.expanders, selectors, model.feature_names)
         # Save Model
         train_utils.save_model_and_parameters(os.path.join(results_dir_path, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[0]}"), model, training_params)
         # Predict test data

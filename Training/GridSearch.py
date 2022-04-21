@@ -1,3 +1,6 @@
+from functools import reduce
+from operator import concat
+from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import GridSearchCV
 
 
@@ -7,10 +10,7 @@ def prepare_data_for_fit(model, x_train, y_train):
     if y_train.ndim == 2 and y_train.shape[1] == 1:
         y_train = y_train.ravel()
     x_train = model.reshape_data(x_train)
-    x_train, y_train = model.scale(x_train, y_train)
-    for expander in model.expanders:
-        x_train = expander.fit_transform(x_train, y_train)
-    return x_train, y_train
+    return model.scale(x_train, y_train)
 
 
 def best_estimator(model, x_train, y_train, parameters={}):
@@ -19,7 +19,14 @@ def best_estimator(model, x_train, y_train, parameters={}):
     # Transform x train
     x_train, y_train = prepare_data_for_fit(model, x_train, y_train)
     # Fit grid search params
-    search_result = search.fit(x_train, y_train)
-    print(f"Best score for model {model.__class__.__name__} is: {search_result.best_score_}")
-    print(f"Best parameters are {search_result.best_params_}")
-    return search_result.best_params_
+    pipeline = make_pipeline(*model.expanders, search)
+    pipeline.fit(x_train, y_train)
+
+    print(f"Best score for model {model.__class__.__name__} is: {search.best_score_}")
+    print(f"Best parameters are {search.best_params_}")
+    return search.best_params_
+
+
+def create_pipeline(expanders=[], selectors=[], model='passthrough'):
+    list_selectors = reduce(concat, [[expander, selector] for expander, selector in zip(expanders, selectors)])
+    return make_pipeline(*list_selectors, model)

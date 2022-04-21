@@ -1,5 +1,6 @@
 import logging
-
+import os
+import pandas as pd
 import ennemi
 import numpy as np
 from minepy.mine import MINE
@@ -62,6 +63,8 @@ class FeatureSelector(SelectorMixin):
     def print_metrics(self):
         print(f'Selecting features: {np.sum(self.get_support())} of {len(self.get_support())}')
 
+    def get_coef(self):
+        return self.coef_[self.get_support()]
 
 class f_threshold(FeatureSelector):
     def _fit_transform(self, X, y=None, **fit_params):

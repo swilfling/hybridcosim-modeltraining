@@ -1,4 +1,5 @@
-from ModelTraining.Utilities.Parameters import TrainingParams, FeatureSelectionParams
+from ModelTraining.Utilities.Parameters import TrainingParams
+from ModelTraining.FeatureSelection import FeatureSelectionParams
 import ModelTraining.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Training.run_training_and_test import run_training_and_test
 import ModelTraining.Utilities.DataProcessing.data_preprocessing as dp_utils
