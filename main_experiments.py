@@ -114,7 +114,7 @@ if __name__ == '__main__':
                     models, [results, df_metrics] = run_training_and_test(data, list_training_parameters, results_path_thresh,
                                                                     do_predict=True, feature_select_params=feature_sel_params,
                                                                     model_parameters=parameters_full[model_type], expander_parameters=expander_parameters, plot_enabled=plot_enabled,
-                                                                    metrics_names=metrics_names, feature_set=feature_set, prediction_type='ground truth')
+                                                                    metrics_names=metrics_names, prediction_type='ground truth')
                     df_metrics_models = df_metrics_models.append(df_metrics)
                 df_expansion = df_expansion.join(df_metrics_models.add_prefix(f'{expansion[-1]}_'))
             df_thresh = df_thresh.join(df_expansion.add_prefix(f'{params_name}_'))

@@ -17,4 +17,4 @@ class TrainingParams(Parameters):
     normalizer: str = "IdentityScaler"
     expansion: List[str] = field(default_factory=list)
     epochs: int = 0
-    static_feature_names_expanded: List[str] = None
+    dynamic_output_features: List[str] = field(default_factory=list)

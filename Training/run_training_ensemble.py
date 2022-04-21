@@ -4,7 +4,7 @@ from numpy.core.multiarray import asarray
 from sklearn.metrics import mean_absolute_error
 
 import ModelTraining.TrainingUtilities.preprocessing
-from ModelTraining.Training.predict import predict
+from ModelTraining.Training.predict import predict_gt
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Utilities.Parameters import TrainingParams
 
@@ -23,7 +23,7 @@ def run_training_ensemble(data, list_training_parameters: List[TrainingParams],
             model = create_model(training_params)
             model.train(x_train, y_train)
             # evaluate model on the test set
-            yhat = predict(model, index_test, x_test, y_test)["predicted"]
+            yhat = predict_gt(model, index_test, x_test, y_test, training_params)["predicted"]
             print("y_test", y_test)
             print("y_hat", yhat)
             mae = mean_absolute_error(y_test, yhat)
@@ -34,7 +34,7 @@ def run_training_ensemble(data, list_training_parameters: List[TrainingParams],
         lower, upper, mean = [], [], []
         for index, row in enumerate(x_test[0:1000]):
             x_point = asarray([x_test[index, :]])
-            yhat_new = [predict(model, index_test, x_point, y_test)["predicted"] for model in ensemble]
+            yhat_new = [predict_gt(model, index_test, x_point, y_test, training_params)["predicted"]for model in ensemble]
             yhat_new = asarray(yhat_new)
 
             # calculate 95% gaussian prediction interval

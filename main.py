@@ -9,7 +9,7 @@ from ModelTraining.Utilities.Parameters import TrainingResults, TrainingParams
 import ModelTraining.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 from ModelTraining.Training.ModelCreation import create_model
-from ModelTraining.Training.predict import predict, predict_with_history
+from ModelTraining.Training.predict import predict_gt, predict_with_history
 
 import ModelTraining.Utilities.DataProcessing.data_preprocessing as dp_utils
 import ModelTraining.Utilities.DataProcessing.data_import as data_import
@@ -47,7 +47,7 @@ if __name__ == '__main__':
     plot_dir_name = "results/Plots"
 
     prediction_options = {
-        "ground_truth": predict,
+        "ground_truth": predict_gt,
         "history": predict_with_history
     }
 
@@ -83,6 +83,7 @@ if __name__ == '__main__':
         ## Training process
         model = create_model(training_parameters)
         model.expanders[0].selected_outputs = range(2)
+        model.set_feature_names(training_parameters.static_input_features + training_parameters.dynamic_input_features)
         rmse_best = None
         train_ind_best = []
         test_ind_best = []
@@ -94,8 +95,7 @@ if __name__ == '__main__':
                 model.train(x_train_k, y_train_k)
                 result_k = TrainingResults(train_index=train_ind, train_target=y_train_k,
                                            test_index=test_ind, test_target=y_test_k)
-                result_prediction_k = predict_with_history(model, data.iloc[test_ind], training_parameters,
-                                                           feature_set=feature_set)
+                result_prediction_k = predict_with_history(model, test_ind, x_test_k, y_test_k, training_parameters)
                 result_k.test_prediction = np.expand_dims(result_prediction_k[f"predicted_{feature}"], axis=-1)
                 measures = metrics.all_metrics(y_true=result_k.test_target, y_pred=result_k.test_prediction)
                 if rmse_best is None:
@@ -115,8 +115,6 @@ if __name__ == '__main__':
         else:
             index_train, x_train, y_train, index_test, x_test, y_test = ModelTraining.TrainingUtilities.preprocessing.split_into_training_and_test_set(
                 index, x, y, training_parameters.training_split)
-        # Expanded feature names
-        print(training_parameters.static_feature_names_expanded)
 
         logging.info(f"Training model with input of shape: {x_train.shape} and targets of shape {y_train.shape}")
 
@@ -125,8 +123,7 @@ if __name__ == '__main__':
 
         result = TrainingResults(train_index=index_train, train_target=y_train,
                                  test_index=index_test, test_target=y_test)
-        result_prediction = predict_with_history(model, data.loc[index_test], training_parameters,
-                                                 feature_set=feature_set)
+        result_prediction = predict_with_history(model, index_test, x_test, y_test, training_parameters)
         result.test_prediction = np.expand_dims(result_prediction[f"predicted_{feature}"], axis=-1)
 
         title = f"{training_parameters.model_type}: {training_parameters.model_name}"

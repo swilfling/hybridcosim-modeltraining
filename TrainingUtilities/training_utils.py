@@ -34,6 +34,7 @@ def set_train_params_model(training_params_basic_config, feature_set, target_fea
     training_params.target_features = [target_feature]
     training_params.static_input_features = feature_set.get_static_input_feature_names(target_feature)
     training_params.dynamic_input_features = feature_set.get_dynamic_input_feature_names(target_feature)
+    training_params.dynamic_output_features = feature_set.get_dynamic_output_feature_names(target_feature)
     training_params.expansion = expansion if expansion is not None else training_params.expansion
     return training_params
 

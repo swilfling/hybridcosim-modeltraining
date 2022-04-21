@@ -9,14 +9,13 @@ from ModelTraining.TrainingUtilities import MetricsExport
 import ModelTraining.TrainingUtilities.preprocessing
 import ModelTraining.datamodels.datamodels.validation.white_test
 from ModelTraining.TrainingUtilities import export_metrics as metr_exp, training_utils as train_utils
-from ModelTraining.Training.predict import predict_with_history, predict
+from ModelTraining.Training.predict import predict_with_history, predict_gt
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import prepare_data_for_fit, create_pipeline
 from ModelTraining.FeatureSelection.FeatureSelector import FeatureSelector
 from ModelTraining.FeatureSelection.feature_selection import configure_feature_select
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
 from ModelTraining.FeatureSelection.feature_selection_params import FeatureSelectionParams
-from ModelTraining.Utilities.feature_set import FeatureSet
 
 
 def run_training_and_test(data, list_training_parameters: List[TrainingParams],
@@ -30,7 +29,6 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
     # Get optional arguments
     model_parameters = kwargs.get('model_parameters', None)
     expander_parameters = kwargs.get('expander_parameters',{})
-    feature_set = kwargs.get('feature_set', FeatureSet())
     feature_select_params = kwargs.get('feature_select_params', [FeatureSelectionParams()])
 
     for training_params in list_training_parameters:
@@ -68,15 +66,12 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
         train_utils.save_model_and_parameters(os.path.join(results_dir_path, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[0]}"), model, training_params)
         # Predict test data
         if do_predict:
-            if prediction_type == "History":
-                test_data = data[training_params.static_input_features + training_params.dynamic_input_features + target_features].loc[index_test]
-                result_prediction = predict_with_history(model, test_data, training_params, feature_set)
-            else:
-                result_prediction = predict(model, x_test, y_test, training_params, index_test)
+            predict_function = predict_with_history if prediction_type == 'History' else predict_gt
+            result_prediction = predict_function(model, index_test, x_test, y_test, training_params)
 
             for feature in training_params.target_features:
-                y_true = result_prediction[feature].to_numpy()
                 y_pred = result_prediction[f"predicted_{feature}"].to_numpy()
+                y_true = result_prediction[feature].to_numpy()[:y_pred.shape[0]]
                 # Calculate Metrics
                 metrics = metr_exp.calc_metrics(y_true, y_pred, x.shape[0], len(model.get_expanded_feature_names()),
                                          metrics_names=metrics_names['Metrics'])
