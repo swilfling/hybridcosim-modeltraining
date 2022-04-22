@@ -19,14 +19,13 @@ from ModelTraining.FeatureSelection.feature_selection_params import FeatureSelec
 
 
 def run_training_and_test(data, list_training_parameters: List[TrainingParams],
-                          results_dir_path, do_predict=True, prediction_type="History", plot_enabled=True,
-                          metrics_names={'Metrics':['R2','CV-RMS', 'MAPE'], 'FeatureSelect':['selected_features', 'all_features'], 'pvalues':['pvalues_lm']},
-                          **kwargs):
+                          results_dir_path, do_predict=True, prediction_type="History", plot_enabled=True, **kwargs):
     models, results = [], []
     df_metrics_full = pd.DataFrame(index=[list_training_parameters[0].model_type])
 
     metrics_exp = MetricsExport(plot_enabled=plot_enabled, results_root=results_dir_path)
     # Get optional arguments
+    metrics_names = kwargs.get('metrics_names', {'Metrics':['R2','CV-RMS', 'MAPE'], 'FeatureSelect':['selected_features', 'all_features'], 'pvalues':['pvalues_lm']})
     model_parameters = kwargs.get('model_parameters', None)
     expander_parameters = kwargs.get('expander_parameters',{})
     feature_select_params = kwargs.get('feature_select_params', [FeatureSelectionParams()])

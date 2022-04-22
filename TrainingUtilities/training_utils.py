@@ -10,7 +10,7 @@ from ModelTraining.datamodels.datamodels.processing.feature_extension import Pol
 def expand_features(data, static_feature_names, target_feature_names,expander_parameters={}):
     expander = PolynomialExpansion(**expander_parameters)
     data_expanded = expander.fit_transform(data[static_feature_names])
-    feature_names_expanded = expander.get_feature_names(static_feature_names)
+    feature_names_expanded = expander.get_feature_names_out(static_feature_names)
     data_outputs = data[target_feature_names]
     data_expanded_df = pd.DataFrame(data_expanded, columns=feature_names_expanded)
     return data_expanded_df.join(data_outputs.set_index(data_expanded_df.index))

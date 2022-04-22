@@ -2,6 +2,7 @@ from functools import reduce
 from operator import concat
 from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import GridSearchCV
+from ModelTraining.datamodels.datamodels.processing.feature_extension import FeatureExpansion
 
 
 def prepare_data_for_fit(model, x_train, y_train):
@@ -28,5 +29,5 @@ def best_estimator(model, x_train, y_train, parameters={}):
 
 
 def create_pipeline(expanders=[], selectors=[], model='passthrough'):
-    list_selectors = reduce(concat, [[expander, selector] for expander, selector in zip(expanders, selectors)])
+    list_selectors = reduce(concat, [[expander, selector] for expander, selector in zip(FeatureExpansion.get_list_expanders(expanders), selectors)])
     return make_pipeline(*list_selectors, model)

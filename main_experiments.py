@@ -50,10 +50,6 @@ if __name__ == '__main__':
     # Results output
     results_path = os.path.join(root_dir, 'results')
     metrics_names = {'FeatureSelect': ['selected_features', 'all_features'], 'Metrics': ['R2_SKLEARN', 'CV-RMS', 'MAPE', 'RA_SKLEARN'], 'pvalues': ['pvalue_lm', 'pvalue_f']}
-    results_index = [f'{model}' for model in model_names]
-    if ['PolynomialExpansion'] in expansion_types:
-        results_index = results_index + [f'{model} - expanded - deg {expander_parameters["degree"]}' for model in model_names]
-
 
     # Main loop
     print('Starting Training')
@@ -76,12 +72,9 @@ if __name__ == '__main__':
         feature_creation.add_cycl_feats(dict_usecase, feature_set)
         data, feature_set = feature_creation.add_stat_feats(data, dict_usecase, feature_set)
 
-        # Do not use feature selection for solarhouse 1 and 2
-        used_feature_select = [[FeatureSelectionParams()]] if usecase_name in solarhouse_usecases else list_feature_select_params
-
         # Main loop
         df_thresh = pd.DataFrame(index=model_types)
-        for feature_sel_params in used_feature_select:
+        for feature_sel_params in list_feature_select_params:
             params_name = "_".join(params.get_full_name() for params in feature_sel_params)
             results_path_thresh = os.path.join(results_path_dataset, params_name)
             os.makedirs(results_path_thresh, exist_ok=True)

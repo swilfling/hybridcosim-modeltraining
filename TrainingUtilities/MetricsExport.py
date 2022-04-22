@@ -27,7 +27,7 @@ class MetricsExport:
         os.makedirs(results_dir_path, exist_ok=True)
         for expander, selector in zip(expanders, selectors):
             self.export_coeffs(selector.get_coef(),
-                               feature_names=expander.get_feature_names(feature_names),
+                               feature_names=expander.get_feature_names_out(feature_names),
                                dir=results_dir_path,
                                title=f'{selector.__class__.__name__} - {expander.__class__.__name__}',
                                ylabel=str(selector.__class__.__name__))
