@@ -3,38 +3,13 @@ import random
 import numpy as np
 import pandas as pd
 
+from sklearn.model_selection import train_test_split
 from ModelTraining.datamodels.datamodels.processing.shape import split_into_target_segments
 from ModelTraining.Utilities import type_casting as tc
 
 
-def split_into_training_and_test_set_random(index, x, y, training_split):
-    rnd_ind = random.sample(range(0, x.shape[0]), x.shape[0])
-    num_training_samples = int(training_split * x.shape[0])
-    train_rnd_ind = rnd_ind[0:num_training_samples]
-    test_rnd_ind = rnd_ind[num_training_samples:]
-
-    x_train = x[train_rnd_ind]
-    y_train = y[train_rnd_ind]
-    x_test = x[test_rnd_ind]
-    y_test = y[test_rnd_ind]
-
-    index_train = index[train_rnd_ind]
-    index_test = index[test_rnd_ind]
-    return index_train, x_train, y_train, index_test, x_test, y_test
-
-
-def split_into_training_and_test_set(index, x, y, training_split):
-    num_training_samples = int(training_split * x.shape[0])
-
-    x_train = x[:num_training_samples]
-    y_train = y[:num_training_samples]
-
-    x_test = x[num_training_samples:]
-    y_test = y[num_training_samples:]
-
-    index_train = index[:num_training_samples]
-    index_test = index[num_training_samples:]
-
+def split_into_training_and_test_set(index, x, y, training_split, shuffle=False):
+    index_train, index_test, x_train, x_test, y_train, y_test = train_test_split(index, x, y, train_size=training_split,shuffle=shuffle)
     return index_train, x_train, y_train, index_test, x_test, y_test
 
 
