@@ -4,12 +4,10 @@ from . LowpassFilter import ButterworthFilter
 
 
 def preprocess_data(data, features_to_smoothe, smoothe_data=False, keep_nans=False):
-    print(data)
     if smoothe_data:
         filter = ButterworthFilter(order=2, T=10, keep_nans=keep_nans)
         filtered_vals = filter.fit_transform(data[features_to_smoothe].to_numpy())
         data[features_to_smoothe] = filtered_vals
-    print(data)
     return data
 
 
