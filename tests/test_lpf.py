@@ -1,4 +1,4 @@
-from ModelTraining.Utilities.DataProcessing.LowpassFilter import ButterworthFilter
+from ModelTraining.Utilities.DataPreprocessing.LowpassFilter import ButterworthFilter
 
 if __name__ == "__main__":
     filter = ButterworthFilter(T=20, order=3)

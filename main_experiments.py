@@ -1,9 +1,10 @@
+import ModelTraining.FeatureEngineering.FeatureCreation.cyclic_features
+import ModelTraining.FeatureEngineering.FeatureCreation.statistical_features
 from ModelTraining.Utilities.Parameters import TrainingParams
-from ModelTraining.FeatureSelection import FeatureSelectionParams
+from ModelTraining.FeatureEngineering.FeatureSelection import FeatureSelectionParams
 import ModelTraining.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Training.run_training_and_test import run_training_and_test
-import ModelTraining.Utilities.DataProcessing.data_preprocessing as dp_utils
-import ModelTraining.Utilities.DataProcessing.feature_creation as feature_creation
+import ModelTraining.Utilities.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.Utilities.DataProcessing.data_export as data_export
 import ModelTraining.TrainingUtilities.export_metrics as metr_exp
 import ModelTraining.Utilities.DataProcessing.data_import as data_import
@@ -69,8 +70,8 @@ if __name__ == '__main__':
                                      usecase_name, plot_enabled, expander_parameters=expander_parameters)
 
         # Add cyclic and statistical features
-        feature_creation.add_cycl_feats(dict_usecase, feature_set)
-        data, feature_set = feature_creation.add_stat_feats(data, dict_usecase, feature_set)
+        ModelTraining.FeatureEngineering.FeatureCreation.cyclic_features.add_cycl_feats(dict_usecase, feature_set)
+        data, feature_set = ModelTraining.FeatureEngineering.FeatureCreation.statistical_features.add_stat_feats(data, dict_usecase, feature_set)
 
         # Main loop
         df_thresh = pd.DataFrame(index=model_types)

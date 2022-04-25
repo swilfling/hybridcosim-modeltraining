@@ -2,7 +2,7 @@ import os
 import logging
 
 from ModelTraining.TrainingUtilities.MetricsExport import MetricsExport
-import ModelTraining.Utilities.DataProcessing.data_preprocessing as dp_utils
+import ModelTraining.Utilities.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.Utilities.DataProcessing.data_import as data_import
 import ModelTraining.datamodels.datamodels.validation.white_test
 from ModelTraining.TrainingUtilities import export_metrics as metr_exp, training_utils as train_utils

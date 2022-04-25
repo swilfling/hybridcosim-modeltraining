@@ -1,5 +1,5 @@
 import ModelTraining.Utilities
 import ModelTraining.TrainingUtilities
-import ModelTraining.FeatureSelection
+import ModelTraining.FeatureEngineering.FeatureSelection
 import ModelTraining.Training
 import ModelTraining.datamodels.datamodels

@@ -12,10 +12,10 @@ from ModelTraining.TrainingUtilities import export_metrics as metr_exp, training
 from ModelTraining.Training.predict import predict_with_history, predict_gt
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import prepare_data_for_fit, create_pipeline
-from ModelTraining.FeatureSelection.FeatureSelector import FeatureSelector
-import ModelTraining.FeatureSelection.feature_selection as feat_select
+from ModelTraining.FeatureEngineering.FeatureSelection.FeatureSelector import FeatureSelector
+import ModelTraining.FeatureEngineering.FeatureSelection.feature_selection as feat_select
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
-from ModelTraining.FeatureSelection.feature_selection_params import FeatureSelectionParams
+from ModelTraining.FeatureEngineering.FeatureSelection.feature_selection_params import FeatureSelectionParams
 
 
 def run_training_and_test(data, list_training_parameters: List[TrainingParams],

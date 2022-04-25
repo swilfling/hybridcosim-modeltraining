@@ -11,7 +11,7 @@ import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.predict import predict_gt, predict_with_history
 
-import ModelTraining.Utilities.DataProcessing.data_preprocessing as dp_utils
+import ModelTraining.Utilities.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.Utilities.DataProcessing.data_import as data_import
 import ModelTraining.datamodels.datamodels.validation.metrics as metrics
 
