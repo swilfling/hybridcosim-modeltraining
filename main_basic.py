@@ -40,8 +40,7 @@ if __name__ == '__main__':
                                        expansion=['IdentityExpander'])
 
     # Preprocess data
-    data = dp_utils.preprocess_data(data, feature_set.get_input_feature_names() + feature_set.get_output_feature_names(),
-                                    smoothe_data=smoothe_data)
+    data = dp_utils.preprocess_data(data, dict_usecase["to_smoothe"], smoothe_data=smoothe_data)
 
     # Extract data and reshape
     index, x, y, feature_names = ModelTraining.TrainingUtilities.preprocessing.extract_training_and_test_set(data, training_params)
