@@ -82,7 +82,7 @@ if __name__ == '__main__':
                 df_metrics_models = pd.DataFrame()
                 for model_type in model_types:
                     smoothe_data = True if model_type != 'RandomForestRegression' else False
-                    dp_utils.preprocess_data(data, feature_set, smoothe_data=smoothe_data)
+                    data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], smoothe_data=smoothe_data)
                     list_training_parameters = [train_utils.set_train_params_model(trainparams_basic, feature_set, feature, model_type, expansion)
                                                 for feature in feature_set.get_output_feature_names()]
                     models, [results, df_metrics] = run_training_and_test(data, list_training_parameters, results_path_thresh,

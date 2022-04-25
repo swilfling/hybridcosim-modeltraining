@@ -3,6 +3,7 @@
     "fmu_interface":"Configuration/FMUInterface/Solarhouse1/SolarCollector/FMUInterface_Solar.csv",
     "dataset":"Data/AEE/Resampled15min.csv",
     "stat_feats": ["TAussen", "SGlobal", "TSolarRL"],
+    "to_smoothe": ["TAussen", "SGlobal", "TSolarRL", "TSolarVL","VDSolar"],
     "stat_vals": [],
     "stat_ws": 96
 }

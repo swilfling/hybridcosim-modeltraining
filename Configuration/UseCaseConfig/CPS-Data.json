@@ -9,6 +9,11 @@
     "stat_vals": [
 
     ],
+    "to_smoothe": [
+        "registrations",
+        "temperature",
+        "energy"
+    ],
     "stat_ws": 24,
     "cyclical_feats": [
         "daytime_cos"

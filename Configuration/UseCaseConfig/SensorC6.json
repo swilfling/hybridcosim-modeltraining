@@ -2,10 +2,21 @@
     "name": "SensorC6",
     "fmu_interface": "Configuration/FMUInterface/Inffeld/FMUInterface_sensor_A6.csv",
     "dataset": "Data/Inffeldgasse/Datasets_Occupancy_WeatherData/sensor_C6.xlsx",
+    "stat_feats": [
+        "radiation",
+        "humidity",
+        "temperature"
+    ],
     "stat_vals": [
 
     ],
     "stat_ws": 24,
+    "to_smoothe": [
+        "radiation",
+        "humidity",
+        "temperature",
+        "energy"
+    ],
     "cyclical_feats": [
         "weekday_sin",
         "weekday_cos",

@@ -10,6 +10,12 @@
     "stat_vals": [
 
     ],
+    "to_smoothe": [
+        "radiation",
+        "humidity",
+        "temperature",
+        "energy"
+    ],
     "stat_ws": 24,
     "cyclical_feats": [
         "weekday_sin",

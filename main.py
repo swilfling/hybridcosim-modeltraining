@@ -30,7 +30,7 @@ if __name__ == '__main__':
 
     # Added: Preprocessing - Smooth features
     smoothe_data = False
-    dp_utils.preprocess_data(data, feature_set, smoothe_data=smoothe_data)
+    data = dp_utils.preprocess_data(data, input_features + target_features, smoothe_data=smoothe_data)
 
 
     print("Starting Training")

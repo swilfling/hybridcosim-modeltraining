@@ -1,22 +1,16 @@
 import numpy as np
 import ModelTraining.datamodels.datamodels.validation.metrics as metrs
-import ModelTraining.Utilities.DataProcessing.signal_processing_utils as sigutils
+from . LowpassFilter import ButterworthFilter
 
 
-def smoothe_features(df, features, keep_nans=False):
-    df = df.copy()
-    for feature in features:
-        signal, mask = sigutils.remove_nans(df[feature])
-        signal = sigutils.filter_smoothe_signal(signal,T=10)
-        if keep_nans:
-            sigutils.apply_nans(signal, mask)
-        df[feature] = signal
-    return df
-
-
-def preprocess_data(data, feature_set, smoothe_data=False):
-    keep_nans=False
-    return smoothe_features(data, feature_set.get_output_feature_names() + feature_set.get_input_feature_names(), keep_nans) if smoothe_data else data
+def preprocess_data(data, features_to_smoothe, smoothe_data=False, keep_nans=False):
+    print(data)
+    if smoothe_data:
+        filter = ButterworthFilter(order=2, T=10, keep_nans=keep_nans)
+        filtered_vals = filter.fit_transform(data[features_to_smoothe].to_numpy())
+        data[features_to_smoothe] = filtered_vals
+    print(data)
+    return data
 
 
 def calculate_metrics(simulation_results, plotting_variables_lists):

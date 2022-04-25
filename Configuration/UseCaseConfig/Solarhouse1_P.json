@@ -1,8 +1,9 @@
 {
     "name":"Solarhouse1_P",
-    "fmu_interface":"Configuration/FMUInterface/Solarhouse1/SolarCollector/FMUInterface_Solar.csv",
+    "fmu_interface":"Configuration/FMUInterface/Solarhouse1/SolarCollector/FMUInterface_Solar_full.csv",
     "dataset":"Data/AEE/Resampled15min.csv",
     "stat_feats": ["TAussen", "SGlobal", "TSolarRL"],
+    "to_smoothe": ["TAussen", "SGlobal", "TSolarRL", "TSolarVL","PSolar","DeltaQSolar","VDSolar"],
     "stat_vals": [],
     "stat_ws": 96
 }

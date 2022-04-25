@@ -3,6 +3,7 @@
     "fmu_interface":"Configuration/FMUInterface/Solarhouse2/SolarCollector/FMUInterface_TSolar_eq.csv",
     "dataset":"Data/AEE/P2017_20_Solarhouse_2.hd5",
     "stat_feats": ["T_Aussen", "R_Global", "T_Solar_RL"],
+    "to_smoothe": ["T_Aussen", "R_Global", "T_Solar_RL", "T_Solar_VL", "Vd_Solar_inv"],
     "stat_vals": [],
     "stat_ws": 96
 }
