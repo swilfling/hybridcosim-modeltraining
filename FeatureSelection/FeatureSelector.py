@@ -5,8 +5,10 @@ from mlxtend.feature_selection import SequentialFeatureSelector as SFS
 from sklearn.feature_selection import SelectorMixin, f_regression, r_regression
 from sklearn.linear_model import LinearRegression
 
+from ModelTraining.datamodels.datamodels.processing.feature_extension.StoreInterface import StoreInterface
 
-class FeatureSelector(SelectorMixin):
+
+class FeatureSelector(SelectorMixin, StoreInterface):
     coef_ = None
     nonzero = None
     omit_zero_samples=False
@@ -62,6 +64,7 @@ class FeatureSelector(SelectorMixin):
 
     def get_coef(self):
         return self.coef_[self.get_support()]
+
 
 class f_threshold(FeatureSelector):
     def _fit_transform(self, X, y=None, **fit_params):

@@ -25,6 +25,8 @@ class MetricsExport:
     def export_rvals(self, expanders, selectors, feature_names):
         results_dir_path = os.path.join(self.results_root, 'FeatureSelection')
         os.makedirs(results_dir_path, exist_ok=True)
+        for i, selector in enumerate(selectors):
+            selector.save_pkl(results_dir_path, f"{selector.__class__.__name__}_i.pickle")
         for expander, selector in zip(expanders, selectors):
             self.export_coeffs(selector.get_coef(),
                                feature_names=expander.get_feature_names_out(feature_names),
