@@ -1,12 +1,11 @@
 import ModelTraining.FeatureEngineering.FeatureCreation.cyclic_features
-import ModelTraining.FeatureEngineering.FeatureCreation.statistical_features
+import ModelTraining.TrainingUtilities.MetricsExport.export_metrics
 from ModelTraining.Utilities.Parameters import TrainingParams
 from ModelTraining.FeatureEngineering.FeatureSelection import FeatureSelectionParams
 import ModelTraining.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Training.run_training_and_test import run_training_and_test
 import ModelTraining.Utilities.DataPreprocessing.data_preprocessing as dp_utils
-import ModelTraining.Utilities.DataProcessing.data_export as data_export
-import ModelTraining.TrainingUtilities.export_metrics as metr_exp
+import ModelTraining.TrainingUtilities.MetricsExport.export_metrics as metr_exp
 import ModelTraining.Utilities.DataProcessing.data_import as data_import
 import os
 import pandas as pd
@@ -96,5 +95,5 @@ if __name__ == '__main__':
 
         df_full = df_full.join(df_thresh.add_prefix(f'{usecase_name}_'))
 
-    data_export.store_all_metrics(df_full, results_path=results_path, metrics_names=metrics_names)
+    ModelTraining.TrainingUtilities.MetricsExport.export_metrics.store_all_metrics(df_full, results_path=results_path, metrics_names=metrics_names)
     print('Experiments finished')

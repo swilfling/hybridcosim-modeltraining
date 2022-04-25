@@ -8,7 +8,8 @@ from sklearn.model_selection import GridSearchCV
 from ModelTraining.TrainingUtilities import MetricsExport
 import ModelTraining.TrainingUtilities.preprocessing
 import ModelTraining.datamodels.datamodels.validation.white_test
-from ModelTraining.TrainingUtilities import export_metrics as metr_exp, training_utils as train_utils
+from ModelTraining.TrainingUtilities import training_utils as train_utils
+from ModelTraining.TrainingUtilities.MetricsExport import export_metrics as metr_exp
 from ModelTraining.Training.predict import predict_with_history, predict_gt
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import prepare_data_for_fit, create_pipeline

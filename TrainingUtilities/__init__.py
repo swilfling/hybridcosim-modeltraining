@@ -1,5 +1,4 @@
 import ModelTraining.TrainingUtilities.training_utils
 import ModelTraining.TrainingUtilities.graphviz_utils
 import ModelTraining.TrainingUtilities.preprocessing
-import ModelTraining.TrainingUtilities.export_metrics
-from . MetricsExport import MetricsExport
+import ModelTraining.TrainingUtilities.MetricsExport

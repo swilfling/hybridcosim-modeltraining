@@ -4,7 +4,7 @@ import json
 import numpy as np
 import pandas as pd
 
-from ModelTraining.Utilities.DataProcessing import signal_processing_utils as sigutils
+from ModelTraining.Utilities.DataPreprocessing import signal_processing_utils as sigutils
 from ModelTraining.FeatureEngineering.FeatureCreation.feature_creation import add_additional_features
 from ModelTraining.FeatureEngineering.FeatureCreation.cyclic_features import add_cyclical_features
 from ModelTraining.FeatureEngineering.feature_set import FeatureSet

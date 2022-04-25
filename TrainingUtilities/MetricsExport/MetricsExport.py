@@ -2,7 +2,7 @@ import os
 
 import pandas as pd
 
-from ModelTraining.Utilities.DataProcessing import data_export as data_export
+import ModelTraining.TrainingUtilities.MetricsExport.export_metrics
 from ModelTraining.Utilities.Plotting import plotting_utilities as plt_utils
 
 
@@ -42,7 +42,7 @@ class MetricsExport:
             ylabel = 'F-Score' if model_type == 'RandomForestRegression' else 'Coefficients'
             self.export_coeffs(model.get_coef().T, model.get_expanded_feature_names(), metrics_dir, title, ylabel)
         if model_type == 'SymbolicRegression':
-            data_export.metrics_to_json({'Program': str(model.get_program())}, os.path.join(metrics_dir, f'Program_{title}.json'))
+            ModelTraining.TrainingUtilities.MetricsExport.export_metrics.metrics_to_json({'Program': str(model.get_program())}, os.path.join(metrics_dir, f'Program_{title}.json'))
         if model_type == 'RuleFitRegression':
             model.get_rules().to_csv(os.path.join(metrics_dir, f'Rules_{title}.csv'), float_format="%.2f", index_label='Rule')
 
