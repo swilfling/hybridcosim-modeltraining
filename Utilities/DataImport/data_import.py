@@ -4,7 +4,7 @@ import json
 import numpy as np
 import pandas as pd
 
-from ModelTraining.Utilities.DataPreprocessing import signal_processing_utils as sigutils
+from ModelTraining.Utilities.DataPreprocessing.data_preprocessing import demod_signals
 from ModelTraining.FeatureEngineering.FeatureCreation.feature_creation import add_additional_features
 from ModelTraining.FeatureEngineering.FeatureCreation.cyclic_features import add_cyclical_features
 from ModelTraining.FeatureEngineering.feature_set import FeatureSet
@@ -77,18 +77,9 @@ def parse_hdf_solarhouse2(filename, keep_nans=False):
     df = pd.read_hdf(filename)
     df = df.rename(columns={label: label.split(" ")[0] for label in df.columns})
 
+    df = df.astype('float')
     ############ Rename labels #########################################
     df = df.rename(columns={'T_P_oo': 'T_P_top'})
-
-    ############ Process modulated signals ######################################
-    fbh_labels = ['T_FBH_VL', 'T_FBH_RL', 'Vd_FBH']
-    for label in fbh_labels:
-        signal = df[label]
-        T_FBH_modulation = 20
-        sig_filtered = sigutils.filter_signal(signal, T_FBH_modulation, keep_nans=keep_nans)
-        sig_env = sigutils.calc_avg_envelope(signal, T_FBH_modulation, keep_nans=keep_nans)[0]
-        df[f"{label}_filt"] = sig_filtered
-        df[f"{label}_env"] = sig_env
 
     ######## Add columns
     df["DeltaTSolar"] = df["T_Solar_VL"] - df["T_Solar_RL"]
@@ -121,6 +112,9 @@ def get_data_and_feature_set(data_filename, interface_filename):
     # Check extension and parse hd5
     if extension == "hd5":
         data = parse_hdf_solarhouse2(data_filename)
+        T_FBH_modulation = 20
+        data = demod_signals(data, ['T_FBH_VL', 'T_FBH_RL', 'Vd_FBH'], T_FBH_modulation)
+
     elif extension == 'xlsx':
         data = parse_excel_cps_data(data_filename) if filename == 'cps_data' else parse_excel_sensor_A6(data_filename)
     else:

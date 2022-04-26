@@ -6,7 +6,7 @@ import ModelTraining.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Training.run_training_and_test import run_training_and_test
 import ModelTraining.Utilities.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.TrainingUtilities.MetricsExport.export_metrics as metr_exp
-import ModelTraining.Utilities.DataProcessing.data_import as data_import
+import ModelTraining.Utilities.DataImport.data_import as data_import
 import os
 import pandas as pd
 import argparse

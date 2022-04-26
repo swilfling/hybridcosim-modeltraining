@@ -5,7 +5,7 @@ from typing import List
 import pandas as pd
 from sklearn.model_selection import GridSearchCV
 
-from ModelTraining.TrainingUtilities import MetricsExport
+from ModelTraining.TrainingUtilities.MetricsExport import MetricsExport
 import ModelTraining.TrainingUtilities.preprocessing
 import ModelTraining.datamodels.datamodels.validation.white_test
 from ModelTraining.TrainingUtilities import training_utils as train_utils

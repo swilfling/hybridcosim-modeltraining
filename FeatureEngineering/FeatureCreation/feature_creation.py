@@ -29,7 +29,7 @@ def create_date_range(y1, m1, d1, y2, m2, d2, freq='1H'):
 
 
 def add_additional_features(filename, data):
-    if filename == "P2017_20_Solarhouse2":
+    if filename == "P2017_20_Solarhouse_2":
         data = inverse_transf(data, 'Vd_Solar')
         for feature in ['T_Aussen','R_Global','T_Solar_RL']:
             data = feature_mult(data, feature, 'Vd_Solar_inv')

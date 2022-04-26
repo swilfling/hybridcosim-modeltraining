@@ -4,6 +4,7 @@ import scipy.signal as sig
 from sklearn import preprocessing
 
 
+
 # Threshold data - remove values in curves where switch is off
 def threshold_data(df, curve, switch):
     curve_data = (df[curve].copy()).where(df[switch] > 0)
@@ -29,7 +30,7 @@ def thresh_abs(df, thresh_val, new_val=0.0):
 
 
 def remove_offset(signal):
-    offset = np.mean(signal)
+    offset = np.nanmean(signal)
     signal_zeromean = signal - offset
     return signal_zeromean, offset
 
@@ -120,7 +121,7 @@ def xcorr_psd(data):
 
 
 def filter_smoothe_signal(signal, T=100):
-    b, a = sig.butter(2, 2 * np.pi * 1 / T)
+    b, a = sig.butter(2, 1 / T)
     return sig.lfilter(b, a, signal)
 
 
@@ -138,7 +139,7 @@ def calc_avg_signals(signal_1, signal_2):
     N_samples = len(signal_1)
     assert(len(signal_1) == len(signal_2))
     signals_stacked = np.hstack((np.reshape(signal_1, (N_samples, 1)), np.reshape(signal_2, (N_samples, 1))))
-    return np.average(signals_stacked, axis=1)
+    return np.nanmean(signals_stacked, axis=1)
 
 
 def calc_avg_envelope(signal, T, do_filter=True, keep_nans=True):
@@ -146,10 +147,10 @@ def calc_avg_envelope(signal, T, do_filter=True, keep_nans=True):
     signal_zeromean, mask_missing_values = remove_nans(signal_zeromean)
 
     # Calculate high and low envelope
-    envelope_h = calculate_envelope(signal_zeromean, T, 'max') + offset
-    envelope_l = calculate_envelope(signal_zeromean, T, 'min') + offset
+    envelope_h = calculate_envelope(signal_zeromean, T, 'max')
+    envelope_l = calculate_envelope(signal_zeromean, T, 'min')
     # Average both
-    envelope_avg = calc_avg_signals(envelope_h, envelope_l)
+    envelope_avg = calc_avg_signals(envelope_h, envelope_l) + offset
     if do_filter:
         envelope_avg = filter_smoothe_signal(signal)
     if keep_nans:
