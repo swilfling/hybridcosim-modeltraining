@@ -120,6 +120,7 @@ if __name__ == "__main__":
 
 
 #%% Residuals Scatter
+    import seaborn as sns
     for usecase, target_val in zip(usecase_names, target_vals):
         for threshold_set in thresholds_rfvals:
             thresh_name_full = "_".join(name for name in threshold_set)
@@ -132,6 +133,7 @@ if __name__ == "__main__":
                 y_pred = df[label]
                 residual = y_true - y_pred
                 residual = (residual - np.mean(residual)) / np.std(residual)
+
                 y_pred_sorted = y_pred.drop_duplicates().sort_values()
                 num_samples = len(residual)
                 maxvals = pd.Series(index=y_pred_sorted, name='max')
@@ -139,8 +141,9 @@ if __name__ == "__main__":
                 for val in y_pred_sorted:
                     maxvals[val] = np.max(residual[y_pred == val])
                     minvals[val] = np.min(residual[y_pred == val])
-                minvals_downsampled = env_min(minvals, round(num_samples / 10))
-                maxvals_downsampled = env_max(maxvals, round(num_samples / 10))
+
+                minvals_downsampled = env_min(minvals, round(num_samples / 30))
+                maxvals_downsampled = env_max(maxvals, round(num_samples / 30))
 
                 fig = plt.figure(figsize=(6,6))
                 ax = plt.gca()
