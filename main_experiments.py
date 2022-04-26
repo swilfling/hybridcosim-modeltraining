@@ -1,12 +1,11 @@
-import ModelTraining.FeatureEngineering.FeatureCreation.cyclic_features
-import ModelTraining.TrainingUtilities.MetricsExport.export_metrics
+import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
+import ModelTraining.Utilities.MetricsExport.export_metrics
 from ModelTraining.Utilities.Parameters import TrainingParams
-from ModelTraining.FeatureEngineering.FeatureSelection import FeatureSelectionParams
-import ModelTraining.TrainingUtilities.training_utils as train_utils
+from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams
+import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Training.run_training_and_test import run_training_and_test
-import ModelTraining.Utilities.DataPreprocessing.data_preprocessing as dp_utils
-import ModelTraining.TrainingUtilities.MetricsExport.export_metrics as metr_exp
-import ModelTraining.Utilities.DataImport.data_import as data_import
+import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
+import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import os
 import pandas as pd
 import argparse
@@ -50,39 +49,31 @@ if __name__ == '__main__':
     # Results output
     results_path = os.path.join(root_dir, 'results')
     metrics_names = {'FeatureSelect': ['selected_features', 'all_features'], 'Metrics': ['R2_SKLEARN', 'CV-RMS', 'MAPE', 'RA_SKLEARN'], 'pvalues': ['pvalue_lm', 'pvalue_f']}
+    for dict_usecase in dict_usecases:
+        for feature_sel_params in list_feature_select_params:
+            params_name = "_".join(params.get_full_name() for params in feature_sel_params)
+            os.makedirs(os.path.join(results_path, dict_usecase['name'], params_name), exist_ok=True)
 
     # Main loop
     print('Starting Training')
     df_full = pd.DataFrame(index=model_types)
 
     for dict_usecase in dict_usecases:
-        # Get data and feature set
-        data, feature_set = data_import.get_data_and_feature_set(os.path.join(data_dir, dict_usecase['dataset']),
-                                                                 os.path.join(root_dir, dict_usecase['fmu_interface']))
         usecase_name = dict_usecase['name']
-
-         # Create result directories
         results_path_dataset = os.path.join(results_path, usecase_name)
-        os.makedirs(results_path_dataset, exist_ok=True)
-        # Export correlation matrices
-        metr_exp.export_corrmatrices(data[feature_set.get_input_feature_names()], results_path_dataset,
-                                     usecase_name, plot_enabled, expander_parameters=expander_parameters)
-
-        # Add cyclic and statistical features
-        ModelTraining.FeatureEngineering.FeatureCreation.cyclic_features.add_cycl_feats(dict_usecase, feature_set)
-        data, feature_set = ModelTraining.FeatureEngineering.FeatureCreation.statistical_features.add_stat_feats(data, dict_usecase, feature_set)
-
+        # Get data and feature set
+        data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(os.path.join(data_dir, dict_usecase['dataset']),
+                                                                                                          os.path.join(root_dir, dict_usecase['fmu_interface']))
+        data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
+        data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=True)
         # Main loop
         df_thresh = pd.DataFrame(index=model_types)
         for feature_sel_params in list_feature_select_params:
             params_name = "_".join(params.get_full_name() for params in feature_sel_params)
             results_path_thresh = os.path.join(results_path_dataset, params_name)
-            os.makedirs(results_path_thresh, exist_ok=True)
             for expansion in expansion_types:
                 df_metrics_models = pd.DataFrame()
                 for model_type in model_types:
-                    smoothe_data = True if model_type != 'RandomForestRegression' else False
-                    data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], smoothe_data=smoothe_data)
                     list_training_parameters = [train_utils.set_train_params_model(trainparams_basic, feature_set, feature, model_type, expansion)
                                                 for feature in feature_set.get_output_feature_names()]
                     models, [results, df_metrics] = run_training_and_test(data, list_training_parameters, results_path_thresh,
@@ -92,8 +83,7 @@ if __name__ == '__main__':
                     df_metrics_models = df_metrics_models.append(df_metrics)
                 df_thresh = df_thresh.join(df_metrics_models.add_prefix(f'{params_name}_{expansion[-1]}_'))
             df_thresh.to_csv(os.path.join(results_path_thresh, f'Metrics_{usecase_name}_{params_name}.csv'))
-
         df_full = df_full.join(df_thresh.add_prefix(f'{usecase_name}_'))
 
-    ModelTraining.TrainingUtilities.MetricsExport.export_metrics.store_all_metrics(df_full, results_path=results_path, metrics_names=metrics_names)
+    ModelTraining.Utilities.MetricsExport.export_metrics.store_all_metrics(df_full, results_path=results_path, metrics_names=metrics_names)
     print('Experiments finished')

@@ -4,15 +4,16 @@ import numpy as np
 import pathlib
 from sklearn.model_selection import TimeSeriesSplit
 
-import ModelTraining.TrainingUtilities.preprocessing
+import ModelTraining.Preprocessing.get_data_and_feature_set
+import ModelTraining.Training.TrainingUtilities.training_utils
 from ModelTraining.Utilities.Parameters import TrainingResults, TrainingParams
-import ModelTraining.TrainingUtilities.training_utils as train_utils
+import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.predict import predict_gt, predict_with_history
 
-import ModelTraining.Utilities.DataPreprocessing.data_preprocessing as dp_utils
-import ModelTraining.Utilities.DataImport.data_import as data_import
+import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
+import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import ModelTraining.datamodels.datamodels.validation.metrics as metrics
 
 
@@ -22,7 +23,7 @@ if __name__ == '__main__':
     name = 'CPS-Data'
     dict_usecase = data_import.load_from_json(os.path.join(usecase_config_path, f"{name}.json"))
 
-    data, feature_set = data_import.get_data_and_feature_set(os.path.join(hybridcosim_path, dict_usecase['dataset']), os.path.join("./", dict_usecase['fmu_interface']))
+    data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(os.path.join(hybridcosim_path, dict_usecase['dataset']), os.path.join("./", dict_usecase['fmu_interface']))
 
     # Get training and target features
     target_features = feature_set.get_output_feature_names()
@@ -30,7 +31,7 @@ if __name__ == '__main__':
 
     # Added: Preprocessing - Smooth features
     smoothe_data = False
-    data = dp_utils.preprocess_data(data, dict_usecase["to_smoothe"], smoothe_data=smoothe_data)
+    data = dp_utils.preprocess_data(data, dict_usecase["to_smoothe"], do_smoothe=smoothe_data)
 
 
     print("Starting Training")
@@ -79,7 +80,7 @@ if __name__ == '__main__':
                                              expansion=expansion)
 
         # Get data and reshape
-        index, x, y, _ = ModelTraining.TrainingUtilities.preprocessing.extract_training_and_test_set(data, training_parameters)
+        index, x, y, _ = ModelTraining.Training.TrainingUtilities.training_utils.extract_training_and_test_set(data, training_parameters)
         ## Training process
         model = create_model(training_parameters)
         model.expanders[0].selected_outputs = range(2)
@@ -113,7 +114,7 @@ if __name__ == '__main__':
                                                                         index[test_ind_best], x[test_ind_best, :], y[
                                                                             test_ind_best]
         else:
-            index_train, x_train, y_train, index_test, x_test, y_test = ModelTraining.TrainingUtilities.preprocessing.split_into_training_and_test_set(
+            index_train, x_train, y_train, index_test, x_test, y_test = ModelTraining.Training.TrainingUtilities.training_utils.split_into_training_and_test_set(
                 index, x, y, training_parameters.training_split)
 
         logging.info(f"Training model with input of shape: {x_train.shape} and targets of shape {y_train.shape}")

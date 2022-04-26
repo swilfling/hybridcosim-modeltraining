@@ -5,18 +5,18 @@ from typing import List
 import pandas as pd
 from sklearn.model_selection import GridSearchCV
 
-from ModelTraining.TrainingUtilities.MetricsExport import MetricsExport
-import ModelTraining.TrainingUtilities.preprocessing
+import ModelTraining.Training.TrainingUtilities.training_utils
+from ModelTraining.Utilities.MetricsExport import MetricsExport
 import ModelTraining.datamodels.datamodels.validation.white_test
-from ModelTraining.TrainingUtilities import training_utils as train_utils
-from ModelTraining.TrainingUtilities.MetricsExport import export_metrics as metr_exp
+from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
+from ModelTraining.Utilities.MetricsExport import export_metrics as metr_exp
 from ModelTraining.Training.predict import predict_with_history, predict_gt
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import prepare_data_for_fit, create_pipeline
-from ModelTraining.FeatureEngineering.FeatureSelection.FeatureSelector import FeatureSelector
-import ModelTraining.FeatureEngineering.FeatureSelection.feature_selection as feat_select
+from ModelTraining.Preprocessing.FeatureSelection.FeatureSelector import FeatureSelector
+import ModelTraining.Preprocessing.FeatureSelection.feature_selection as feat_select
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
-from ModelTraining.FeatureEngineering.FeatureSelection.feature_selection_params import FeatureSelectionParams
+from ModelTraining.Preprocessing.FeatureSelection.feature_selection_params import FeatureSelectionParams
 
 
 def run_training_and_test(data, list_training_parameters: List[TrainingParams],
@@ -35,8 +35,8 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
         target_features = training_params.target_features
 
         # Get data and reshape
-        index, x, y, feature_names = ModelTraining.TrainingUtilities.preprocessing.extract_training_and_test_set(data, training_params)
-        index_train, x_train, y_train, index_test, x_test, y_test = ModelTraining.TrainingUtilities.preprocessing.split_into_training_and_test_set(
+        index, x, y, feature_names = ModelTraining.Training.TrainingUtilities.training_utils.extract_training_and_test_set(data, training_params)
+        index_train, x_train, y_train, index_test, x_test, y_test = ModelTraining.Training.TrainingUtilities.training_utils.split_into_training_and_test_set(
             index, x, y, training_params.training_split)
 
         # Create model

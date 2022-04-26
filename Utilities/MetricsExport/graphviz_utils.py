@@ -18,10 +18,3 @@ def export_graph_from_dot_data(dot_data, filename):
     graph = pydotplus.graphviz.graph_from_dot_data(dot_data)
     graph.write_png(f"{filename}.png")
 
-
-def expand_feature_names(list_expanders, feature_names):
-    feature_names_new = feature_names.copy()
-    for expander in list_expanders:
-        feature_names_new = expander.get_feature_names(feature_names_new)
-    return feature_names_new
-

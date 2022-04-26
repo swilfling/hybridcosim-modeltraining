@@ -1,9 +1,10 @@
 from sklearn.base import TransformerMixin
 import numpy as np
 import scipy.signal as sig
+import pandas as pd
 
 from ModelTraining.datamodels.datamodels.processing.feature_extension.StoreInterface import StoreInterface
-from .signal_processing_utils import calculate_envelope, calc_avg_signals
+
 
 class Filter(TransformerMixin, StoreInterface):
     keep_nans = False
@@ -75,8 +76,10 @@ class Envelope_MA(Filter):
         self._set_attrs(T=T)
 
     def _fit_transform(self, X, y=None, **fit_params):
-        self.envelope_h = calculate_envelope(X, self.T, 'max')
-        self.envelope_l = calculate_envelope(X, self.T, 'min')
+        X_df = pd.DataFrame(X)
+        # This is taken from https://stackoverflow.com/a/69357933
+        self.envelope_h = X_df.rolling(window=self.T).max().shift(int(-self.T / 2))
+        self.envelope_l = X_df.rolling(window=self.T).min().shift(int(-self.T / 2))
         self.envelope_avg = np.mean(np.dstack((self.envelope_l, self.envelope_h)),axis=-1)
         return self.envelope_avg
 

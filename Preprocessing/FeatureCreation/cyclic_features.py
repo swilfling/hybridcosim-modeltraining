@@ -2,6 +2,10 @@ import numpy as np
 import pandas as pd
 
 
+def get_cyc_feature_names():
+    return [f'hour_{i}' for i in range(24)] + ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'] + ['daytime_sin', 'daytime_cos'] + ['weekday_sin'] + ['weekday_cos']
+
+
 def add_cyclical_features(data):
     data["day"] = data.index[:].day
     data['weekday'] = data.index.weekday
@@ -34,16 +38,3 @@ def create_cyclical_features(df, label, T=7):
     df[f'{label}_sin'] = np.sin(df[label] * 2 * np.pi / T)
     df[f'{label}_cos'] = np.cos(df[label] * 2 * np.pi / T)
     return df
-
-
-def add_cycl_feats(dict_usecase, feature_set):
-    hour_1hot_feat = [f'hour_{h}' for h in range(24)]
-    weekday_1hot_feat = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun']
-    # Add one hot encoded features and cyclic features
-    feature_set.add_static_input_features(dict_usecase.get('cyclical_feats', []),
-                                          feature_set.get_output_feature_names())
-    #print(dict_usecase.get('onehot_feats'))
-    if 'hours' in dict_usecase.get('onehot_feats', []):
-        feature_set.add_static_input_features(hour_1hot_feat, feature_set.get_output_feature_names())
-    if 'weekdays' in dict_usecase.get('onehot_feats', []):
-        feature_set.add_static_input_features(weekday_1hot_feat, feature_set.get_output_feature_names())

@@ -88,7 +88,7 @@ def plot_df_subplots(df,fig_save_path, fig_title, plot_params={'axes.labelsize':
     plt_utils.save_figure(fig_save_path, fig_title)
 
 
-def printHeatMap(dataframe, dir="./", filename="Correlation", plot_enabled=True):
+def printHeatMap(dataframe, dir="./", filename="Correlation", plot_enabled=True, annot=False):
     label_encoder = LabelEncoder()
     dataframe.iloc[:,0] = label_encoder.fit_transform(dataframe.iloc[:,0]).astype('float64')
     corr = dataframe.corr()
@@ -97,7 +97,7 @@ def printHeatMap(dataframe, dir="./", filename="Correlation", plot_enabled=True)
     corr.to_csv(os.path.join(dir, f'{filename}.csv'))
     if plot_enabled:
         plt.figure(figsize=(15,15))
-        sns.heatmap(corr)
+        sns.heatmap(corr, vmin=-1, vmax=1, cmap='coolwarm',annot=annot, fmt='.2f')
         plt.tight_layout(rect=[0.1, 0.1, 0.9, 0.9])
         plt_utils.save_figure(dir, filename, store_tikz=False)
 
