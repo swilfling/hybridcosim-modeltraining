@@ -26,7 +26,7 @@ class MetricsExport:
         results_dir_path = os.path.join(self.results_root, 'FeatureSelection')
         os.makedirs(results_dir_path, exist_ok=True)
         for i, selector in enumerate(selectors):
-            selector.save_pkl(results_dir_path, f"{selector.__class__.__name__}_i.pickle")
+            selector.save_pkl(results_dir_path, f"{selector.__class__.__name__}_{i}.pickle")
         for expander, selector in zip(expanders, selectors):
             self.export_coeffs(selector.get_coef(),
                                feature_names=expander.get_feature_names_out(feature_names),
@@ -36,9 +36,9 @@ class MetricsExport:
 
     def export_model_properties(self, model, metrics_dir):
         model_type = model.__class__.__name__
-        title = f'{model_type}_{model.expanders[-1].__class__.__name__}'
+        title = f'{model_type}_{model.name}_{model.expanders[-1].__class__.__name__}'
         # Export coefficients
-        if model_type in ['RandomForestRegression','RidgeRegression', 'LinearRegression']:
+        if model_type in ['RandomForestRegression', 'RidgeRegression', 'LinearRegression']:
             ylabel = 'F-Score' if model_type == 'RandomForestRegression' else 'Coefficients'
             self.export_coeffs(model.get_coef().T, model.get_expanded_feature_names(), metrics_dir, title, ylabel)
         if model_type == 'SymbolicRegression':
@@ -67,5 +67,5 @@ class MetricsExport:
         os.makedirs(plot_dir, exist_ok=True)
         os.makedirs(metrics_dir, exist_ok=True)
         # Export results
-        self.export_timeseries_results(result_df, target_features, plot_dir, f'{model.__class__.__name__}_{model.expanders[-1].__class__.__name__}')
+        self.export_timeseries_results(result_df, target_features, plot_dir, f'{model.__class__.__name__}_{model.name}_{model.expanders[-1].__class__.__name__}')
         self.export_model_properties(model, metrics_dir)

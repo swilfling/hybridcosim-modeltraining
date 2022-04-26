@@ -106,10 +106,10 @@ def printHeatMap(dataframe, dir="./", filename="Correlation", plot_enabled=True)
 Parameters:
 - DataFrame
 '''
-def scatterplot(y_pred, y_true, fig_save_path="./", fig_title="Scatterplot", legend=None, **kwargs):
-    fig, ax, = plt_utils.create_figure('Correlation', figsize=kwargs.pop('figsize', None))
+def scatterplot(y_pred, y_true, fig_save_path="./", filename="Scatterplot", **kwargs):
+    fig, ax, = plt_utils.create_figure(figsize=kwargs.pop('figsize', None), fig_title=kwargs.pop('fig_title'))
     ax.scatter(y_true,y_pred,alpha=0.5,
-                color='blue', label=legend)
+                color=kwargs.get('color','blue'), label=kwargs.get('label'))
     #plt.title("Linear Regression model")
     ax.set_xlabel("True values")
     ax.set_ylabel("Predicted values")
@@ -118,11 +118,12 @@ def scatterplot(y_pred, y_true, fig_save_path="./", fig_title="Scatterplot", leg
     #plt.xlim(limits)
     #plt.ylim(limits)
     ax.legend()
-    plt_utils.save_figure(fig_save_path, fig_title)
+    plt_utils.save_figure(fig_save_path, filename)
 
 
 import numpy as np
-def barplot(feature_names, values, fig_save_path = './', fig_title='Features', **kwargs):
+def barplot(feature_names, values, fig_save_path = './', filename='Features', **kwargs):
+    fig_title = kwargs.pop('fig_title',"")
     fig, ax = plt_utils.create_figure(fig_title, figsize=kwargs.pop('figsize', None))
     plt.tight_layout(rect = [0.05,0.3,1.0,1])
     index = np.arange(len(feature_names))
@@ -130,7 +131,7 @@ def barplot(feature_names, values, fig_save_path = './', fig_title='Features', *
     if kwargs.get('ylabel', None):
         plt.ylabel(kwargs.pop('ylabel'))
     ax.set_xticks(index, labels=feature_names, rotation=90)
-    plt_utils.save_figure(fig_save_path, fig_title)
+    plt_utils.save_figure(fig_save_path, filename)
 
 
 def barplot_df(df, fig_save_path = './', fig_title='Features', **kwargs):

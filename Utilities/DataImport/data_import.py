@@ -120,8 +120,10 @@ def get_data_and_feature_set(data_filename, interface_filename):
     else:
         if filename == 'Beyond_B20_full' or filename == 'Beyond_B12_full':
             data = import_data(data_filename, sep=',',freq='1H', index_col='dt')
+            data = data.drop(create_date_range(2014, 4, 13, 2014, 4, 24), axis=0)
         else:
             data = import_data(data_filename, freq='15T')
+            data = data[:pd.Timestamp(2019, 10, 25)]
     data = add_additional_features(filename, data)
     data = add_cyclical_features(data)
 
@@ -129,7 +131,6 @@ def get_data_and_feature_set(data_filename, interface_filename):
     return data, feature_set
 
 
-
-
-
-
+def create_date_range(y1, m1, d1, y2, m2, d2, freq='1H'):
+    return [timestamp for timestamp in
+     pd.date_range(pd.Timestamp(y1, m1, d1), pd.Timestamp(y2, m2, d2), freq=freq)]

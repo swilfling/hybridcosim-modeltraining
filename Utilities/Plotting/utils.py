@@ -20,14 +20,13 @@ Parameters:
 - output file name
 - plotting variables
 '''
-def create_figure(output_file_name, **kwargs):
+def create_figure(fig_title="",**kwargs):
     fig = plt.figure(figsize=kwargs.pop('figsize',(20, 10)))
     #plt.tight_layout(pad=2.0, w_pad=0.5, h_pad=2.0)
     plt.tight_layout()
     #plt.xlabel('Time')
     plt.grid('both')
-    plot_title = str(output_file_name).replace("_", " ")
-    plt.suptitle(plot_title)
+    plt.suptitle(fig_title)
     ax = plt.gca()
     return fig, ax
 
