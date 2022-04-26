@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-from ModelTraining.TrainingUtilities import training_utils as train_utils
+from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.datamodels.datamodels.wrappers import AutoRecursive
 from ModelTraining.Utilities import type_casting as tc
 from collections import deque

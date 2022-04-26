@@ -1,13 +1,16 @@
 #%%
 
 import pandas as pd
-import os
-import ModelTraining.Utilities.DataImport.data_import as data_import
+import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
 import statsmodels.stats.outliers_influence as stats
-from ModelTraining.Utilities.Parameters.trainingparams import TrainingParams
-import ModelTraining.TrainingUtilities.training_utils as train_utils
-import ModelTraining.FeatureEngineering.FeatureCreation.cyclic_features as cyc_feats
-import ModelTraining.FeatureEngineering.FeatureCreation.statistical_features as stat_feats
+
+import ModelTraining.Preprocessing.get_data_and_feature_set
+from ModelTraining.Utilities.Parameters import TrainingParams
+import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
+import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
+import ModelTraining.Utilities.MetricsExport.export_metrics as metr_exp
+import ModelTraining.Preprocessing.DataImport.data_import as data_import
+import os
 
 if __name__ == '__main__':
     root_dir = "../"
@@ -20,22 +23,37 @@ if __name__ == '__main__':
                      list_usecases]
 
     interaction_only=True
-
+    matrix_path = "./Figures/Correlation"
     vif_path = './Figures/Correlation/VIF'
     os.makedirs(vif_path, exist_ok=True)
     float_format="%.2f"
+    expander_parameters = {'degree': 2, 'interaction_only': True, 'include_bias': False}
+
+    #%% correlation matrices
+    for dict_usecase in dict_usecases:
+        usecase_name = dict_usecase['name']
+        # Get data and feature set
+        data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(os.path.join(data_dir, dict_usecase['dataset']),
+                                                                                                          os.path.join(root_dir, dict_usecase['fmu_interface']))
+        # Add features to dataset
+        data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
+        # Data preprocessing
+        data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=True)
+        # Export correlation matrices
+        metr_exp.export_corrmatrices(data[feature_set.get_input_feature_names()], matrix_path,
+                                     usecase_name, True, expander_parameters=expander_parameters)
+
 
 #%% VIF calculation
     for dict_usecase in dict_usecases:
-        # Get data and feature set
-        data, feature_set = data_import.get_data_and_feature_set(os.path.join(data_dir, dict_usecase['dataset']),
-                                                                 os.path.join(root_dir, dict_usecase['fmu_interface']))
-        data = data.astype('float')
         usecase_name = dict_usecase['name']
-        # Add cyclic and statistical features
-        cyc_feats.add_cycl_feats(dict_usecase, feature_set)
-        data, feature_set = stat_feats.add_stat_feats(data, dict_usecase,feature_set)
-
+        # Get data and feature set
+        data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(os.path.join(data_dir, dict_usecase['dataset']),
+                                                                                                          os.path.join(root_dir, dict_usecase['fmu_interface']))
+        data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
+        data = data.astype('float')
+        # Data preprocessing
+        data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=True)
         training_params = TrainingParams(training_split=0.8,static_input_features=feature_set.get_static_feature_names(),target_features=feature_set.get_output_feature_names(),
                                          dynamic_input_features=[])
 

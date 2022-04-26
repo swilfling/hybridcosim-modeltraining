@@ -1,11 +1,14 @@
 import os
 import logging
 
-from ModelTraining.TrainingUtilities.MetricsExport import MetricsExport, export_metrics as metr_exp
-import ModelTraining.Utilities.DataPreprocessing.data_preprocessing as dp_utils
-import ModelTraining.Utilities.DataImport.data_import as data_import
+import ModelTraining.Preprocessing.get_data_and_feature_set
+import ModelTraining.Training.TrainingUtilities.training_utils
+from ModelTraining.Utilities.MetricsExport import MetricsExport
+from ModelTraining.Utilities.MetricsExport import export_metrics as metr_exp
+import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
+import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import ModelTraining.datamodels.datamodels.validation.white_test
-from ModelTraining.TrainingUtilities import training_utils as train_utils
+from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.Training.predict import predict_gt
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import best_estimator
@@ -19,7 +22,7 @@ if __name__ == '__main__':
     usecase_name = 'Beyond_B20_Gas'
     dict_usecase = data_import.load_from_json(os.path.join(usecase_config_path, f"{usecase_name}.json"))
 
-    data, feature_set = data_import.get_data_and_feature_set(os.path.join(data_dir_path, dict_usecase['dataset']), os.path.join("./", dict_usecase['fmu_interface']))
+    data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(os.path.join(data_dir_path, dict_usecase['dataset']), os.path.join("./", dict_usecase['fmu_interface']))
     target_features = feature_set.get_output_feature_names()
 
     # Added: Preprocessing - Smooth features
@@ -40,11 +43,11 @@ if __name__ == '__main__':
                                        expansion=['IdentityExpander'])
 
     # Preprocess data
-    data = dp_utils.preprocess_data(data, dict_usecase["to_smoothe"], smoothe_data=smoothe_data)
+    data = dp_utils.preprocess_data(data, dict_usecase["to_smoothe"], do_smoothe=smoothe_data)
 
     # Extract data and reshape
-    index, x, y, feature_names = ModelTraining.TrainingUtilities.preprocessing.extract_training_and_test_set(data, training_params)
-    index_train, x_train, y_train, index_test, x_test, y_test = ModelTraining.TrainingUtilities.preprocessing.split_into_training_and_test_set(
+    index, x, y, feature_names = ModelTraining.Training.TrainingUtilities.training_utils.extract_training_and_test_set(data, training_params)
+    index_train, x_train, y_train, index_test, x_test, y_test = ModelTraining.Training.TrainingUtilities.training_utils.split_into_training_and_test_set(
         index, x, y, training_params.training_split)
 
     # Create model

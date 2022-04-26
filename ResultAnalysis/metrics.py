@@ -3,7 +3,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import tikzplotlib
-from ModelTraining.FeatureEngineering.FeatureSelection.FeatureSelector import FeatureSelector
+from ModelTraining.Preprocessing.FeatureSelection.FeatureSelector import FeatureSelector
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 
 
@@ -62,28 +62,6 @@ if __name__ == "__main__":
                                   filename=f'Coefficients_{model_type}_{target_val}_{usecase}_{thresh_name_full}_{expansion_name}',
                                   fig_title=f"{model_type} Coefficients - {target_val} - Dataset {usecase}", figsize=figsize,
                                   ylabel='Coefficient')
-
-    #%% Correlation matrices
-
-    import seaborn as sns
-    os.makedirs('./Figures/Correlation',exist_ok=True)
-    for usecase in usecase_names:
-        for expansion_set in expansion:
-            path = os.path.join(result_dir, usecase)
-            expansion_name = expansion_set[-1]
-            df = pd.read_csv(os.path.join(path, f'Correlation_{usecase}_{expansion_name}.csv'))
-            #print(df.get('hour_2 hour_14'))
-            df = df.dropna(thresh=1, axis=1)
-            df = df.dropna(thresh=2, axis=0)
-            figsize = (7,7) if expansion == 'IdentityExpander' else (10,10)
-            annot = True if expansion == 'IdentityExpander' or usecase in solarhouse_usecases else False
-            plt.figure(figsize=figsize)
-            sns.heatmap(df[df.columns[1:]], vmin=-1, vmax=1, yticklabels=df[df.columns[0]], cmap='coolwarm',annot=annot, fmt='.2f')
-            plt.tight_layout()
-            plt.title(f'Correlation - Dataset {usecase}')
-            tikzplotlib.save(f'./Figures/Correlation/Correlation_{usecase}_{expansion_name}.tex')
-            plt.savefig(f'./Figures/Correlation/Correlation_{usecase}_{expansion_name}.png')
-            plt.show()
 
 
 

@@ -4,11 +4,6 @@ import json
 import numpy as np
 import pandas as pd
 
-from ModelTraining.Utilities.DataPreprocessing.data_preprocessing import demod_signals
-from ModelTraining.FeatureEngineering.FeatureCreation.feature_creation import add_additional_features
-from ModelTraining.FeatureEngineering.FeatureCreation.cyclic_features import add_cyclical_features
-from ModelTraining.FeatureEngineering.feature_set import FeatureSet
-
 
 def import_data(csv_input_file="Resampled15min.csv", freq='15T', sep=';',info=False, index_col='Zeitraum'):
     data = pd.read_csv(csv_input_file, sep=sep, encoding='latin-1', header=0, low_memory=False)
@@ -106,31 +101,3 @@ def load_from_json(filename):
         return json.load(f)
 
 
-def get_data_and_feature_set(data_filename, interface_filename):
-    extension = data_filename.split('.')[-1]
-    filename = list(os.path.split(data_filename))[-1].split('.')[0]
-    # Check extension and parse hd5
-    if extension == "hd5":
-        data = parse_hdf_solarhouse2(data_filename)
-        T_FBH_modulation = 20
-        data = demod_signals(data, ['T_FBH_VL', 'T_FBH_RL', 'Vd_FBH'], T_FBH_modulation)
-
-    elif extension == 'xlsx':
-        data = parse_excel_cps_data(data_filename) if filename == 'cps_data' else parse_excel_sensor_A6(data_filename)
-    else:
-        if filename == 'Beyond_B20_full' or filename == 'Beyond_B12_full':
-            data = import_data(data_filename, sep=',',freq='1H', index_col='dt')
-            data = data.drop(create_date_range(2014, 4, 13, 2014, 4, 24), axis=0)
-        else:
-            data = import_data(data_filename, freq='15T')
-            data = data[:pd.Timestamp(2019, 10, 25)]
-    data = add_additional_features(filename, data)
-    data = add_cyclical_features(data)
-
-    feature_set = FeatureSet(interface_filename)
-    return data, feature_set
-
-
-def create_date_range(y1, m1, d1, y2, m2, d2, freq='1H'):
-    return [timestamp for timestamp in
-     pd.date_range(pd.Timestamp(y1, m1, d1), pd.Timestamp(y2, m2, d2), freq=freq)]
