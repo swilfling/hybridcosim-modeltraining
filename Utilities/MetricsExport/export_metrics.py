@@ -48,7 +48,8 @@ def store_all_metrics(df_full, results_path, metrics_names={'FeatureSelect': ['s
     df_whitetest = get_df_subset(df_full, 'pvalues')
 
     for df, filename in zip([df_metrics, df_featsel, df_whitetest], ['Metrics','feature_select','whitetest']):
-        df.to_csv(os.path.join(results_path, f'{filename}_full_{timestamp}.csv'),index_label='Model', float_format='%.3f')
+        if not df.empty:
+            df.to_csv(os.path.join(results_path, f'{filename}_full_{timestamp}.csv'),index_label='Model', float_format='%.3f')
 
     # Store single metrics separately
     for name in metrics_names['Metrics']:

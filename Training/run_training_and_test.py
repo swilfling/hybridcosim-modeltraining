@@ -17,10 +17,10 @@ from ModelTraining.Preprocessing.FeatureSelection.feature_selection_params impor
 
 
 def run_training_and_test(data, list_training_parameters: List[TrainingParams],
-                          results_dir_path, do_predict=True, prediction_type="History", **kwargs):
+                          results_dir_path, prediction_type="History", **kwargs):
     models, results, list_selectors = [], [], []
     # Get optional arguments
-    model_parameters = kwargs.get('model_parameters', None)
+    model_parameters = kwargs.get('model_parameters', {})
     expander_parameters = kwargs.get('expander_parameters',{})
 
     for training_params in list_training_parameters:
@@ -56,12 +56,11 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
         # Save Model
         train_utils.save_model_and_parameters(os.path.join(results_dir_path, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[0]}"), model, training_params)
         # Predict test data
-        if do_predict:
-            predict_function = predict_with_history if prediction_type == 'History' else predict_gt
-            result_prediction = predict_function(model, index_test, x_test, y_test, training_params)
-            test_prediction = result_prediction[[f"predicted_{feature}" for feature in target_features]].to_numpy()
-            results.append(TrainingResults(train_index=index_train, train_target=y_train,
-                                     test_index=index_test, test_target=y_test, test_prediction=test_prediction, test_input=x_test))
+        predict_function = predict_with_history if prediction_type == 'History' else predict_gt
+        result_prediction = predict_function(model, index_test, x_test, y_test, training_params)
+        test_prediction = result_prediction[[f"predicted_{feature}" for feature in target_features]].to_numpy()
+        results.append(TrainingResults(train_index=index_train, train_target=y_train,
+                                 test_index=index_test, test_target=y_test, test_prediction=test_prediction, test_input=x_test))
 
     return models, [results, list_selectors]
 

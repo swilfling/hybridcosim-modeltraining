@@ -68,7 +68,7 @@ if __name__ == '__main__':
                     list_training_parameters = [train_utils.set_train_params_model(trainparams_basic, feature_set, feature, model_type, expansion)
                                                 for feature in feature_set.get_output_feature_names()]
                     models, [results, selectors] = run_training_and_test(data, list_training_parameters, results_path_thresh,
-                                                                    do_predict=True, feature_select_params=feature_sel_params,
+                                                                    feature_select_params=feature_sel_params,
                                                                     model_parameters=parameters_full[model_type], expander_parameters=expander_parameters,
                                                                      prediction_type='ground truth')
                     df_metrics = analyze_result(models, results, list_training_parameters, selectors, plot_enabled=plot_enabled, results_dir_path=results_path_thresh, metrics_names=metrics_names)

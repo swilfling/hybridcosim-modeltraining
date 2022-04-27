@@ -81,7 +81,7 @@ def analyze_result(models, results, list_training_parameters, list_selectors=[],
     metrics_names = kwargs.get('metrics_names', {'Metrics': ['R2', 'CV-RMS', 'MAPE'],
                                                  'FeatureSelect': ['selected_features', 'all_features'],
                                                  'pvalues': ['pvalues_lm']})
-
+    # Export feature selection metrics
     for model, selectors in zip(models,list_selectors):
         metrics_exp.export_rvals(model.expanders, selectors, model.feature_names)
         for selector in selectors:
@@ -90,7 +90,6 @@ def analyze_result(models, results, list_training_parameters, list_selectors=[],
                                                       suffix='_FeatureSelect')
 
     for model, result, train_params in zip(models, results, list_training_parameters):
-        # Export feature selection metrics
         metrics_exp.export_results(model, train_params.target_features, result.test_index, result.test_target, result.test_prediction)
         for i, feature in enumerate(train_params.target_features):
             y_true = result.test_target[:,i]
