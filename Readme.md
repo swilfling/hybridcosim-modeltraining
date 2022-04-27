@@ -3,9 +3,14 @@
 This folder contains tools for model training. 
 
 ## Structure:
+- Preprocessing
+  - Data Import
+  - Data Preprocessing
+  - Feature Creation
+  - Feature Selection
 - Training
-- Feature Selection
-- Training Utilities
+  - TrainingUtilities
+- Result Analysis
 - General Utilities
 - Configuration
 
