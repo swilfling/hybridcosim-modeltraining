@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from ModelTraining.Utilities.Parameters import Parameters
 import numpy as np
-import pandas as pd
 
 
 @dataclass
@@ -12,3 +11,4 @@ class TrainingResults(Parameters):
     test_index: np.ndarray = None
     test_target: np.ndarray = None
     test_prediction: np.ndarray = None
+    test_input: np.ndarray = None

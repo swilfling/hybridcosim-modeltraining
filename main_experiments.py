@@ -4,6 +4,7 @@ from ModelTraining.Utilities.Parameters import TrainingParams
 from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Training.run_training_and_test import run_training_and_test
+from ModelTraining.Utilities.MetricsExport.MetricsExport import analyze_result
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import os
@@ -13,7 +14,7 @@ import argparse
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--usecase_names", type=str, default='CPS-Data,SensorA6,SensorB2,SensorC6,Solarhouse1,Solarhouse2')
-    parser.add_argument("--model_types", type=str, default='RidgeRegression,LassoRegression,WeightedLS,PLSRegression,RandomForestRegression,RuleFitRegression')
+    parser.add_argument("--model_types", type=str, default='RidgeRegression,LassoRegression,RandomForestRegression')
     args = parser.parse_args()
     model_types = model_names = args.model_types.split(",")
     list_usecases = args.usecase_names.split(",")
@@ -66,10 +67,11 @@ if __name__ == '__main__':
                 for model_type in model_types:
                     list_training_parameters = [train_utils.set_train_params_model(trainparams_basic, feature_set, feature, model_type, expansion)
                                                 for feature in feature_set.get_output_feature_names()]
-                    models, [results, df_metrics] = run_training_and_test(data, list_training_parameters, results_path_thresh,
+                    models, [results, selectors] = run_training_and_test(data, list_training_parameters, results_path_thresh,
                                                                     do_predict=True, feature_select_params=feature_sel_params,
-                                                                    model_parameters=parameters_full[model_type], expander_parameters=expander_parameters, plot_enabled=plot_enabled,
-                                                                    metrics_names=metrics_names, prediction_type='ground truth')
+                                                                    model_parameters=parameters_full[model_type], expander_parameters=expander_parameters,
+                                                                     prediction_type='ground truth')
+                    df_metrics = analyze_result(models, results, list_training_parameters, selectors, plot_enabled=plot_enabled, results_dir_path=results_path_thresh, metrics_names=metrics_names)
                     df_metrics_models = df_metrics_models.append(df_metrics)
                 df_thresh = df_thresh.join(df_metrics_models.add_prefix(f'{params_name}_{expansion[-1]}_'))
             df_thresh.to_csv(os.path.join(results_path_thresh, f'Metrics_{usecase_name}_{params_name}.csv'))

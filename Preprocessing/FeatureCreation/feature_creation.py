@@ -33,8 +33,10 @@ def create_additional_feats(data, usecase_name):
         data = feature_mean(data, ['TB20BR1','TB20BR2','TB20BR3','TB20LR'], 'TB20')
     if usecase_name == 'Beyond_B12_Gas':
         data = feature_mean(data,['TB12BR1', 'TB12BR2', 'TB12BR3', 'TB12LR'],'TB12')
-    if usecase_name == 'Solarhouse1':
+    if "Solarhouse1" in usecase_name:
         data = inverse_transf(data, 'VDSolar')
+        for feature in ['TAussen','SGlobal','TSolarRL']:
+            data = feature_mult(data, feature, 'VDSolar_inv')
     data = data.dropna(axis=0)
     data = data.astype('float')
     return data

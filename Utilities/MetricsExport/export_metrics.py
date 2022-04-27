@@ -39,7 +39,7 @@ def calc_metrics(y_true,y_pred, no_samples=0, n_predictors=0,metrics_names=['R2'
     return metrs_feature
 
 
-def store_all_metrics(df_full, results_path, metrics_names):
+def store_all_metrics(df_full, results_path, metrics_names={'FeatureSelect': ['selected_features', 'all_features'], 'Metrics': ['R2_SKLEARN', 'CV-RMS', 'MAPE', 'RA_SKLEARN'], 'pvalues': ['pvalue_lm', 'pvalue_f']}):
     timestamp = create_file_name_timestamp()
     df_full.to_csv(os.path.join(results_path, f'AllMetrics_full_{timestamp}.csv'),index_label='Model', float_format='%.3f')
 
@@ -70,3 +70,5 @@ def create_file_name_timestamp():
 def metrics_to_json(dict_metrics, filename):
     with open(filename, 'w') as f:
         json.dump(dict_metrics, f)
+
+

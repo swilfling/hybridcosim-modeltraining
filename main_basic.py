@@ -2,7 +2,6 @@ import os
 import logging
 
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
-from ModelTraining.Utilities.MetricsExport import MetricsExport
 from ModelTraining.Utilities.MetricsExport import export_metrics as metr_exp
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
@@ -12,7 +11,7 @@ from ModelTraining.Training.predict import predict_gt
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import best_estimator
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
-
+from ModelTraining.Utilities.MetricsExport.MetricsExport import analyze_result
 
 if __name__ == '__main__':
     data_dir_path = "../"
@@ -29,7 +28,7 @@ if __name__ == '__main__':
     smoothe_data = False
     plot_enabled = True
 
-    model_type = "RidgeRegression"
+    model_type = "LinearRegression"
 
     training_params = TrainingParams(model_type=model_type,
                                        model_name="Energy",
@@ -39,7 +38,7 @@ if __name__ == '__main__':
                                        static_input_features=feature_set.get_static_feature_names(),
                                        dynamic_input_features=feature_set.get_dynamic_feature_names(),
                                        training_split=0.8,
-                                       normalizer="Normalizer",
+                                       normalizer="IdentityScaler",
                                        expansion=['IdentityExpander'])
 
     # Preprocess data
@@ -62,25 +61,13 @@ if __name__ == '__main__':
     train_utils.save_model_and_parameters(os.path.join(results_dir_path, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"), model, training_params)
     # Predict test data
     result_prediction = predict_gt(model, index_test, x_test, y_test, training_params)
-
     # Calculate and export metrics
-    results = []
-    metrics_exp = MetricsExport(plot_enabled=plot_enabled, results_root=results_dir_path)
-    for feature in training_params.target_features:
-        y_true = result_prediction[feature].to_numpy()
-        y_pred = result_prediction[f"predicted_{feature}"].to_numpy()
-        # Calculate Metrics
-        metrics = metr_exp.calc_metrics(y_true, y_pred, x.shape[0], len(model.get_expanded_feature_names()),
-                                 metrics_names=['R2', 'CV-RMS', 'MAPE'])
-        # White test
-        #white_test_results = ModelTraining.datamodels.datamodels.validation.white_test.white_test(x_test, y_true - y_pred)
-
-        test_prediction = result_prediction[[f"predicted_{feature}" for feature in target_features]].to_numpy()
-        result_data =TrainingResults(train_index=index_train.to_numpy(), train_target=y_train,
-                                 test_index=index_test.to_numpy(), test_target=y_test, test_prediction=test_prediction)
-        #result_data.to_file(os.path.join(results_dir_path, f'Results_{model_type}_{feature}_{training_params.expansion[-1]}.json'))
-        results.append(result_data)
-        # Export metrics
-        metrics_exp.export_results(model, target_features, result_prediction)
+    test_prediction = result_prediction[[f"predicted_{feature}" for feature in target_features]].to_numpy()
+    result_data = TrainingResults(train_index=index_train.to_numpy(), train_target=y_train,
+                             test_index=index_test.to_numpy(), test_target=y_test, test_prediction=test_prediction, test_input=x_test)
+    # Export metrics
+    df_metrics = analyze_result([model], [result_data], [training_params], plot_enabled=plot_enabled,
+                                results_dir_path=results_dir_path)
+    metr_exp.store_all_metrics(df_metrics, results_path=results_dir_path)
 
     print('Experiment finished')
