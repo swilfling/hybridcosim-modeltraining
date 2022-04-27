@@ -36,7 +36,7 @@ class MetricsExport:
 
     def export_model_properties(self, model, metrics_dir):
         model_type = model.__class__.__name__
-        title = f'{model_type}_{model.name}_{model.expanders[-1].__class__.__name__}'
+        title = f'{model_type}_{model.name}_{model.expanders[-2].__class__.__name__}'
         # Export coefficients
         if model_type in ['RandomForestRegression', 'RidgeRegression', 'LinearRegression']:
             ylabel = 'F-Score' if model_type == 'RandomForestRegression' else 'Coefficients'
@@ -67,5 +67,6 @@ class MetricsExport:
         os.makedirs(plot_dir, exist_ok=True)
         os.makedirs(metrics_dir, exist_ok=True)
         # Export results
-        self.export_timeseries_results(result_df, target_features, plot_dir, f'{model.__class__.__name__}_{model.name}_{model.expanders[-1].__class__.__name__}')
+        title = f'{model.__class__.__name__}_{model.name}_{model.expanders[-2].__class__.__name__}'
+        self.export_timeseries_results(result_df, target_features, plot_dir, title)
         self.export_model_properties(model, metrics_dir)

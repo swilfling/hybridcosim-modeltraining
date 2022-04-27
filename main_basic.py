@@ -19,7 +19,7 @@ if __name__ == '__main__':
     data_dir_path = "../"
     results_dir_path = "./results/"
     usecase_config_path = os.path.join("./", 'Configuration','UseCaseConfig')
-    usecase_name = 'Beyond_B20_Gas'
+    usecase_name = 'Solarhouse1'
     dict_usecase = data_import.load_from_json(os.path.join(usecase_config_path, f"{usecase_name}.json"))
 
     data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(os.path.join(data_dir_path, dict_usecase['dataset']), os.path.join("./", dict_usecase['fmu_interface']))
@@ -60,7 +60,7 @@ if __name__ == '__main__':
     # Train model
     model.train(x_train, y_train)
     # Save Model
-    train_utils.save_model_and_parameters(os.path.join(results_dir_path, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[0]}"), model, training_params)
+    train_utils.save_model_and_parameters(os.path.join(results_dir_path, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"), model, training_params)
     # Predict test data
     result_prediction = predict_gt(model, index_test, x_test, y_test, training_params)
 
@@ -77,8 +77,10 @@ if __name__ == '__main__':
         #white_test_results = ModelTraining.datamodels.datamodels.validation.white_test.white_test(x_test, y_true - y_pred)
 
         test_prediction = result_prediction[[f"predicted_{feature}" for feature in target_features]].to_numpy()
-        results.append(TrainingResults(train_index=index_train, train_target=y_train,
-                                 test_index=index_test, test_target=y_test, test_prediction=test_prediction))
+        result_data =TrainingResults(train_index=index_train.to_numpy(), train_target=y_train,
+                                 test_index=index_test.to_numpy(), test_target=y_test, test_prediction=test_prediction)
+        #result_data.to_file(os.path.join(results_dir_path, f'Results_{model_type}_{feature}_{training_params.expansion[-1]}.json'))
+        results.append(result_data)
         # Export metrics
         metrics_exp.export_results(model, target_features, result_prediction)
 

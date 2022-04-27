@@ -31,7 +31,7 @@ def create_model(training_params: TrainingParams, **kwargs):
     normalizer = getattr(ModelTraining.datamodels.datamodels.processing, training_params.normalizer)
     expanders = create_expanders(training_params.expansion, expander_parameters=kwargs.get('expander_parameters',{}))
     model = model_type(x_scaler_class=normalizer,
-                      name=str(training_params.target_features),
+                      name="_".join(training_params.target_features),
                       train_function=train_model,
                       expanders=expanders,
                       parameters={})
