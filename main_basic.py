@@ -2,7 +2,6 @@ import os
 import logging
 
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
-import ModelTraining.Preprocessing.get_data_and_feature_set
 from ModelTraining.Utilities.MetricsExport import MetricsExport
 from ModelTraining.Utilities.MetricsExport import export_metrics as metr_exp
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils

@@ -19,32 +19,22 @@ if __name__ == '__main__':
     list_usecases = args.usecase_names.split(",")
     data_dir = "../"
     root_dir = "./"
+    plot_enabled = False
 
     # basic training params
-    trainparams_basic = TrainingParams(model_type=model_types[0],
-                                       lookback_horizon=4,
-                                       prediction_horizon=1,
-                                       training_split=0.8,
-                                       normalizer="Normalizer",
-                                       expansion=['IdentityExpander'])
+    trainparams_basic = TrainingParams.load(os.path.join(root_dir, 'Configuration', 'training_params_normalized.json'))
 
     # Model parameters and expansion parameters
     parameters_full = {model_type: data_import.load_from_json(os.path.join(root_dir, 'Configuration/GridSearchParameters', f'parameters_{model_type}.json')) for model_type in model_types}
     expansion_types = [['IdentityExpander','IdentityExpander'],['IdentityExpander','PolynomialExpansion']]
-    expander_parameters = {'degree': 2, 'interaction_only': True, 'include_bias': False}
+    expander_parameters = data_import.load_from_json(os.path.join(root_dir, 'Configuration','expander_params_PolynomialExpansion.json' ))
+    # Feature selection
+    list_feature_select_params = [[FeatureSelectionParams('MIC-value',0.05), FeatureSelectionParams('R-value',0.05)]]
 
     # Use cases
     usecase_config_path = os.path.join(root_dir, 'Configuration/UseCaseConfig')
-    solarhouse_usecases = ['Solarhouse1', 'Solarhouse2', 'Solarhouse1_P']
-    solarhouse_usecases = []
-    inffeld_usecases = ['CPS-Data','SensorA6','SensorB2','SensorC6']
-    beyond_usecases = ['Beyond_B12_Gas','Beyond_B20_Gas', 'Beyond_B20_LR']
-    #list_usecases = inffeld_usecases + solarhouse_usecases[0:1]
-
-    dict_usecases = [data_import.load_from_json(os.path.join(usecase_config_path, f"{name}.json")) for name in list_usecases]
-    plot_enabled = False
-    # Feature selection
-    list_feature_select_params = [[FeatureSelectionParams('MIC-value',0.05), FeatureSelectionParams('R-value',0.05)]]
+    dict_usecases = [data_import.load_from_json(os.path.join(usecase_config_path, f"{name}.json")) for name in
+                     list_usecases]
 
     # Results output
     results_path = os.path.join(root_dir, 'results')

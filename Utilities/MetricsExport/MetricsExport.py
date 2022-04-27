@@ -28,8 +28,9 @@ class MetricsExport:
         for i, selector in enumerate(selectors):
             selector.save_pkl(results_dir_path, f"{selector.__class__.__name__}_{i}.pickle")
         for expander, selector in zip(expanders, selectors):
+            feature_names = expander.get_feature_names_out(feature_names)
             self.export_coeffs(selector.get_coef(),
-                               feature_names=expander.get_feature_names_out(feature_names),
+                               feature_names=feature_names,
                                dir=results_dir_path,
                                title=f'{selector.__class__.__name__} - {expander.__class__.__name__}',
                                ylabel=str(selector.__class__.__name__))
