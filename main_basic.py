@@ -1,8 +1,8 @@
 import os
 import logging
 
+import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
 import ModelTraining.Preprocessing.get_data_and_feature_set
-import ModelTraining.Training.TrainingUtilities.training_utils
 from ModelTraining.Utilities.MetricsExport import MetricsExport
 from ModelTraining.Utilities.MetricsExport import export_metrics as metr_exp
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
@@ -23,6 +23,7 @@ if __name__ == '__main__':
     dict_usecase = data_import.load_from_json(os.path.join(usecase_config_path, f"{usecase_name}.json"))
 
     data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(os.path.join(data_dir_path, dict_usecase['dataset']), os.path.join("./", dict_usecase['fmu_interface']))
+    data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
     target_features = feature_set.get_output_feature_names()
 
     # Added: Preprocessing - Smooth features

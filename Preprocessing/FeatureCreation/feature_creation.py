@@ -13,7 +13,7 @@ def feature_mult(data, label_1, label_2):
 
 
 def feature_mean(data, labels, output_label):
-    data[output_label] = np.mean(data[[labels]], axis=1)
+    data[output_label] = np.mean(data[labels], axis=1)
     return data
 
 
