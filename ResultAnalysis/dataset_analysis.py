@@ -1,16 +1,15 @@
 #%%
 
-import pandas as pd
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
-import statsmodels.stats.outliers_influence as stats
-
 import ModelTraining.Preprocessing.get_data_and_feature_set
+from ModelTraining.Preprocessing.data_analysis import calc_vif_df
 from ModelTraining.Utilities.Parameters import TrainingParams
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.Utilities.MetricsExport.export_metrics as metr_exp
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import os
+
 
 if __name__ == '__main__':
     root_dir = "../"
@@ -56,20 +55,13 @@ if __name__ == '__main__':
         data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=True)
         training_params = TrainingParams(training_split=0.8,static_input_features=feature_set.get_static_feature_names(),target_features=feature_set.get_output_feature_names(),
                                          dynamic_input_features=[])
-
-        vif = pd.DataFrame(index=training_params.static_input_features)
-        vif['VIF'] = [stats.variance_inflation_factor(data[training_params.static_input_features].values,i) for i in range(len(training_params.static_input_features))]
-        #print(vif)
-        vif.to_csv(f'{vif_path}/vif_{usecase_name}_full.csv',float_format=float_format,index_label='Feature')
-        pd.options.mode.use_inf_as_na = True
-        vif = vif.dropna(axis=0)
+        static_data = data[training_params.static_input_features]
+        vif = calc_vif_df(static_data.values, static_data.columns, dropinf=False)
+        vif.to_csv(f'{vif_path}/vif_{usecase_name}_full.csv', float_format=float_format, index_label='Feature')
+        vif = calc_vif_df(static_data.values, static_data.columns, dropinf=True)
         vif.to_csv(f'{vif_path}/vif_{usecase_name}.csv',float_format=float_format,index_label='Feature')
         print(vif)
-        noninf_features = vif.index
-        print(noninf_features)
-        expanded_features = train_utils.expand_features(data, noninf_features, [],expander_parameters={"interaction_only":interaction_only})
-        vif_expanded = pd.DataFrame(index=expanded_features.columns)
-        vif_expanded['VIF'] = [stats.variance_inflation_factor(expanded_features.values,i) for i in range(len(expanded_features.columns))]
-        vif_expanded = vif_expanded.dropna(axis=0)
+        expanded_features = train_utils.expand_features(static_data, training_params.static_input_features, [],expander_parameters=expander_parameters)
+        vif_expanded = calc_vif_df(expanded_features.values, expanded_features.columns, True)
         print(vif_expanded)
         vif_expanded.to_csv(f'{vif_path}/vif_expanded_{usecase_name}_full.csv',float_format=float_format, index_label='Feature')

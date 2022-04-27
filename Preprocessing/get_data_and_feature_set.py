@@ -29,5 +29,4 @@ def get_data_and_feature_set(data_filename, interface_filename):
 
 
 def create_date_range(y1, m1, d1, y2, m2, d2, freq='1H'):
-    return [timestamp for timestamp in
-     pd.date_range(pd.Timestamp(y1, m1, d1), pd.Timestamp(y2, m2, d2), freq=freq)]
+    return pd.date_range(pd.Timestamp(y1, m1, d1), pd.Timestamp(y2, m2, d2), freq=freq)

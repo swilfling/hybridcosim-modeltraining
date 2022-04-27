@@ -2,6 +2,9 @@ from . Filter import ButterworthFilter, ChebyshevFilter, Envelope_MA
 
 
 def preprocess_data(data, features_to_smoothe, do_smoothe=False, keep_nans=False):
+    """
+        This is the main preprocessing function.
+    """
     if do_smoothe:
         data = smoothe_data(data, keep_nans, features_to_smoothe)
     return data

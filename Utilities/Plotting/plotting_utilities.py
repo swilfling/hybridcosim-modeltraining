@@ -107,7 +107,7 @@ Parameters:
 - DataFrame
 '''
 def scatterplot(y_pred, y_true, fig_save_path="./", filename="Scatterplot", **kwargs):
-    fig, ax, = plt_utils.create_figure(figsize=kwargs.pop('figsize', None), fig_title=kwargs.pop('fig_title'))
+    fig, ax, = plt_utils.create_figure(figsize=kwargs.pop('figsize', None), fig_title=kwargs.pop('fig_title',""))
     ax.scatter(y_true,y_pred,alpha=0.5,
                 color=kwargs.get('color','blue'), label=kwargs.get('label'))
     #plt.title("Linear Regression model")

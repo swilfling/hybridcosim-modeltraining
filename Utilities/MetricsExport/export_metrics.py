@@ -21,7 +21,7 @@ def export_corrmatrices(data, metrics_path, filename, plot_enabled=True, expande
     if data.shape[1] > 1:
         plt_utils.printHeatMap(data, metrics_path,
                            f'Correlation_{filename}_IdentityExpander',
-                           plot_enabled=plot_enabled)
+                           plot_enabled=plot_enabled, annot=True)
         expanded_features = train_utils.expand_features(data, data.columns, [], expander_parameters=expander_parameters)
         plt_utils.printHeatMap(expanded_features, metrics_path,
                            f'Correlation_{filename}_PolynomialExpansion',
