@@ -23,20 +23,20 @@ def holiday_weekend(data, holiday_label='holiday', weekday_label='weekday'):
 
 
 def create_additional_feats(data, filename):
-    if filename == "P2017_20_Solarhouse_2":
+    if "P2017_20_Solarhouse_2" in filename:
         data = inverse_transf(data, 'Vd_Solar')
         for feature in ['T_Aussen','R_Global','T_Solar_RL']:
             data = feature_mult(data, feature, 'Vd_Solar_inv')
-    if filename in ["cps_data", "sensor_A6", "sensor_B2", "sensor_C6"]:
-        data = holiday_weekend(data)
-    if filename == 'Beyond_B20_full':
+    if 'Beyond_B20_full' in filename:
         data = feature_mean(data, ['TB20BR1','TB20BR2','TB20BR3','TB20LR'], 'TB20')
-    if filename == 'Beyond_B12_full':
+    if 'Beyond_B12_full' in filename:
         data = feature_mean(data,['TB12BR1', 'TB12BR2', 'TB12BR3', 'TB12LR'],'TB12')
     if "Resampled15min" in filename:
         data = inverse_transf(data, 'VDSolar')
         for feature in ['TAussen','SGlobal','TSolarRL']:
             data = feature_mult(data, feature, 'VDSolar_inv')
+    if 'cps_data' in filename or 'sensor_A6' in filename or 'sensor_B2' in filename or 'sensor_C6' in filename:
+        data = holiday_weekend(data)
     data = data.dropna(axis=0)
     data = data.astype('float')
     return data
