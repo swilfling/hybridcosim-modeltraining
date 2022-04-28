@@ -5,27 +5,11 @@ from datetime import datetime
 import pandas as pd
 
 from ModelTraining.datamodels.datamodels.validation import metrics as metrics
-import ModelTraining.Preprocessing.FeatureCreation.cyclic_features as cyc_feats
-from ModelTraining.Utilities.Plotting import plotting_utilities as plt_utils
-import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 
 
 def update_metr_df(df_full, dict_data, prefix="", suffix=""):
     df_new = pd.DataFrame(data=dict_data, index=df_full.index)
     return df_full.join(df_new.add_suffix(suffix).add_prefix(prefix))
-
-
-def export_corrmatrices(data, metrics_path, filename, plot_enabled=True, expander_parameters={}):
-    features_to_exclude = cyc_feats.get_cyc_feature_names()
-    data = data[[col for col in data.columns if col not in features_to_exclude]]
-    if data.shape[1] > 1:
-        plt_utils.printHeatMap(data, metrics_path,
-                           f'Correlation_{filename}_IdentityExpander',
-                           plot_enabled=plot_enabled, annot=True)
-        expanded_features = train_utils.expand_features(data, data.columns, [], expander_parameters=expander_parameters)
-        plt_utils.printHeatMap(expanded_features, metrics_path,
-                           f'Correlation_{filename}_PolynomialExpansion',
-                           plot_enabled=plot_enabled, annot=False)
 
 
 def calc_metrics(y_true,y_pred, no_samples=0, n_predictors=0,metrics_names=['R2','CV-RMS', 'MAPE']):
@@ -39,7 +23,7 @@ def calc_metrics(y_true,y_pred, no_samples=0, n_predictors=0,metrics_names=['R2'
     return metrs_feature
 
 
-def store_all_metrics(df_full, results_path, metrics_names):
+def store_all_metrics(df_full, results_path, metrics_names={'FeatureSelect': ['selected_features', 'all_features'], 'Metrics': ['R2_SKLEARN', 'CV-RMS', 'MAPE', 'RA_SKLEARN'], 'pvalues': ['pvalue_lm', 'pvalue_f']}):
     timestamp = create_file_name_timestamp()
     df_full.to_csv(os.path.join(results_path, f'AllMetrics_full_{timestamp}.csv'),index_label='Model', float_format='%.3f')
 
@@ -48,7 +32,8 @@ def store_all_metrics(df_full, results_path, metrics_names):
     df_whitetest = get_df_subset(df_full, 'pvalues')
 
     for df, filename in zip([df_metrics, df_featsel, df_whitetest], ['Metrics','feature_select','whitetest']):
-        df.to_csv(os.path.join(results_path, f'{filename}_full_{timestamp}.csv'),index_label='Model', float_format='%.3f')
+        if not df.empty:
+            df.to_csv(os.path.join(results_path, f'{filename}_full_{timestamp}.csv'),index_label='Model', float_format='%.3f')
 
     # Store single metrics separately
     for name in metrics_names['Metrics']:
@@ -70,3 +55,5 @@ def create_file_name_timestamp():
 def metrics_to_json(dict_metrics, filename):
     with open(filename, 'w') as f:
         json.dump(dict_metrics, f)
+
+
