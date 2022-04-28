@@ -3,9 +3,6 @@ import os
 from typing import List
 
 from sklearn.model_selection import GridSearchCV
-
-import ModelTraining.Training.TrainingUtilities.training_utils
-import ModelTraining.datamodels.datamodels.validation.white_test
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.Training.predict import predict_with_history, predict_gt
 from ModelTraining.Training.ModelCreation import create_model
@@ -27,8 +24,8 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
         target_features = training_params.target_features
 
         # Get data and reshape
-        index, x, y, feature_names = ModelTraining.Training.TrainingUtilities.training_utils.extract_training_and_test_set(data, training_params)
-        index_train, x_train, y_train, index_test, x_test, y_test = ModelTraining.Training.TrainingUtilities.training_utils.split_into_training_and_test_set(
+        index, x, y, feature_names = train_utils.extract_training_and_test_set(data, training_params)
+        index_train, x_train, y_train, index_test, x_test, y_test = train_utils.split_into_training_and_test_set(
             index, x, y, training_params.training_split)
 
         # Create model
@@ -54,7 +51,7 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
         model.train(x_train, y_train)
         models.append(model)
         # Save Model
-        train_utils.save_model_and_parameters(os.path.join(results_dir_path, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[0]}"), model, training_params)
+        train_utils.save_model_and_parameters(os.path.join(results_dir_path, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"), model, training_params)
         # Predict test data
         predict_function = predict_with_history if prediction_type == 'History' else predict_gt
         result_prediction = predict_function(model, index_test, x_test, y_test, training_params)

@@ -65,6 +65,7 @@ if __name__ == '__main__':
     test_prediction = result_prediction[[f"predicted_{feature}" for feature in target_features]].to_numpy()
     result_data = TrainingResults(train_index=index_train.to_numpy(), train_target=y_train,
                              test_index=index_test.to_numpy(), test_target=y_test, test_prediction=test_prediction, test_input=x_test)
+    result_data.save_pkl(results_dir_path, "result_data.pkl")
     # Export metrics
     df_metrics = analyze_result([model], [result_data], [training_params], plot_enabled=plot_enabled,
                                 results_dir_path=results_dir_path)

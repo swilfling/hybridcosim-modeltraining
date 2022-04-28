@@ -90,6 +90,7 @@ def analyze_result(models, results, list_training_parameters, list_selectors=[],
                                                       suffix='_FeatureSelect')
 
     for model, result, train_params in zip(models, results, list_training_parameters):
+        result.save_pkl(results_dir_path,f'results_{model.__class__.__name__}_{"_".join(train_params.target_features)}_{model.expanders[-2].__class__.__name__}.pkl')
         metrics_exp.export_results(model, train_params.target_features, result.test_index, result.test_target, result.test_prediction)
         for i, feature in enumerate(train_params.target_features):
             y_true = result.test_target[:,i]
