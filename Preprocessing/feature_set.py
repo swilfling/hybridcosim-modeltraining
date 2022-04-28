@@ -90,12 +90,19 @@ class FeatureSet:
         feats = self.get_selected_feats(feats, "input", "feature_type")
         return self.get_feat_names(self.get_selected_feats(feats, model_name))
 
-    def add_static_input_feature(self, name='', models=['']):
-        self.features.append(Feature(name=f"{name}", static=True,feature_type='input', models=models))
+    def add_feature(self, feature):
+        self.features.append(feature)
 
-    def add_static_input_features(self, names=[], models=[]):
-        for name in names:
-            self.add_static_input_feature(name, models)
+    def get_feature_by_name(self, name):
+        for feature in self.features:
+            if feature.name == name:
+                return feature
+
+    def remove_feature_by_name(self, name):
+        for feature in self.features:
+            if feature.name == name:
+                self.features.remove(feature)
+                break
 
     @staticmethod
     def _get_selected_features_from_file(data, selector="", select_value=""):

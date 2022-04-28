@@ -3,11 +3,10 @@
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
 import ModelTraining.Preprocessing.get_data_and_feature_set
 from ModelTraining.Preprocessing.data_analysis import calc_vif_df
-from ModelTraining.Utilities.Parameters import TrainingParams
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
-import ModelTraining.Utilities.MetricsExport.export_metrics as metr_exp
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
+import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 import os
 
 
@@ -39,8 +38,17 @@ if __name__ == '__main__':
         # Data preprocessing
         data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=True)
         # Export correlation matrices
-        metr_exp.export_corrmatrices(data[feature_set.get_input_feature_names()], matrix_path,
-                                     usecase_name, True, expander_parameters=expander_parameters)
+        features_for_corrmatrix = [feature.name for feature in feature_set.get_input_feats() if not feature.cyclic and not feature.statistical]
+
+        if data.shape[1] > 1:
+            plt_utils.printHeatMap(data[features_for_corrmatrix], matrix_path,
+                                   f'Correlation_{usecase_name}_IdentityExpander',
+                                   plot_enabled=True, annot=True)
+            expanded_features = train_utils.expand_features(data, features_for_corrmatrix, [],
+                                                            expander_parameters=expander_parameters)
+            plt_utils.printHeatMap(expanded_features, matrix_path,
+                                   f'Correlation_{usecase_name}_PolynomialExpansion',
+                                   plot_enabled=True, annot=False)
 
 
 #%% VIF calculation
@@ -53,15 +61,13 @@ if __name__ == '__main__':
         data = data.astype('float')
         # Data preprocessing
         data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=True)
-        training_params = TrainingParams(training_split=0.8,static_input_features=feature_set.get_static_feature_names(),target_features=feature_set.get_output_feature_names(),
-                                         dynamic_input_features=[])
-        static_data = data[training_params.static_input_features]
+        static_data = data[feature_set.get_static_feature_names()]
         vif = calc_vif_df(static_data.values, static_data.columns, dropinf=False)
         vif.to_csv(f'{vif_path}/vif_{usecase_name}_full.csv', float_format=float_format, index_label='Feature')
         vif = calc_vif_df(static_data.values, static_data.columns, dropinf=True)
         vif.to_csv(f'{vif_path}/vif_{usecase_name}.csv',float_format=float_format,index_label='Feature')
         print(vif)
-        expanded_features = train_utils.expand_features(static_data, training_params.static_input_features, [],expander_parameters=expander_parameters)
+        expanded_features = train_utils.expand_features(data, feature_set.get_static_feature_names(), [],expander_parameters=expander_parameters)
         vif_expanded = calc_vif_df(expanded_features.values, expanded_features.columns, True)
         print(vif_expanded)
         vif_expanded.to_csv(f'{vif_path}/vif_expanded_{usecase_name}_full.csv',float_format=float_format, index_label='Feature')
