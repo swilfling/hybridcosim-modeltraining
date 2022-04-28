@@ -3,6 +3,7 @@ import pandas as pd
 from ModelTraining.Preprocessing import FeatureSet
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
+from . FeatureCreation.feature_creation import create_additional_feats
 
 
 def get_data_and_feature_set(data_filename, interface_filename):
@@ -24,6 +25,7 @@ def get_data_and_feature_set(data_filename, interface_filename):
             data = data_import.import_data(data_filename, freq='15T')
             data = data[:pd.Timestamp(2019, 10, 25)]
 
+    data = create_additional_feats(data=data, filename=data_filename)
     feature_set = FeatureSet(interface_filename)
     return data, feature_set
 
