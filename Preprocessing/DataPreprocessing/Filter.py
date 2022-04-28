@@ -7,6 +7,12 @@ from ModelTraining.datamodels.datamodels.processing.feature_extension.StoreInter
 
 
 class Filter(TransformerMixin, StoreInterface):
+    """
+    Signal filter - based on sklearn TransformerMixin. Can be stored to pickle file (StoreInterface).
+    Options:
+        - keep_nans: Filtered signal still keeps NaN values from original signals
+        - remove_offset: Remove offset from signal before filtering, apply offset afterwards
+    """
     keep_nans = False
     mask_nan = None
     remove_offset = False
@@ -17,6 +23,11 @@ class Filter(TransformerMixin, StoreInterface):
         self._set_attrs(**kwargs)
 
     def fit_transform(self, X, y=None, **fit_params):
+        """
+        Fit transformer - Overrides TransformerMixin method.
+        @param x: Input feature vector (n_samples, n_features)
+        @param y: Target feature vector (n_samples)
+        """
         if self.remove_offset:
             self.offset = np.nanmean(X, axis=0)
             X = X - self.offset
@@ -31,12 +42,17 @@ class Filter(TransformerMixin, StoreInterface):
         return x_filt
 
     def _fit_transform(self, X, y=None, **fit_params):
+        """
+        Filter signal. Override if necessary.
+        @param x: Input feature vector (n_samples, n_features)
+        @param y: Target feature vector (n_samples)
+        """
         return sig.lfilter(*self.coeffs, X, axis=0)
 
 
 class ButterworthFilter(Filter):
     """
-    Butterworth lowpass filter for data smoothing
+    Butterworth lowpass filter for data smoothing.
     """
     T = 10
     order = 2
@@ -49,7 +65,7 @@ class ButterworthFilter(Filter):
 
 class ChebyshevFilter(Filter):
     """
-       Chebyshev lowpass filter for data smoothing
+       Chebyshev lowpass filter for data smoothing.
     """
     T = 10
     order = 2
@@ -76,16 +92,27 @@ class Envelope_MA(Filter):
         self._set_attrs(T=T)
 
     def _fit_transform(self, X, y=None, **fit_params):
+        """
+        Calculate envelope.
+        This is taken from https://stackoverflow.com/a/69357933
+        @param x: Input feature vector (n_samples, n_features)
+        @param y: Target feature vector (n_samples)
+        """
         X_df = pd.DataFrame(X)
-        # This is taken from https://stackoverflow.com/a/69357933
         self.envelope_h = X_df.rolling(window=self.T).max().shift(int(-self.T / 2))
         self.envelope_l = X_df.rolling(window=self.T).min().shift(int(-self.T / 2))
         self.envelope_avg = np.mean(np.dstack((self.envelope_l, self.envelope_h)),axis=-1)
         return self.envelope_avg
 
     def get_max_env(self):
+        """
+            Get upper bound of envelope
+        """
         return self.envelope_h
 
     def get_min_env(self):
+        """
+        Get lower bound of envelope
+        """
         return self.envelope_l
 

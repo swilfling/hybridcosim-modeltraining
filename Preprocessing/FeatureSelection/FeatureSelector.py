@@ -4,11 +4,16 @@ from minepy.mine import MINE
 from mlxtend.feature_selection import SequentialFeatureSelector as SFS
 from sklearn.feature_selection import SelectorMixin, f_regression, r_regression
 from sklearn.linear_model import LinearRegression
-
+from abc import abstractmethod
 from ModelTraining.datamodels.datamodels.processing.feature_extension.StoreInterface import StoreInterface
 
 
 class FeatureSelector(SelectorMixin, StoreInterface):
+    """
+        FeatureSelector - implements SelectorMixin interface, can be stored to pickle.
+        Options:
+            - omit_zero_samples: Omit zero samples from selection
+    """
     coef_ = None
     nonzero = None
     omit_zero_samples=False
@@ -32,6 +37,11 @@ class FeatureSelector(SelectorMixin, StoreInterface):
         self.omit_zero_samples = kwargs.pop('omit_zero_samples', False)
 
     def fit_transform(self, X, y=None, **fit_params):
+        """
+        Fit transformer - Overrides TransformerMixin method.
+        @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
+        @param y: Target feature vector (n_samples)
+        """
         if X.ndim == 3:
             X = X.reshape((X.shape[0],X.shape[1] * X.shape[2]))
         self.nonzero = ~np.all(X == 0, axis=0)
@@ -45,28 +55,58 @@ class FeatureSelector(SelectorMixin, StoreInterface):
 
         return X[:,self.get_support()]
 
-    # Override this method
+    @abstractmethod
     def _fit_transform(self, X, y, **fit_params):
-        pass
+        """
+        Fit transformer - Override this method!
+        @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
+        @param y: Target feature vector (n_samples)
+        """
+        raise NotImplementedError()
 
-    # Override this if necessary
     def _get_support_mask(self):
+        """
+        Get boolean mask of selected features - override if necessary.
+        """
         return self.coef_ > self.thresh if not self.omit_zero_samples else (self.coef_ > self.thresh) & self.nonzero
 
+    def get_num_selected_features(self):
+        """
+        Get number of selected features - override if necessary.
+        """
+        return np.sum(self._get_support_mask())
+
     def get_num_features(self):
-        return np.sum(self._get_support_mask() > 0)
+        """
+        Get total number of features - override if necessary.
+        """
+        return self.coef_.shape[0]
 
     def get_metrics(self):
-        return {'selected_features': np.sum(self.get_support()), 'all_features': len(self.get_support())}
+        """
+        return selected and total features
+        """
+        return {'selected_features': self.get_num_selected_features(), 'all_features': self.get_num_features()}
 
     def print_metrics(self):
-        print(f'Selecting features: {np.sum(self.get_support())} of {len(self.get_support())}')
+        """
+        Print number of selected and total features
+        """
+        print(f'Selecting features: {self.get_num_selected_features()} of {self.get_num_features()}')
 
     def get_coef(self):
+        """
+        get coefficients for selected features
+        """
         return self.coef_[self.get_support()]
 
 
 class f_threshold(FeatureSelector):
+    """
+    F-Threshold:
+    Threshold based on F-test of the Pearson correlation value.
+    The F-test values are normalized between 0 and 1 for the smallest to highest value.
+    """
     def _fit_transform(self, X, y=None, **fit_params):
         f_val = f_regression(X, y)[0]
         # Normalize f val
@@ -74,6 +114,10 @@ class f_threshold(FeatureSelector):
 
 
 class r_threshold(FeatureSelector):
+    """
+    R-Threshold:
+    Threshold based on absolute value of the Pearson correlation value.
+    """
     def _fit_transform(self, X, y=None, **fit_params):
         if X.shape[-1] > 0:
             return np.abs(r_regression(X, y))
@@ -81,11 +125,22 @@ class r_threshold(FeatureSelector):
 
 
 class identity(FeatureSelector):
+    """
+    Identity:
+    All features are selected.
+    """
     def _fit_transform(self, X, y, **fit_params):
         return np.ones(X.shape[-1])
 
+    def _get_support_mask(self):
+        return np.array([True] * self.coef_.shape[-1])
+
 
 class mine_mic_threshold(FeatureSelector):
+    """
+    MIC-threshold
+    Features are selected based on MIC.
+    """
     def _fit_transform(self, X, y=None, **fit_params):
         n_features = X.shape[-1]
         coef = np.zeros(n_features)
@@ -97,6 +152,10 @@ class mine_mic_threshold(FeatureSelector):
 
 
 class ennemi_threshold(FeatureSelector):
+    """
+    ennemi-threshold
+    Features are selected based on ennemi criterion.
+    """
     def _fit_transform(self, X, y=None, **fit_params):
         return np.array([ennemi.estimate_corr(np.ravel(y), X[:,i], preprocess=True) for i in range(X.shape[-1])]).ravel()
 
