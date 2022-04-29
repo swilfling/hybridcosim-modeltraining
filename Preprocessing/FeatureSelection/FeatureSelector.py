@@ -3,14 +3,16 @@ import numpy as np
 from minepy.mine import MINE
 from mlxtend.feature_selection import SequentialFeatureSelector as SFS
 from sklearn.feature_selection import SelectorMixin, f_regression, r_regression
+from sklearn.base import BaseEstimator
 from sklearn.linear_model import LinearRegression
 from abc import abstractmethod
 from ModelTraining.datamodels.datamodels.processing.feature_extension.StoreInterface import StoreInterface
 
 
-class FeatureSelector(SelectorMixin, StoreInterface):
+class FeatureSelector(SelectorMixin, BaseEstimator, StoreInterface):
     """
         FeatureSelector - implements SelectorMixin interface, can be stored to pickle.
+        Basic implementation: threshold
         Options:
             - omit_zero_samples: Omit zero samples from selection
     """
@@ -32,31 +34,36 @@ class FeatureSelector(SelectorMixin, StoreInterface):
     def from_params(params):
         return FeatureSelector.from_name(params.sel_type)(thresh=params.threshold, omit_zero_samples=params.omit_zero_samples)
 
-    def __init__(self, thresh, **kwargs):
-        self.thresh = thresh
-        self.omit_zero_samples = kwargs.pop('omit_zero_samples', False)
+    def __init__(self, thresh=0, omit_zero_samples=False, **kwargs):
+        self.set_params(thresh=thresh, omit_zero_samples=omit_zero_samples)
 
-    def fit_transform(self, X, y=None, **fit_params):
+    def fit(self, X, y=None, **fit_params):
         """
         Fit transformer - Overrides TransformerMixin method.
         @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
         @param y: Target feature vector (n_samples)
         """
-        if X.ndim == 3:
-            X = X.reshape((X.shape[0],X.shape[1] * X.shape[2]))
+        X = self.reshape_data(X)
         self.nonzero = ~np.all(X == 0, axis=0)
         self.nz_idx = np.where(self.nonzero)
         if self.omit_zero_samples:
-            coef = self._fit_transform(X[:, self.nonzero], y, **fit_params)
+            coef = self._fit(X[:, self.nonzero], y, **fit_params)
             self.coef_ = np.zeros(X.shape[-1])
             self.coef_[self.nz_idx] = coef
         else:
-            self.coef_ = self._fit_transform(X, y, **fit_params)
+            self.coef_ = self._fit(X, y, **fit_params)
+        return self
 
-        return X[:,self.get_support()]
+    def transform(self, X):
+        """
+        Transform samples.
+        @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
+        @return: Output feature vector (n_samples, n_features) or (n_samples, n_selected_features * lookback)
+        """
+        return super(FeatureSelector, self).transform(self.reshape_data(X))
 
     @abstractmethod
-    def _fit_transform(self, X, y, **fit_params):
+    def _fit(self, X, y, **fit_params):
         """
         Fit transformer - Override this method!
         @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
@@ -100,6 +107,14 @@ class FeatureSelector(SelectorMixin, StoreInterface):
         """
         return self.coef_[self.get_support()]
 
+    def reshape_data(self, X):
+        """
+        Reshape data if 3-dimensional.
+        """
+        if X.ndim == 3:
+            X = X.reshape((X.shape[0], X.shape[1] * X.shape[2]))
+        return X
+
 
 class f_threshold(FeatureSelector):
     """
@@ -107,7 +122,7 @@ class f_threshold(FeatureSelector):
     Threshold based on F-test of the Pearson correlation value.
     The F-test values are normalized between 0 and 1 for the smallest to highest value.
     """
-    def _fit_transform(self, X, y=None, **fit_params):
+    def _fit(self, X, y=None, **fit_params):
         f_val = f_regression(X, y)[0]
         # Normalize f val
         return f_val / np.nanmax(f_val)
@@ -118,7 +133,7 @@ class r_threshold(FeatureSelector):
     R-Threshold:
     Threshold based on absolute value of the Pearson correlation value.
     """
-    def _fit_transform(self, X, y=None, **fit_params):
+    def _fit(self, X, y=None, **fit_params):
         if X.shape[-1] > 0:
             return np.abs(r_regression(X, y))
         return None
@@ -129,7 +144,7 @@ class identity(FeatureSelector):
     Identity:
     All features are selected.
     """
-    def _fit_transform(self, X, y, **fit_params):
+    def _fit(self, X, y, **fit_params):
         return np.ones(X.shape[-1])
 
     def _get_support_mask(self):
@@ -141,7 +156,7 @@ class mine_mic_threshold(FeatureSelector):
     MIC-threshold
     Features are selected based on MIC.
     """
-    def _fit_transform(self, X, y=None, **fit_params):
+    def _fit(self, X, y=None, **fit_params):
         n_features = X.shape[-1]
         coef = np.zeros(n_features)
         mine = MINE()
@@ -156,11 +171,14 @@ class ennemi_threshold(FeatureSelector):
     ennemi-threshold
     Features are selected based on ennemi criterion.
     """
-    def _fit_transform(self, X, y=None, **fit_params):
+    def _fit(self, X, y=None, **fit_params):
         return np.array([ennemi.estimate_corr(np.ravel(y), X[:,i], preprocess=True) for i in range(X.shape[-1])]).ravel()
 
 
 class MIC_R_selector(FeatureSelector):
+    """
+    This is work in progress.
+    """
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.mic_thresh = mine_mic_threshold(**kwargs)
@@ -193,7 +211,7 @@ class MIC_R_selector(FeatureSelector):
 
 
 class ForwardSelector(FeatureSelector):
-    def _fit_transform(self, X, y=None, **fit_params):
+    def _fit(self, X, y=None, **fit_params):
         f_model = LinearRegression()
         # efs = EFS(f_model,
         #           min_features=2,
@@ -206,10 +224,9 @@ class ForwardSelector(FeatureSelector):
                   n_jobs=-1)
 
         self.sfs.fit(X, y)
-        self.num_features = X.shape[-1]
         self.coef_ = self.sfs.k_score_
         return self.coef_
 
     def _get_support_mask(self):
         f_indx = list(self.sfs.k_feature_idx_)
-        return [True if i in f_indx else False for i in range(self.num_features)]
+        return [True if i in f_indx else False for i in range(self.n_features_in_)]

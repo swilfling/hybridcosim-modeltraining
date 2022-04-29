@@ -19,8 +19,8 @@ class Filter(TransformerMixin, StoreInterface):
     offset = None
     coeffs = [[0], [0]]
 
-    def __init__(self, **kwargs):
-        self._set_attrs(**kwargs)
+    def __init__(self, remove_offset=False, keep_nans=False, **kwargs):
+        self._set_attrs(remove_offset=remove_offset, keep_nans=keep_nans)
 
     def fit_transform(self, X, y=None, **fit_params):
         """
