@@ -9,4 +9,4 @@ if __name__ == "__main__":
     filter_2 = ButterworthFilter.load_pkl(path, filename)
     print(filter_2.T)
     print(filter_2.order)
-    print(filter_2.coeffs)
+    print(filter_2.coef_)

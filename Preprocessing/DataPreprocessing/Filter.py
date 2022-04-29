@@ -2,7 +2,7 @@ from sklearn.base import TransformerMixin
 import numpy as np
 import scipy.signal as sig
 import pandas as pd
-
+from abc import abstractmethod
 from ModelTraining.datamodels.datamodels.processing.feature_extension.StoreInterface import StoreInterface
 
 
@@ -17,16 +17,19 @@ class Filter(TransformerMixin, StoreInterface):
     mask_nan = None
     remove_offset = False
     offset = None
-    coeffs = [[0], [0]]
+    coef_ = [[0], [0]]
 
     def __init__(self, remove_offset=False, keep_nans=False, **kwargs):
         self._set_attrs(remove_offset=remove_offset, keep_nans=keep_nans)
 
-    def fit_transform(self, X, y=None, **fit_params):
+    def fit(self, X, y=None, **fit_params):
+        self.coef_ = self._fit(X, y, **fit_params)
+        return self
+
+    def transform(self, X):
         """
-        Fit transformer - Overrides TransformerMixin method.
+        Filter signal
         @param x: Input feature vector (n_samples, n_features)
-        @param y: Target feature vector (n_samples)
         """
         if self.remove_offset:
             self.offset = np.nanmean(X, axis=0)
@@ -34,20 +37,33 @@ class Filter(TransformerMixin, StoreInterface):
         if self.keep_nans:
             self.mask_nan = X.isna()
             X = np.nan_to_num(X)
-        x_filt = self._fit_transform(X)
+        x_filt = self._transform(X)
         if self.remove_offset:
             x_filt = x_filt + self.offset
         if self.keep_nans:
             x_filt[self.mask_nan is True] = np.nan
         return x_filt
 
-    def _fit_transform(self, X, y=None, **fit_params):
+    def _transform(self, X):
         """
         Filter signal. Override if necessary.
         @param x: Input feature vector (n_samples, n_features)
         @param y: Target feature vector (n_samples)
         """
-        return sig.lfilter(*self.coeffs, X, axis=0)
+        return sig.lfilter(*self.coef_, X, axis=0)
+
+    def get_coef(self):
+        """
+        Get filter coefficients.
+        """
+        return self.coef_
+
+    @abstractmethod
+    def _fit(self, X, y=None, **fit_params):
+        """
+        Override this method to create filter coeffs.
+        """
+        raise NotImplementedError
 
 
 class ButterworthFilter(Filter):
@@ -60,7 +76,9 @@ class ButterworthFilter(Filter):
     def __init__(self, T=10, order=2, **kwargs):
         super().__init__(**kwargs)
         self._set_attrs(T=T, order=order)
-        self.coeffs = sig.butter(self.order, 1 / T)
+
+    def _fit(self, X, y=None, **fit_params):
+        return sig.butter(self.order, 1 / self.T)
 
 
 class ChebyshevFilter(Filter):
@@ -70,12 +88,13 @@ class ChebyshevFilter(Filter):
     T = 10
     order = 2
     ripple = 0.1
-    coeffs = None
 
     def __init__(self, T=10, order=2, ripple=0.1, **kwargs):
         super().__init__(**kwargs)
         self._set_attrs(T=T, order=order, ripple=ripple)
-        self.coeffs = sig.cheby1(self.order, ripple, 1 / T)
+
+    def _fit(self, X, y=None, **fit_params):
+        return sig.cheby1(self.order, self.ripple, 1 / self.T)
 
 
 class Envelope_MA(Filter):
@@ -91,7 +110,10 @@ class Envelope_MA(Filter):
         super().__init__(**kwargs)
         self._set_attrs(T=T)
 
-    def _fit_transform(self, X, y=None, **fit_params):
+    def _fit(self, X, y=None, **fit_params):
+        return None
+
+    def _transform(self, X):
         """
         Calculate envelope.
         This is taken from https://stackoverflow.com/a/69357933
