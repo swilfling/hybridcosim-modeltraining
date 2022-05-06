@@ -1,0 +1,9 @@
+{
+    "name":"Solarhouse1_deltaT",
+    "fmu_interface":"Configuration/FMUInterface/Solarhouse1/SolarCollector/FMUInterface_Solar_deltaT.csv",
+    "dataset":"Data/AEE/Resampled15min.csv",
+    "stat_feats": ["TAussen", "SGlobal", "TSolarRL"],
+    "to_smoothe": [],
+    "stat_vals": [],
+    "stat_ws": 96
+}

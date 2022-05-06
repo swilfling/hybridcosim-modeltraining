@@ -1,6 +1,6 @@
 SolarCollector;;;;;;
 Name;In_Out;Init;Stat_Dyn;Predictions;Type;Description
-VDSolar;input;0;static;DeltaTSolar;Real;
+SGlobal_VDSolar_inv;input;25;static;TSolarVL;Real;
 TAussen;input;25;static;DeltaTSolar;Real;
 SGlobal;input;25;static;DeltaTSolar;Real;
 TSolarRL;input;25;;DeltaTSolar;Real;

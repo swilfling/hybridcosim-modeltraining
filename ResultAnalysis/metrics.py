@@ -1,3 +1,4 @@
+#%%
 import pandas as pd
 import numpy as np
 import os
@@ -91,6 +92,7 @@ if __name__ == "__main__":
 
 #%% Metrics - adjust file
 
+    timestamp = "20220414_160549"
     results_file = os.path.join(result_dir, f'Metrics_full_Experiment_{timestamp}.csv')
     df = pd.read_csv(results_file)
 
@@ -107,7 +109,7 @@ if __name__ == "__main__":
             df[col][df[col] == mincol[col]] = f"\\textbf{{{mincol[col]}}}"
             df[col][df[col] == mincol_sec[col]] = f"\\textit{{{mincol_sec[col]}}}"
     print(df)
-    df.to_csv(os.path.join('./Figures/Metrics',f'Metrics_full_Experiment_{timestamp}.csv'))
+    df.to_csv(os.path.join('./Figures/Metrics',f'Metrics_full_Experiment_{timestamp}_edited.csv'))
 
 
 #%% feature select

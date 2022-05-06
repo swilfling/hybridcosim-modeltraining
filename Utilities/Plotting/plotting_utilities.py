@@ -1,10 +1,10 @@
 import os
 import seaborn as sns
-from sklearn.preprocessing import LabelEncoder
 from typing import List
 import pandas as pd
 import matplotlib.pyplot as plt
 import ModelTraining.Utilities.Plotting.utils as plt_utils
+from ModelTraining.Preprocessing.data_analysis import corrmatrix
 
 
 def rename_columns(df, labels):
@@ -88,12 +88,7 @@ def plot_df_subplots(df,fig_save_path, fig_title, plot_params={'axes.labelsize':
     plt_utils.save_figure(fig_save_path, fig_title)
 
 
-def printHeatMap(dataframe, dir="./", filename="Correlation", plot_enabled=True, annot=False):
-    label_encoder = LabelEncoder()
-    dataframe.iloc[:,0] = label_encoder.fit_transform(dataframe.iloc[:,0]).astype('float64')
-    corr = dataframe.corr()
-    corr = corr.dropna(axis=0,thresh=2)
-    corr = corr.dropna(axis=1, thresh=1)
+def printHeatMap(corr, dir="./", filename="Correlation", plot_enabled=True, annot=False):
     corr.to_csv(os.path.join(dir, f'{filename}.csv'))
     if plot_enabled:
         plt.figure(figsize=(15,15))
@@ -107,6 +102,7 @@ Parameters:
 - DataFrame
 '''
 def scatterplot(y_pred, y_true, fig_save_path="./", filename="Scatterplot", **kwargs):
+    pd.DataFrame(index=y_true.values, data=y_pred.values, columns=['y']).to_csv(os.path.join(fig_save_path, f'{filename}.csv'), index_label='x')
     fig, ax, = plt_utils.create_figure(figsize=kwargs.pop('figsize', None), fig_title=kwargs.pop('fig_title',""))
     ax.scatter(y_true,y_pred,alpha=0.5,
                 color=kwargs.get('color','blue'), label=kwargs.get('label'))
