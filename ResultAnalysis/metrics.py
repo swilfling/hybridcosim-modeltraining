@@ -10,7 +10,9 @@ import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 
 if __name__ == "__main__":
     # %%
-    result_dir = os.path.join('../','results')
+    experiment_name = 'Experiment_20220509_113409'
+    result_dir = os.path.join('../','results', experiment_name)
+    output_dir = f"./Figures/{experiment_name}"
     usecase_names = ['CPS-Data','SensorA6', 'SensorB2', 'SensorC6', 'Solarhouse1', 'Solarhouse2']
     target_vals = ['energy'] * 4 + ['TSolarVL','T_Solar_VL']
     solarhouse_usecases = ['Solarhouse1','Solarhouse2']

@@ -40,13 +40,13 @@ def get_df(path, model_types, baseline_model_type, target_val, expansion):
 if __name__ == "__main__":
 # %%
 
-    timeseries_plot_dir = 'Plots/Timeseries'
     csv_files = ['CPS-Data', 'Sensor A6', 'Sensor B2', 'Sensor C6', 'Solarhouse 1', 'Solarhouse 2', 'Beyond B20 Gas']
 
     colormap = plt.cm.get_cmap('tab10')
     plot_colors = [colormap(i) for i in range(6)]
 
-    result_dir = os.path.join('../', 'results')
+    experiment_name = 'Experiment_20220509_113409'
+    result_dir = os.path.join('../', 'results', experiment_name)
     usecase_names = ['CPS-Data', 'SensorA6', 'SensorB2', 'SensorC6', 'Solarhouse1', 'Solarhouse2']
     target_vals = ['energy'] * 4 + ['TSolarVL', 'T_Solar_VL']
     units = ['kWh'] * 4 + ['°C'] * 2
@@ -58,11 +58,14 @@ if __name__ == "__main__":
     model_types = ['RidgeRegression']
     baseline_model_type = 'RandomForestRegression'
 
+    output_dir = f'./Figures/{experiment_name}'
+    os.makedirs(output_dir, exist_ok=True)
 
-
-    #%% Timeseries plots
-    os.makedirs('./Figures/Timeseries',exist_ok=True)
-    os.makedirs('./Figures/Scatter',exist_ok=True)
+#%% Timeseries plots
+    scatter_dir = f'{output_dir}/Scatter'
+    timeseries_dir = f'{output_dir}/Timeseries'
+    os.makedirs(timeseries_dir, exist_ok=True)
+    os.makedirs(scatter_dir, exist_ok=True)
 
     for usecase, target_val in zip(usecase_names, target_vals):
         for threshold_set in thresholds_rfvals:
@@ -79,24 +82,25 @@ if __name__ == "__main__":
             plt.ylabel(f'{ylabel} [kWh]')
             plt.xlabel('Time')
             plt.grid('both')
-            plt.savefig(f'./Figures/Timeseries/{usecase}.png')
-            plt.show()
+            plt.savefig(f'{timeseries_dir}/{usecase}.png')
+            #plt.show()
 
             y_true = df['Measurement value']
 
             for label, color in zip(df.columns[1:],plot_colors[1:]):
                 # Scatterplot
                 y_pred = df[label]
-                plt_utils.scatterplot(y_pred, y_true, './Figures/Scatter',
+                plt_utils.scatterplot(y_pred, y_true, scatter_dir,
                                       filename=f'Scatter_{usecase}_{thresh_name_full}_{label}',
                                       fig_title=f'Correlation - Dataset {usecase}',
                                       figsize=(4,4), color=color, label=label)
 
 
 #%% Residuals plots
-
-    os.makedirs('./Figures/Residuals',exist_ok=True)
-    os.makedirs('./Figures/Residuals/Scatter',exist_ok=True)
+    resid_dir = f'{output_dir}/Residuals'
+    os.makedirs(resid_dir,exist_ok=True)
+    resid_scatter_dir =f'{resid_dir}/Scatter'
+    os.makedirs(resid_scatter_dir,exist_ok=True)
     for usecase, target_val in zip(usecase_names, target_vals):
         for threshold_set in thresholds_rfvals:
             thresh_name_full = "_".join(name for name in threshold_set)
@@ -112,7 +116,7 @@ if __name__ == "__main__":
             plt.title(f'Residuals - Dataset {usecase} - {thresh_name_full}')
             plt.grid('both')
             plt.tight_layout()
-            plt.savefig(f'./Figures/Residuals/Residuals_{usecase}_{thresh_name_full}.png')
+            plt.savefig(f'{resid_dir}/Residuals_{usecase}_{thresh_name_full}.png')
             plt.show()
 
 
@@ -162,7 +166,7 @@ if __name__ == "__main__":
                 plt.xlim([min(y_pred),max(y_pred)])
                 plt.tight_layout()
                 ax.legend()
-                plt.savefig((f'./Figures/Residuals/Scatter/Scatter_Residual_{usecase}_{thresh_name_full}_{label}.png'))
+                plt.savefig(f'{resid_scatter_dir}/Scatter_Residual_{usecase}_{thresh_name_full}_{label}.png')
                 plt.show()
 
 
@@ -170,8 +174,8 @@ if __name__ == "__main__":
 
 
 #%% Residuals Histogram
-
-    os.makedirs('./Figures/Residuals/Hist',exist_ok=True)
+    resid_hist_dir = f'{resid_dir}/Hist'
+    os.makedirs(resid_hist_dir,exist_ok=True)
     for usecase, target_val in zip(usecase_names, target_vals):
         for threshold_set in thresholds_rfvals:
             thresh_name_full = "_".join(name for name in threshold_set)
@@ -197,12 +201,12 @@ if __name__ == "__main__":
                 plt.legend()
                 plt.grid('both')
                 plt.tight_layout()
-                plt.savefig((f'./Figures/Residuals/Hist/Hist_Residual_{usecase}_{thresh_name_full}_{label}.png'))
+                plt.savefig((f'{resid_hist_dir}/Hist_Residual_{usecase}_{thresh_name_full}_{label}.png'))
                 plt.show()
 
 #%%
-
-    os.makedirs('./Figures/Residuals/Spectrum',exist_ok=True)
+    resid_spec_dir = f'{resid_dir}/Spectrum'
+    os.makedirs(resid_spec_dir,exist_ok=True)
     for usecase, target_val in zip(usecase_names, target_vals):
         for threshold_set in thresholds_rfvals:
             thresh_name_full = "_".join(name for name in threshold_set)
@@ -232,7 +236,7 @@ if __name__ == "__main__":
                 plt.title(f'Dataset {usecase} - Residual - Zero mean - {thresh_name_full}')
                 plt.grid('both')
                 plt.tight_layout()
-                plt.savefig((f'./Figures/Residuals/Spectrum/Spectrum_Residual_{usecase}_{thresh_name_full}_{label}_log.png'))
+                plt.savefig(f'{resid_spec_dir}/Spectrum_Residual_{usecase}_{thresh_name_full}_{label}_log.png')
                 plt.show()
 
                 plt.figure(figsize=(10,5))
@@ -258,5 +262,5 @@ if __name__ == "__main__":
                 plt.title(f'Dataset {usecase} - Residual - Zero mean - {thresh_name_full}')
                 plt.grid('both')
                 plt.tight_layout()
-                plt.savefig((f'./Figures/Residuals/Spectrum/Spectrum_Residual_{usecase}_{thresh_name_full}_{label}.png'))
+                plt.savefig(f'{resid_spec_dir}/Spectrum_Residual_{usecase}_{thresh_name_full}_{label}.png')
                 plt.show()

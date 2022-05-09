@@ -14,7 +14,7 @@ def save_figure(plot_path, output_file_name, format="png",store_tikz=True):
     plt.savefig(os.path.join(plot_path, f"{filename}.{format}"), format=format)
     if store_tikz:
         tikzplotlib.save(os.path.join(plot_path, f"{filename}.tex"))
-    plt.show()
+    #plt.show()
 '''
 Parameters:
 - output file name
