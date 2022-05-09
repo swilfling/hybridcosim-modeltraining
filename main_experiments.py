@@ -1,5 +1,5 @@
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
-import ModelTraining.Utilities.MetricsExport.export_metrics
+import ModelTraining.Utilities.MetricsExport.export_metrics as export_metrics
 from ModelTraining.Utilities.Parameters import TrainingParams
 from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
@@ -7,6 +7,7 @@ from ModelTraining.Training.run_training_and_test import run_training_and_test
 from ModelTraining.Utilities.MetricsExport.MetricsExport import analyze_result
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
+from ModelTraining.Preprocessing.get_data_and_feature_set import get_data_and_feature_set
 import os
 import pandas as pd
 import argparse
@@ -38,7 +39,10 @@ if __name__ == '__main__':
                      list_usecases]
 
     # Results output
-    results_path = os.path.join(root_dir, 'results')
+    timestamp = export_metrics.create_file_name_timestamp()
+    results_path = os.path.join(root_dir, 'results', timestamp)
+    os.makedirs(results_path, exist_ok=True)
+
     metrics_names = {'FeatureSelect': ['selected_features', 'all_features'], 'Metrics': ['R2_SKLEARN', 'CV-RMS', 'MAPE', 'RA_SKLEARN'], 'pvalues': ['pvalue_lm', 'pvalue_f']}
     for dict_usecase in dict_usecases:
         for feature_sel_params in list_feature_select_params:
@@ -53,10 +57,10 @@ if __name__ == '__main__':
         usecase_name = dict_usecase['name']
         results_path_dataset = os.path.join(results_path, usecase_name)
         # Get data and feature set
-        data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(os.path.join(data_dir, dict_usecase['dataset']),
+        data, feature_set = get_data_and_feature_set(os.path.join(data_dir, dict_usecase['dataset']),
                                                                                                           os.path.join(root_dir, dict_usecase['fmu_interface']))
         data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
-        data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=True)
+        data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=False)
         # Main loop
         df_thresh = pd.DataFrame(index=model_types)
         for feature_sel_params in list_feature_select_params:
@@ -77,5 +81,5 @@ if __name__ == '__main__':
             df_thresh.to_csv(os.path.join(results_path_thresh, f'Metrics_{usecase_name}_{params_name}.csv'))
         df_full = df_full.join(df_thresh.add_prefix(f'{usecase_name}_'))
 
-    ModelTraining.Utilities.MetricsExport.export_metrics.store_all_metrics(df_full, results_path=results_path, metrics_names=metrics_names)
+    export_metrics.store_all_metrics(df_full, results_path=results_path, timestamp=timestamp, metrics_names=metrics_names)
     print('Experiments finished')

@@ -7,6 +7,9 @@ def preprocess_data(data, features_to_smoothe, do_smoothe=False, keep_nans=False
     """
     if do_smoothe:
         data = smoothe_data(data, keep_nans, features_to_smoothe)
+
+    data = data.astype('float')
+    data = data.dropna(axis=0)
     return data
 
 
