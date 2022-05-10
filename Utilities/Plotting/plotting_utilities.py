@@ -4,7 +4,6 @@ from typing import List
 import pandas as pd
 import matplotlib.pyplot as plt
 import ModelTraining.Utilities.Plotting.utils as plt_utils
-from ModelTraining.Preprocessing.data_analysis import corrmatrix
 
 
 def rename_columns(df, labels):
@@ -30,23 +29,6 @@ def plot_result(data, plot_path="./", output_file_name='Result', store_to_csv=Tr
     if store_to_csv:
         data.to_csv(os.path.join(plot_path, f'{output_file_name}.csv'), index=True)
 
-
-'''
-Parameters:
-- List of Dicts
-- path
-- output file name
-- labels
-'''
-def plot_multiple_results(list_simulation_results: List[pd.DataFrame], plot_path, output_file_name, set_colors=False, **kwargs):
-    if len(list_simulation_results) > 0:
-        colors = kwargs.pop('colors', None)
-        fig, ax = plt_utils.create_figure(output_file_name, **kwargs)
-        linestyles=["--" if i % 2 else "-" for i in range(len(list_simulation_results))]
-        for simulation_results, linestyle in zip(list_simulation_results, linestyles):
-            cycler = plt.cycler(color=sns.color_palette(colors, simulation_results.shape[1]))
-            plt_utils.plot_df(ax,simulation_results, linestyle=linestyle, set_colors=set_colors, cycler=cycler, show_ylabel=True)
-        plt_utils.save_figure(plot_path, output_file_name)
 
 
 '''

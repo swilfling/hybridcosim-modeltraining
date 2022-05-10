@@ -1,7 +1,6 @@
 import os
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
-import datetime
 import tikzplotlib
 import pandas as pd
 '''
