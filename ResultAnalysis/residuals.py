@@ -4,7 +4,8 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
-from yellowbrick.regressor.residuals import ResidualsPlot
+import statsmodels.api as sm
+
 #%%
 
 def env_max(maxvals, windowsize):
@@ -61,12 +62,20 @@ if __name__ == "__main__":
     output_dir = f'./Figures/{experiment_name}'
     os.makedirs(output_dir, exist_ok=True)
 
-#%% Timeseries plots
+    resid_dir = f'{output_dir}/Residuals'
+    os.makedirs(resid_dir, exist_ok=True)
+    resid_scatter_dir = f'{resid_dir}/Scatter'
+    os.makedirs(resid_scatter_dir, exist_ok=True)
+    resid_pp_dir = f'{resid_dir}/PP'
+    os.makedirs(resid_pp_dir, exist_ok=True)
+
     scatter_dir = f'{output_dir}/Scatter'
     timeseries_dir = f'{output_dir}/Timeseries'
     os.makedirs(timeseries_dir, exist_ok=True)
     os.makedirs(scatter_dir, exist_ok=True)
 
+
+#%% Timeseries plots
     for usecase, target_val in zip(usecase_names, target_vals):
         for threshold_set in thresholds_rfvals:
             thresh_name_full = "_".join(name for name in threshold_set)
@@ -97,10 +106,6 @@ if __name__ == "__main__":
 
 
 #%% Residuals plots
-    resid_dir = f'{output_dir}/Residuals'
-    os.makedirs(resid_dir,exist_ok=True)
-    resid_scatter_dir =f'{resid_dir}/Scatter'
-    os.makedirs(resid_scatter_dir,exist_ok=True)
     for usecase, target_val in zip(usecase_names, target_vals):
         for threshold_set in thresholds_rfvals:
             thresh_name_full = "_".join(name for name in threshold_set)
@@ -120,11 +125,40 @@ if __name__ == "__main__":
             plt.show()
 
 
+#%% Residuals P-P
+    for usecase, target_val in zip(usecase_names, target_vals):
+        for threshold_set in thresholds_rfvals:
+            thresh_name_full = "_".join(name for name in threshold_set)
+            path = os.path.join(result_dir, usecase, thresh_name_full, 'Plots')
+            df = get_df(path, model_types, baseline_model_type, target_val, expansion)
+            y_true = df['Measurement value']
+
+            # Residuals - Scatter
+            for label,color in zip(df.columns[1:],plot_colors[1:]):#
+                y_pred = df[label]
+                residual = y_true - y_pred
+                residual = (residual - np.mean(residual)) / np.std(residual)
+
+                # P-P Plot
+                fig = plt.figure()
+                obj_probplot = sm.ProbPlot(residual)
+                #obj_probplot.qqplot(line='45', ax=ax2, fmt='g',label='Q-Q')
+                qq = obj_probplot.qqplot(marker='.', alpha=1, label='QQ')
+                ax0 = qq.axes[0]
+                ax1 = ax0.twinx()
+                sm.qqline(ax0, line='45', fmt='k--')
+                obj_probplot.probplot(ax=ax1, marker='.', markerfacecolor='g', markeredgecolor='g', label='PP')
+                ax0.legend(loc='lower right')
+                plt.legend(loc='upper left')
+
+                plt.title(f'Dataset {usecase} - Residual - {label}')
+                plt.savefig(f'{resid_pp_dir}/QQ_Residual_{usecase}_{thresh_name_full}_{label}.png')
+                plt.show()
+
 
 
 
 #%% Residuals Scatter
-    import seaborn as sns
     for usecase, target_val in zip(usecase_names, target_vals):
         for threshold_set in thresholds_rfvals:
             thresh_name_full = "_".join(name for name in threshold_set)
