@@ -63,6 +63,10 @@ class FeatureSet:
         feats = self.get_selected_feats(self.features, "input", "feature_type")
         return self.get_selected_feats(feats, model_name)
 
+    def get_param_feats(self, model_name=None):
+        feats = self.get_selected_feats(self.features, "parameter", "feature_type")
+        return self.get_selected_feats(feats, model_name)
+
     def get_output_feature_names(self, model_name=None):
         return self.get_feat_names(self.get_output_feats(model_name))
 
