@@ -3,7 +3,7 @@
     "fmu_interface":"Configuration/FMUInterface/Beyond/B12/FMUInterface_B12_Gas.csv",
     "dataset":"Data/Beyond/Beyond_B12_full.csv",
     "stat_feats": ["SGlobalH", "vWind", "humidity", "TAmbient", "rain"],
-    "to_smoothe": ["SGlobalH", "vWind", "humidity", "rain","TAmbient", "B12Gas", "TB12", "lumB20LR"],
+    "to_smoothe": ["SGlobalH", "vWind", "humidity", "rain","TAmbient", "B12Gas", "TB12", "lumB12LR"],
     "stat_vals": ["tmin","tmax"],
     "stat_ws": 24
 }
