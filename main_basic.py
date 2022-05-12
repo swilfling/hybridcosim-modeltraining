@@ -1,6 +1,5 @@
 import os
 import logging
-
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
 from ModelTraining.Utilities.MetricsExport import export_metrics as metr_exp
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
@@ -69,6 +68,6 @@ if __name__ == '__main__':
     # Export metrics
     df_metrics = analyze_result([model], [result_data], [training_params], plot_enabled=plot_enabled,
                                 results_dir_path=results_dir_path)
-    metr_exp.store_all_metrics(df_metrics, results_path=results_dir_path)
+    metr_exp.store_all_metrics(df_metrics, results_path=results_dir_path, timestamp=metr_exp.create_file_name_timestamp())
 
     print('Experiment finished')
