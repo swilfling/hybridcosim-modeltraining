@@ -141,6 +141,8 @@ if __name__ == "__main__":
                 # P-P Plot
                 fig = plt.figure(figsize=(8,4))
                 obj_probplot = sm.ProbPlot(residual)
+                df_qq = pd.DataFrame(index=obj_probplot.theoretical_quantiles, data=obj_probplot.sample_quantiles,columns=['y'])
+                df_qq.to_csv(f'{resid_pp_dir}/QQ_Residual_{usecase}_{thresh_name_full}_{label.replace(" ","")}.csv', index_label='x')
                 qq = obj_probplot.qqplot(marker='o', alpha=1, label='QQ', ax=fig.gca())
                 ax0 = qq.axes[0]
                 #ax1 = ax0.twinx()
