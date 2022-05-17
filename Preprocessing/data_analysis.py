@@ -41,3 +41,10 @@ def reshape_corrmatrix(corr: pd.DataFrame):
     yvals = np.repeat(np.arange(0, n_cols), n_cols)
     xvals = np.mod(np.arange(0, n_cols * n_cols), n_cols)
     return pd.DataFrame(index=[xvals, yvals], data=vals, columns=['C'])
+
+########################## Sparsity ####################################################################################
+
+
+def calc_sparsity_abs(data, threshold=0):
+    return np.nansum(np.abs(data) > threshold) / data.shape[0]
+
