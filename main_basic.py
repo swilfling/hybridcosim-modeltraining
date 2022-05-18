@@ -14,9 +14,10 @@ from ModelTraining.Utilities.MetricsExport.MetricsExport import analyze_result
 
 if __name__ == '__main__':
     data_dir_path = "../"
-    results_dir_path = "./results/"
     usecase_config_path = os.path.join("./", 'Configuration','UseCaseConfig')
-    usecase_name = 'Solarhouse1'
+    usecase_name = 'Beyond_T24'
+    results_dir_path = f"./results/{usecase_name}"
+    os.makedirs(results_dir_path, exist_ok=True)
     dict_usecase = data_import.load_from_json(os.path.join(usecase_config_path, f"{usecase_name}.json"))
 
     data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(os.path.join(data_dir_path, dict_usecase['dataset']), os.path.join("./", dict_usecase['fmu_interface']))

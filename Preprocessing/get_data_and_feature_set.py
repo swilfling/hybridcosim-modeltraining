@@ -20,6 +20,8 @@ def get_data_and_feature_set(data_filename, interface_filename):
         if filename == 'Beyond_B20_full' or filename == 'Beyond_B12_full':
             data = data_import.import_data(data_filename, sep=',',freq='1H', index_col='dt')
             data = data.drop(create_date_range(2014, 4, 13, 2014, 4, 24), axis=0)
+        elif filename == 'T24_full':
+            data = data_import.import_data(data_filename, sep=',',freq='1H', index_col='t')
         else:
             # Solarhouse 1
             data = data_import.import_data(data_filename, freq='15T')

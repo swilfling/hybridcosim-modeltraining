@@ -1,0 +1,9 @@
+{
+    "name":"Beyond_T24",
+    "fmu_interface":"Configuration/FMUInterface/Beyond/T24/FMUInterface_T24.csv",
+    "dataset":"Data/Beyond/T24/T24_full.csv",
+    "stat_feats": ["Text", "GHI"],
+    "to_smoothe": ["Text","Tint","GHI"],
+    "stat_vals": [],
+    "stat_ws": 24
+}

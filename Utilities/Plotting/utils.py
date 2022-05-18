@@ -57,8 +57,7 @@ Parameters:
 '''
 def plot_df(ax: plt.Axes, simulation_results: pd.DataFrame, **kwargs):
     if simulation_results is not None:
-        if kwargs.pop('show_legend',True):
-            ax.legend(simulation_results.columns)
+        show_legend = kwargs.pop('show_legend',True)
         if kwargs.pop('show_ylabel', False):
             ax.set_ylabel(label_list_to_str(list(simulation_results.columns)))
         if kwargs.pop('set_colors', False):
@@ -73,6 +72,8 @@ def plot_df(ax: plt.Axes, simulation_results: pd.DataFrame, **kwargs):
             ax.set_xlabel("Time [Days]")
         else:
             ax.plot(simulation_results, **kwargs)
+        if show_legend:
+            ax.legend(simulation_results.columns)
 
 
 def plot_df_twinx(ax, data, **kwargs):
