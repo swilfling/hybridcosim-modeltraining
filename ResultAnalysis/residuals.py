@@ -77,6 +77,8 @@ if __name__ == "__main__":
 
 #%% Timeseries plots
     for usecase, target_val in zip(usecase_names, target_vals):
+        model_types = ['WeightedLS'] if usecase=="SensorC6" else ['LassoRegression'] if usecase=="SensorA6" else ['RidgeRegression']
+
         for threshold_set in thresholds_rfvals:
             thresh_name_full = "_".join(name for name in threshold_set)
             path = os.path.join(result_dir, usecase, thresh_name_full, 'Plots')
@@ -100,7 +102,7 @@ if __name__ == "__main__":
                 # Scatterplot
                 y_pred = df[label]
                 plt_utils.scatterplot(y_pred, y_true, scatter_dir,
-                                      filename=f'Scatter_{usecase}_{thresh_name_full}_{label}',
+                                      filename=f'Scatter_{usecase}_{thresh_name_full}_{label}'.replace(" ",""),
                                       fig_title=f'Correlation - Dataset {usecase}',
                                       figsize=(4,4), color=color, label=label)
 
@@ -127,6 +129,7 @@ if __name__ == "__main__":
 
 #%% Residuals P-P
     for usecase, target_val in zip(usecase_names, target_vals):
+        model_types = ['WeightedLS'] if usecase=="SensorC6" else ['LassoRegression'] if usecase=="SensorA6" else ['RidgeRegression']
         for threshold_set in thresholds_rfvals:
             thresh_name_full = "_".join(name for name in threshold_set)
             path = os.path.join(result_dir, usecase, thresh_name_full, 'Plots')

@@ -8,8 +8,11 @@ import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_ut
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 import os
+import seaborn as sns
 import numpy as np
 import pandas as pd
+import tikzplotlib
+import matplotlib.pyplot as plt
 from ModelTraining.datamodels.datamodels.processing.datascaler import Normalizer
 
 
@@ -101,7 +104,7 @@ if __name__ == '__main__':
 
 
     #%%
-    ##### Density
+    ##### Sparsity
     sparsity_dir ="./Figures/Sparsity"
     os.makedirs(sparsity_dir, exist_ok=True)
 
@@ -141,4 +144,49 @@ if __name__ == '__main__':
                            index_label="Dataset")
 
 
+    #%%
+    ##### Density
+    density_dir ="./Figures/Density"
+    os.makedirs(sparsity_dir, exist_ok=True)
+
+    for dict_usecase in dict_usecases:
+        usecase_name = dict_usecase['name']
+        # Get data and feature set
+        data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(
+            os.path.join(data_dir, dict_usecase['dataset']),
+            os.path.join(root_dir, dict_usecase['fmu_interface']))
+        data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
+        data = data.astype('float')
+        # Data preprocessing
+        #data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=True)
+
+        features_for_corrmatrix = [feature.name for feature in feature_set.get_input_feats() if
+                                   not feature.cyclic and not feature.statistical]
+        if usecase_name in ['CPS-Data', 'SensorA6', 'SensorB2', 'SensorC6']:
+            features_for_corrmatrix.remove("holiday_weekend")
+            features_for_corrmatrix.remove('daylight')
+        if usecase_name == 'Solarhouse1':
+            features_for_corrmatrix.remove('VDSolar_inv')
+        if usecase_name == 'Solarhouse1':
+            data['SGlobal'][data['SGlobal'] < 30] = 0
+        scaler = Normalizer()
+        scaler.fit(data)
+        data = scaler.transform(data)
+
+
+        density_vals = [data[feature][data[feature] != 0] for feature in features_for_corrmatrix]
+        plt.figure()
+        g = sns.displot(density_vals, color='darkblue', kind='kde', height=2,aspect=3)
+        ax = plt.gca()
+       # for i, feature in enumerate(features_for_corrmatrix):
+       #     ax = plt.gca()
+       #     xdata = ax.lines[0].get_xdata()
+       #     ydata = ax.lines[i].get_ydata()
+       #     df = pd.DataFrame(ydata, columns=['y'], index=xdata)
+       #     df.to_csv(os.path.join(density_dir, f'Density_{usecase_name}_{feature}.csv'), index_label='x')
+        plt.title(f'Dataset {usecase_name}')
+        plt.tight_layout()
+        plt.savefig(os.path.join(density_dir,f'Density_{usecase_name}.png'))
+        tikzplotlib.save(os.path.join(density_dir, f'Density_{usecase_name}.tex'))
+        plt.show()
 
