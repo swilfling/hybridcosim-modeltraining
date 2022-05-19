@@ -6,7 +6,7 @@ import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_ut
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import ModelTraining.datamodels.datamodels.validation.white_test
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
-from ModelTraining.Training.predict import predict_gt
+from ModelTraining.Training.predict import predict_gt, predict_history_ar
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import best_estimator
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
@@ -15,7 +15,7 @@ from ModelTraining.Utilities.MetricsExport.MetricsExport import analyze_result
 if __name__ == '__main__':
     data_dir_path = "../"
     usecase_config_path = os.path.join("./", 'Configuration','UseCaseConfig')
-    usecase_name = 'Beyond_T24'
+    usecase_name = 'Beyond_T24_dyn'
     results_dir_path = f"./results/{usecase_name}"
     os.makedirs(results_dir_path, exist_ok=True)
     dict_usecase = data_import.load_from_json(os.path.join(usecase_config_path, f"{usecase_name}.json"))
@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     training_params = TrainingParams(model_type=model_type,
                                        model_name="Energy",
-                                       lookback_horizon=1,
+                                       lookback_horizon=4,
                                        target_features=target_features,
                                        prediction_horizon=1,
                                        static_input_features=feature_set.get_static_feature_names(),
@@ -61,6 +61,7 @@ if __name__ == '__main__':
     train_utils.save_model_and_parameters(os.path.join(results_dir_path, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"), model, training_params)
     # Predict test data
     result_prediction = predict_gt(model, index_test, x_test, y_test, training_params)
+    #result_prediction = predict_history_ar(model, index_test, x_test, y_test, training_params)
     # Calculate and export metrics
     test_prediction = result_prediction[[f"predicted_{feature}" for feature in target_features]].to_numpy()
     result_data = TrainingResults(train_index=index_train.to_numpy(), train_target=y_train,

@@ -36,11 +36,6 @@ def predict_with_history(model, index_test, x_test, y_true, training_params):
     predictions = pd.DataFrame(index=index_test, columns=[f'predicted_{feature}' for feature in training_params.target_features])
     # Find dynamic output feature indices
     index_dyn_feats = {feature:np.where(training_params.target_features == feature) for feature in training_params.dynamic_output_features}
-
-   # y = predict_autorecursive(model, training_params, feature_set,
-   #                       static_features,
-   #                       prediction_length=static_features.shape[0])
-
     # loop over the testing dataset
     for index, row in enumerate(x_test):
         dynamic_feature_vector = tc.create_dynamic_feature_vector(training_params.dynamic_output_features, queues, num_lookback_states)
@@ -60,9 +55,16 @@ def predict_with_history(model, index_test, x_test, y_true, training_params):
     return target_features.join(predictions).astype('float')
 
 
-def predict_autorecursive(model, training_params, feature_set,
-                          static_features=None,
-                          prediction_length=1000):
+def predict_history_ar(model, index_test, x_test, y_true, training_params):
+    start_values = y_true[:training_params.lookback_horizon + 1]
+    static_feats = x_test[training_params.lookback_horizon + 1:,:,:x_test.shape[-1] - y_true.shape[-1]]
+    result_ac = predict_autorecursive(model, training_params, start_values, static_feats, prediction_length=len(index_test) - len(start_values))
+    result = np.concatenate((start_values, result_ac))
+    cols = training_params.target_features + [f'predicted_{feature}' for feature in training_params.target_features]
+    return pd.DataFrame(data=np.hstack((y_true,result)), columns=cols, index=index_test)
+
+
+def predict_autorecursive(model, training_params, start_values, static_features=None, prediction_length=1000):
     """
     This is the auto-recursive prediction based on history.
      @param model: trained model - e.g. linear regression model
@@ -71,17 +73,8 @@ def predict_autorecursive(model, training_params, feature_set,
     """
     ac = AutoRecursive(model)
     num_lookback_states = training_params.lookback_horizon + 1
-    queues = tc.create_ques(feature_set.dynamic_features, num_lookback_states)
-    if training_params.dynamic_input_features:
-        start_values = [queues[f"{feature}_queue"] for feature in training_params.dynamic_input_features]
-        start_val_np = np.array(start_values)
-        num_output_features = len(training_params.target_features)
-        start_val_np = np.reshape(start_val_np, (num_lookback_states, num_output_features))
+    start_val_np = np.reshape(start_values, (num_lookback_states, len(training_params.target_features)))
+    if static_features is not None:
+        static_features = static_features.reshape(prediction_length, 1, static_features.shape[2] * (training_params.lookback_horizon+1))
 
-        if static_features is not None:
-            num_static_features = len(training_params.static_input_features)
-            static_features = static_features.reshape(prediction_length, 1, num_static_features)
-
-        return ac.predict(start_val_np, prediction_length, static_features)
-    else:
-        raise ValueError("The auto-recursive prediction should not be called if there are no dynamic features.")
+    return ac.predict(start_val_np, prediction_length, static_features)
