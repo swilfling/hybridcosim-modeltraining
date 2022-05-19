@@ -1,0 +1,6 @@
+IndoorTemperature;;;;;;
+Name;In_Out;Init;Stat_Dyn;Predictions;Type;Description
+Text;input;0;dynamic;Tint;Real;
+GHI;input;0;dynamic;Tint;Real;
+Tint;output;0;static;Tint;Real;
+Tint_start;parameter;0;Tint;Real;

@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from statsmodels.stats import outliers_influence as stats
+from scipy.stats import boxcox
 
 
 ########################### Variable Inflation Factor (VIF) ###########################################################
@@ -48,3 +49,28 @@ def reshape_corrmatrix(corr: pd.DataFrame):
 def calc_sparsity_abs(data, threshold=0):
     return np.nansum(np.abs(data) > threshold) / data.shape[0]
 
+
+############################ Density ###################################################################################
+
+def calc_skew_kurtosis(data, omit_zero_samples=False):
+    selected_metrics = ['skew','kurtosis']
+    if omit_zero_samples:
+        df = pd.DataFrame(columns=data.columns, index=selected_metrics)
+        for feature in data.columns:
+            data_feature = data[feature][data[feature] != 0]
+            df[feature] = data_feature.agg(selected_metrics).values
+        return df
+    else:
+        return data.agg(selected_metrics)
+
+############################################ Transformations ###########################################################
+
+def boxcox_transf(data:pd.DataFrame,omit_zero_samples=False, offset=0.000001):
+    df = pd.DataFrame(columns=data.columns, index=data.index)
+    for feat in data.columns:
+        if omit_zero_samples:
+            cur_feat = data[feat][data[feat] != 0]
+        else:
+            cur_feat = data[feat] + np.min(data[feat]) + offset
+        df[feat] = boxcox(cur_feat)[0]
+    return df

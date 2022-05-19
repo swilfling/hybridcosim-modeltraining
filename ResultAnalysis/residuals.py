@@ -4,6 +4,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
+import ModelTraining.Utilities.Plotting.plot_distributions_spectra as plt_dist
 import statsmodels.api as sm
 
 #%%
@@ -19,6 +20,7 @@ def env_min(maxvals, windowsize):
     maxvals_downsampled[maxvals.index[0]] = maxvals.iloc[0]
     maxvals_downsampled[maxvals.index[-1]] = maxvals.iloc[-1]
     return maxvals_downsampled.reindex(maxvals.index).interpolate()
+
 
 #%%
 def get_df(path, model_types, baseline_model_type, target_val, expansion):
@@ -142,28 +144,7 @@ if __name__ == "__main__":
                 residual = y_true - y_pred
                 residual = (residual - np.mean(residual)) / np.std(residual)
                 # P-P Plot
-                fig = plt.figure(figsize=(8,4))
-                obj_probplot = sm.ProbPlot(residual)
-                df_qq = pd.DataFrame(index=obj_probplot.theoretical_quantiles, data=obj_probplot.sample_quantiles,columns=['y'])
-                df_qq.to_csv(f'{resid_pp_dir}/QQ_Residual_{usecase}_{thresh_name_full}_{label.replace(" ","")}.csv', index_label='x')
-                qq = obj_probplot.qqplot(marker='o', alpha=1, label='QQ', ax=fig.gca())
-                ax0 = qq.axes[0]
-                #ax1 = ax0.twinx()
-
-                sm.qqline(ax0, line='45', fmt='k--')
-                #obj_probplot.probplot(ax=ax1, marker='.', markerfacecolor='g', markeredgecolor='g', label='PP')
-                #ax1.set_xlim([-5,5])
-                #ax0.set_xlim([-5, 5])
-                #ax1.set_ylim([-10, 10])
-                #ax0.set_ylim([-10, 10])
-                #ax0.legend(loc='lower right')
-                plt.grid(visible=False)
-                ax0.legend(loc='upper left')
-
-                plt.title(f'Dataset {usecase} - Standardized Residual - {label}')
-                plt.savefig(f'{resid_pp_dir}/QQ_Residual_{usecase}_{thresh_name_full}_{label}.png')
-                plt.show()
-
+                plt_dist.plot_qq(residual, resid_pp_dir, f'Dataset {usecase} - Standardized Residual - {label}')
 
 
 

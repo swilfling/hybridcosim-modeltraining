@@ -1,6 +1,40 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import ModelTraining.Utilities.Plotting.utils as plt_utils
+import pandas as pd
+import statsmodels.api as sm
+import os
+
+
+def plot_qq(data:pd.DataFrame, path, title, **kwargs):
+    fig, ax = plt_utils.create_figure(fig_title=title)
+    obj_probplot = sm.ProbPlot(data)
+    df_qq = pd.DataFrame(index=obj_probplot.theoretical_quantiles, data=obj_probplot.sample_quantiles, columns=['y'])
+    df_qq.to_csv(os.path.join(path, f'{title}.csv'),index_label='x')
+    qq = obj_probplot.qqplot(marker='o', alpha=1, label='QQ', ax=ax)
+    ax0 = qq.axes[0]
+    sm.qqline(ax0, line='45', fmt='k--')
+    plt.grid(visible=False)
+    ax0.legend(loc='upper left')
+    plt_utils.save_figure(path, title)
+    plt.show()
+
+
+def plot_density(data: pd.DataFrame, path, title, omit_zero_samples=False, **kwargs):
+    if omit_zero_samples:
+        data = [data[feature][data[feature] != 0] for feature in data.columns]
+    g = sns.displot(data, color='darkblue', kind='kde', height=2, aspect=3)
+    # for i, feature in enumerate(features_for_corrmatrix):
+    #     ax = plt.gca()
+    #     xdata = ax.lines[0].get_xdata()
+    #     ydata = ax.lines[i].get_ydata()
+    #     df = pd.DataFrame(ydata, columns=['y'], index=xdata)
+    #     df.to_csv(os.path.join(density_dir, f'Density_{usecase_name}_{feature}.csv'), index_label='x')
+    ax = plt.gca()
+    ax.set_title(title)
+    plt.tight_layout()
+    plt_utils.save_figure(path, title)
+    plt.show()
 
 
 '''
