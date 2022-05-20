@@ -84,7 +84,7 @@ class FeatureSet:
         feats = self.get_selected_feats(feats, "input", "feature_type")
         return self.get_feat_names(self.get_selected_feats(feats, model_name))
 
-    def get_dynamic_output_feature_names(self, model_name=""):
+    def get_dynamic_output_feature_names(self, model_name=None):
         feats = self.get_feats_with_attr(self.features, "dynamic")
         feats = self.get_selected_feats(feats, "output", "feature_type")
         return self.get_feat_names(self.get_selected_feats(feats, model_name))
