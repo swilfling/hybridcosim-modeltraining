@@ -10,7 +10,8 @@ def plot_qq(data:pd.DataFrame, path, title, **kwargs):
     fig, ax = plt_utils.create_figure(fig_title=title)
     obj_probplot = sm.ProbPlot(data)
     df_qq = pd.DataFrame(index=obj_probplot.theoretical_quantiles, data=obj_probplot.sample_quantiles, columns=['y'])
-    df_qq.to_csv(os.path.join(path, f'{title}.csv'),index_label='x')
+    if kwargs.pop('store_csv',False):
+        df_qq.to_csv(os.path.join(path, f'{title}.csv'),index_label='x')
     qq = obj_probplot.qqplot(marker='o', alpha=1, label='QQ', ax=ax)
     ax0 = qq.axes[0]
     sm.qqline(ax0, line='45', fmt='k--')
@@ -23,7 +24,7 @@ def plot_qq(data:pd.DataFrame, path, title, **kwargs):
 def plot_density(data: pd.DataFrame, path, title, omit_zero_samples=False, **kwargs):
     if omit_zero_samples:
         data = [data[feature][data[feature] != 0] for feature in data.columns]
-    g = sns.displot(data, color='darkblue', kind='kde', height=2, aspect=3)
+    g = sns.kdeplot(data=data, color='darkblue')
     # for i, feature in enumerate(features_for_corrmatrix):
     #     ax = plt.gca()
     #     xdata = ax.lines[0].get_xdata()
@@ -33,7 +34,7 @@ def plot_density(data: pd.DataFrame, path, title, omit_zero_samples=False, **kwa
     ax = plt.gca()
     ax.set_title(title)
     plt.tight_layout()
-    plt_utils.save_figure(path, title)
+    plt_utils.save_figure(path, title, **kwargs)
     plt.show()
 
 

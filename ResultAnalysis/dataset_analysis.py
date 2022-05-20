@@ -113,8 +113,8 @@ if __name__ == '__main__':
         scaler.fit(data)
         data = scaler.transform(data)
 
-        plt_dist.plot_density(data[feats_for_density], density_dir_usecase, f'Density - {usecase_name} - nonzero samples', omit_zero_samples=True)
-        plt_dist.plot_density(data[feats_for_density_full], density_dir_usecase, f'Density - {usecase_name} - full - nonzero samples', omit_zero_samples=True)
+        plt_dist.plot_density(data[feats_for_density], density_dir_usecase, f'Density - {usecase_name} - nonzero samples', omit_zero_samples=True, store_tikz=False)
+        plt_dist.plot_density(data[feats_for_density_full], density_dir_usecase, f'Density - {usecase_name} - full - nonzero samples', omit_zero_samples=True, store_tikz=False)
 
 
     #%%
@@ -155,9 +155,10 @@ if __name__ == '__main__':
         output_dir = os.path.join(density_dir_usecase, 'SqrtTransformation')
         os.makedirs(output_dir, exist_ok=True)
         vals_sqrt_full = np.sqrt(data[feats_for_density_full])
-        plt_dist.plot_density(vals_sqrt_full[feats_for_density], output_dir, f'Density - {usecase_name} - Square Root Transformation - nonzero samples', omit_zero_samples=True)
+        plt_dist.plot_density(vals_sqrt_full[feats_for_density], output_dir, f'Density - {usecase_name} - Square Root Transformation - nonzero samples',
+                              omit_zero_samples=True, store_tikz=False)
         plt_dist.plot_density(vals_sqrt_full, output_dir, f'Density - {usecase_name} - Square Root Transformation - full - nonzero samples',
-                              omit_zero_samples=True)
+                              omit_zero_samples=True, store_tikz=False)
         for feature in feats_for_density_full:
             plt_dist.plot_qq(vals_sqrt_full[feature], output_dir, f'QQ - {usecase_name} - {feature} - Box-cox - nonzero samples')
 
@@ -207,10 +208,10 @@ if __name__ == '__main__':
         boxcox_df = data_analysis.boxcox_transf(data[feats_for_density_full])
         plt_dist.plot_density(boxcox_df[feats_for_density], output_dir,
                               f'Density - {usecase_name} - Box-cox Transformation - nonzero samples',
-                              omit_zero_samples=True)
+                              omit_zero_samples=True, store_tikz=False)
         plt_dist.plot_density(boxcox_df, output_dir,
                               f'Density - {usecase_name} - Box-cox Transformation - full - nonzero samples',
-                              omit_zero_samples=True)
+                              omit_zero_samples=True, store_tikz=False)
         for feature in feats_for_density_full:
             plt_dist.plot_qq(boxcox_df[feature], output_dir, f'QQ - {usecase_name} - {feature} - Box-cox - nonzero samples')
 

@@ -144,7 +144,7 @@ if __name__ == "__main__":
                 residual = y_true - y_pred
                 residual = (residual - np.mean(residual)) / np.std(residual)
                 # P-P Plot
-                plt_dist.plot_qq(residual, resid_pp_dir, f'Dataset {usecase} - Standardized Residual - {label}')
+                plt_dist.plot_qq(residual, resid_pp_dir, f'Dataset {usecase} - Standardized Residual - {label}', store_csv=True)
 
 
 
