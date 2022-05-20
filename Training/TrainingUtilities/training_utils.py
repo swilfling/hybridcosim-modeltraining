@@ -69,14 +69,14 @@ def extract_training_and_test_set(data, training_params):
     DYNAMIC FEATURES
     shape: number of samples, lookback horizon + 1, number of features
     """
-    dynamic_features = data[training_params.dynamic_input_features].to_numpy()
+    dynamic_features = data[training_params.dynamic_input_features + training_params.dynamic_output_features].to_numpy()
     dynamic_features, y = split_into_target_segments(
         features=dynamic_features,
         targets=targets,
         lookback_horizon=lookback_horizon,
         prediction_horizon=prediction_horizon
     )
-    dynamic_feature_names = create_dynamic_feature_names(training_params.dynamic_input_features,
+    dynamic_feature_names = create_dynamic_feature_names(training_params.dynamic_input_features + training_params.dynamic_output_features,
                                                                   lookback_horizon)
 
     static_features = None

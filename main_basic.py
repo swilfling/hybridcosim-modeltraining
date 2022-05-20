@@ -15,7 +15,7 @@ from ModelTraining.Utilities.MetricsExport.MetricsExport import analyze_result
 if __name__ == '__main__':
     data_dir_path = "../"
     usecase_config_path = os.path.join("./", 'Configuration','UseCaseConfig')
-    usecase_name = 'Beyond_T24_dyn'
+    usecase_name = 'Beyond_T24_arx'
     results_dir_path = f"./results/{usecase_name}"
     os.makedirs(results_dir_path, exist_ok=True)
     dict_usecase = data_import.load_from_json(os.path.join(usecase_config_path, f"{usecase_name}.json"))
@@ -28,7 +28,7 @@ if __name__ == '__main__':
     smoothe_data = False
     plot_enabled = True
 
-    model_type = "LinearRegression"
+    model_type = "RandomForestRegression"
 
     training_params = TrainingParams(model_type=model_type,
                                        model_name="Energy",
@@ -36,7 +36,8 @@ if __name__ == '__main__':
                                        target_features=target_features,
                                        prediction_horizon=1,
                                        static_input_features=feature_set.get_static_feature_names(),
-                                       dynamic_input_features=feature_set.get_dynamic_feature_names(),
+                                       dynamic_input_features=feature_set.get_dynamic_input_feature_names(),
+                                       dynamic_output_features=feature_set.get_dynamic_output_feature_names(),
                                        training_split=0.8,
                                        normalizer="IdentityScaler",
                                        expansion=['IdentityExpander'])
@@ -61,15 +62,19 @@ if __name__ == '__main__':
     train_utils.save_model_and_parameters(os.path.join(results_dir_path, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"), model, training_params)
     # Predict test data
     result_prediction = predict_gt(model, index_test, x_test, y_test, training_params)
-    #result_prediction = predict_history_ar(model, index_test, x_test, y_test, training_params)
+    result_forecast = predict_history_ar(model, index_test, x_test, y_test, training_params, prediction_length=72, feature_names=feature_names)
+    import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
+    plt_utils.plot_result(result_forecast, results_dir_path, "result_forecast")
+
     # Calculate and export metrics
     test_prediction = result_prediction[[f"predicted_{feature}" for feature in target_features]].to_numpy()
-    result_data = TrainingResults(train_index=index_train.to_numpy(), train_target=y_train,
-                             test_index=index_test.to_numpy(), test_target=y_test, test_prediction=test_prediction, test_input=x_test)
+    result_data = TrainingResults(train_index=index_train.to_numpy(), train_target=y_train, test_index=index_test.to_numpy(),
+                                  test_target=y_test, test_prediction=test_prediction, test_input=x_test)
     result_data.save_pkl(results_dir_path, "result_data.pkl")
     # Export metrics
     df_metrics = analyze_result([model], [result_data], [training_params], plot_enabled=plot_enabled,
                                 results_dir_path=results_dir_path)
+
     metr_exp.store_all_metrics(df_metrics, results_path=results_dir_path, timestamp=metr_exp.create_file_name_timestamp())
 
     print('Experiment finished')

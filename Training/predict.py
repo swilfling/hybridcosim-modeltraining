@@ -55,26 +55,49 @@ def predict_with_history(model, index_test, x_test, y_true, training_params):
     return target_features.join(predictions).astype('float')
 
 
-def predict_history_ar(model, index_test, x_test, y_true, training_params):
-    start_values = y_true[:training_params.lookback_horizon + 1]
-    static_feats = x_test[training_params.lookback_horizon + 1:,:,:x_test.shape[-1] - y_true.shape[-1]]
-    result_ac = predict_autorecursive(model, training_params, start_values, static_feats, prediction_length=len(index_test) - len(start_values))
+def predict_history_ar(model, index_test, x_test, y_true, training_params, prediction_length=None, feature_names=None):
+    if training_params.dynamic_output_features == []:
+        print("There are no dynamic target features - use the basic prediction.")
+        return None
+    num_static_feats = len(training_params.static_input_features)
+    num_dynamic_input_feats = len(training_params.dynamic_input_features)
+    num_init_samples = training_params.lookback_horizon + 1
+    # Get input features
+    if feature_names is not None:
+        static_feat_indices = [i for i, feature in enumerate(feature_names) if
+                               feature in training_params.static_input_features]
+        #dynamic_feat_indices = [i for i, feature in enumerate(feature_names) if
+        #                        "_".join(feature.split("_")[:-1]) in training_params.dynamic_input_features]
+        dynamic_feat_indices = list(range(num_static_feats,num_static_feats+num_dynamic_input_feats))
+        input_feats = x_test[:,:, static_feat_indices + dynamic_feat_indices]
+    else:
+        input_feats = x_test[:, :, :x_test.shape[-1] - y_true.shape[-1]]
+    print(input_feats.shape[2])
+    # Use first samples as start values, cut off first values from static feats
+    start_values = y_true[:num_init_samples]
+    input_feats = input_feats[num_init_samples:,:,:]
+    prediction_length = len(index_test) - len(start_values) if prediction_length is None else prediction_length
+    input_feats = input_feats[:prediction_length,:,:]
+    index_test_new = index_test[:num_init_samples + prediction_length]
+    y_true = y_true[:prediction_length + num_init_samples]
+    result_ac = predict_autorecursive(model, training_params, start_values, input_feats, prediction_length=prediction_length)
     result = np.concatenate((start_values, result_ac))
     cols = training_params.target_features + [f'predicted_{feature}' for feature in training_params.target_features]
-    return pd.DataFrame(data=np.hstack((y_true,result)), columns=cols, index=index_test)
+    return pd.DataFrame(data=np.hstack((y_true,result)), columns=cols, index=index_test_new)
 
 
-def predict_autorecursive(model, training_params, start_values, static_features=None, prediction_length=1000):
+def predict_autorecursive(model, training_params, start_values, static_features=None, prediction_length=None):
     """
     This is the auto-recursive prediction based on history.
      @param model: trained model - e.g. linear regression model
      @param start_values: start values for dynamic features - can be list if only 1 feature
      @param static_features: static feature values for prediction length
+     @return: np array of results
     """
     ac = AutoRecursive(model)
     num_lookback_states = training_params.lookback_horizon + 1
     start_val_np = np.reshape(start_values, (num_lookback_states, len(training_params.target_features)))
     if static_features is not None:
-        static_features = static_features.reshape(prediction_length, 1, static_features.shape[2] * (training_params.lookback_horizon+1))
+        static_features = static_features.reshape(prediction_length, 1, static_features.shape[2] * static_features.shape[1])
 
     return ac.predict(start_val_np, prediction_length, static_features)
