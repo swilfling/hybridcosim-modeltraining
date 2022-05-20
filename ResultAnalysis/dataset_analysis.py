@@ -5,7 +5,6 @@ import ModelTraining.Preprocessing.get_data_and_feature_set
 import ModelTraining.Preprocessing.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
-import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 import ModelTraining.Utilities.Plotting.plot_distributions_spectra as plt_dist
 import os
 import numpy as np
@@ -164,8 +163,8 @@ if __name__ == '__main__':
 
         df_skew = data_analysis.calc_skew_kurtosis(vals_sqrt_full)
         df_skew_nonzero = data_analysis.calc_skew_kurtosis(vals_sqrt_full, True)
-        df_skew.to_csv(os.path.join(output_dir, f"{usecase_name}_boxcox_skew_kurtosis.csv"), index_label='Metric')
-        df_skew_nonzero.to_csv(os.path.join(output_dir, f"{usecase_name}_boxcox_skew_kurtosis_nonzero.csv"),
+        df_skew.to_csv(os.path.join(output_dir, f"{usecase_name}_sqrt_skew_kurtosis.csv"), index_label='Metric')
+        df_skew_nonzero.to_csv(os.path.join(output_dir, f"{usecase_name}_sqrt_skew_kurtosis_nonzero.csv"),
                                index_label='Metric')
 
     #%%

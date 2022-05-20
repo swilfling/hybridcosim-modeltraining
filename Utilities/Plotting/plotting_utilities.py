@@ -17,17 +17,18 @@ Parameters:
 - output file name
 - labels
 '''
-def plot_result(data, plot_path="./", output_file_name='Result', store_to_csv=True, **kwargs):
-    fig, ax, = plt_utils.create_figure(output_file_name, figsize=kwargs.pop('figsize', None))
-    plt.xlabel('Time')
-    if kwargs.get('ylim',None):
-        plt.set_ylim(kwargs.pop('ylim'))
-    if kwargs.get('ylabel',None):
-        plt.ylabel(kwargs.pop('ylabel'))
-    plt_utils.plot_df(ax, data, **kwargs)
-    plt_utils.save_figure(plot_path,output_file_name)
-    if store_to_csv:
-        data.to_csv(os.path.join(plot_path, f'{output_file_name}.csv'), index=True)
+def plot_result(data: pd.DataFrame, plot_path="./", output_file_name='Result', store_to_csv=True, **kwargs):
+    if data is not None:
+        fig, ax, = plt_utils.create_figure(output_file_name, figsize=kwargs.pop('figsize', None))
+        plt.xlabel('Time')
+        if kwargs.get('ylim',None):
+            plt.set_ylim(kwargs.pop('ylim'))
+        if kwargs.get('ylabel',None):
+            plt.ylabel(kwargs.pop('ylabel'))
+        plt_utils.plot_df(ax, data, **kwargs)
+        plt_utils.save_figure(plot_path,output_file_name)
+        if store_to_csv:
+            data.to_csv(os.path.join(plot_path, f'{output_file_name}.csv'), index=True)
 
 
 
