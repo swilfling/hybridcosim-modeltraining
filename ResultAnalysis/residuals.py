@@ -5,7 +5,7 @@ import os
 import matplotlib.pyplot as plt
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 import ModelTraining.Utilities.Plotting.plot_distributions_spectra as plt_dist
-import statsmodels.api as sm
+import tikzplotlib
 
 #%%
 
@@ -25,18 +25,16 @@ def env_min(maxvals, windowsize):
 #%%
 def get_df(path, model_types, baseline_model_type, target_val, expansion):
     dict_expansion_names = {'IdentityExpander': 'basic features', 'PolynomialExpansion': 'Polyfeatures'}
-    df = pd.DataFrame()
+    df = pd.read_csv(os.path.join(path, f'Timeseries_{baseline_model_type}_{target_val}_IdentityExpander.csv'))
+    df.index = pd.DatetimeIndex(df[df.columns[0]])
+    df = df.drop(df.columns[0], axis=1)
+    df = df.rename({f'predicted_{target_val}':baseline_model_type, target_val:'Measurement value'},axis=1)
     for model_type in model_types:
         for expansion_set in expansion:
-            df_new = pd.read_csv(
-                os.path.join(path, f'Timeseries_{model_type}_{target_val}_{expansion_set[-1]}.csv'))
-            if df.empty:
-                df.index = df_new.index
-                df['Measurement value'] = df_new[target_val]
-            df[f'{model_type} - {dict_expansion_names[expansion_set[-1]]}'] = df_new[f'predicted_{target_val}']
-    df[f'{baseline_model_type}'] = \
-    pd.read_csv(os.path.join(path, f'Timeseries_{baseline_model_type}_{target_val}_IdentityExpander.csv'))[
-        f'predicted_{target_val}']
+            df_new = pd.read_csv(os.path.join(path, f'Timeseries_{model_type}_{target_val}_{expansion_set[-1]}.csv'))
+            df_new.index = pd.DatetimeIndex(df_new[df_new.columns[0]])
+            df = df.join(df_new[f'predicted_{target_val}'])
+            df = df.rename({f'predicted_{target_val}':f'{model_type} - {dict_expansion_names[expansion_set[-1]]}'},axis=1)
     return df
 
 
@@ -86,6 +84,8 @@ if __name__ == "__main__":
             path = os.path.join(result_dir, usecase, thresh_name_full, 'Plots')
             df = get_df(path, model_types, baseline_model_type, target_val, expansion)
 
+            df.to_csv(os.path.join(timeseries_dir, f'{usecase}.csv'), index_label='t')
+
             plt.figure(figsize=(15,5))
             ylabel = 'Energy Consumption' if target_val == 'energy' else 'Gas Consumption' if target_val == 'B20Gas' else 'Solar Collector Supply Temperature'
             plt.title(f'{ylabel} - Dataset {usecase}')
@@ -95,6 +95,7 @@ if __name__ == "__main__":
             plt.ylabel(f'{ylabel} [kWh]')
             plt.xlabel('Time')
             plt.grid('both')
+            tikzplotlib.save(f'{timeseries_dir}/{usecase}.tex')
             plt.savefig(f'{timeseries_dir}/{usecase}.png')
             #plt.show()
 

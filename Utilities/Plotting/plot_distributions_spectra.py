@@ -25,13 +25,12 @@ def plot_density(data: pd.DataFrame, path, title, omit_zero_samples=False, **kwa
     if omit_zero_samples:
         data = [data[feature][data[feature] != 0] for feature in data.columns]
     g = sns.kdeplot(data=data, color='darkblue')
-    # for i, feature in enumerate(features_for_corrmatrix):
-    #     ax = plt.gca()
-    #     xdata = ax.lines[0].get_xdata()
-    #     ydata = ax.lines[i].get_ydata()
-    #     df = pd.DataFrame(ydata, columns=['y'], index=xdata)
-    #     df.to_csv(os.path.join(density_dir, f'Density_{usecase_name}_{feature}.csv'), index_label='x')
     ax = plt.gca()
+    for line in ax.lines:
+        xdata = line.get_xdata()
+        ydata = line.get_ydata()
+        df = pd.DataFrame(ydata, columns=['y'], index=xdata)
+    df.to_csv(os.path.join(path, f'{title.replace(" ","")}.csv'), index_label='x')
     ax.set_title(title)
     plt.tight_layout()
     plt_utils.save_figure(path, title, **kwargs)

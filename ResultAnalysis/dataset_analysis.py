@@ -113,8 +113,8 @@ if __name__ == '__main__':
         scaler.fit(data)
         data = scaler.transform(data)
 
-        plt_dist.plot_density(data[feats_for_density], density_dir_usecase, f'Density - {usecase_name} - nonzero samples', omit_zero_samples=True, store_tikz=False)
-        plt_dist.plot_density(data[feats_for_density_full], density_dir_usecase, f'Density - {usecase_name} - full - nonzero samples', omit_zero_samples=True, store_tikz=False)
+        plt_dist.plot_density(data[feats_for_density], density_dir_usecase, f'Density - {usecase_name} - nonzero samples', omit_zero_samples=True, store_tikz=True)
+        plt_dist.plot_density(data[feats_for_density_full], density_dir_usecase, f'Density - {usecase_name} - full - nonzero samples', omit_zero_samples=True, store_tikz=True)
 
 
     #%%
