@@ -86,10 +86,19 @@ if __name__ == "__main__":
 
             df.to_csv(os.path.join(timeseries_dir, f'{usecase}.csv'), index_label='t')
 
+            if usecase == 'Solarhouse2':
+                df = df.drop(
+                    pd.date_range(pd.Timestamp(year=2020, month=2, day=1), pd.Timestamp(year=2020, month=2, day=14),freq='15min'),
+                    axis=0)
+                df = df.drop(
+                    pd.date_range(pd.Timestamp(year=2020, month=3, day=15), pd.Timestamp(year=2020, month=3, day=24, hour=23, minute=30), freq='15min'),
+                    axis=0)
+                print(df.index)
+
             plt.figure(figsize=(15,5))
             ylabel = 'Energy Consumption' if target_val == 'energy' else 'Gas Consumption' if target_val == 'B20Gas' else 'Solar Collector Supply Temperature'
             plt.title(f'{ylabel} - Dataset {usecase}')
-            for color,column in zip(plot_colors,df.columns):
+            for color, column in zip(plot_colors,df.columns):
                 plt.plot(df[column], linewidth=0.75, color=color)
             plt.legend(df.columns,loc='upper right')
             plt.ylabel(f'{ylabel} [kWh]')
@@ -137,16 +146,35 @@ if __name__ == "__main__":
             thresh_name_full = "_".join(name for name in threshold_set)
             path = os.path.join(result_dir, usecase, thresh_name_full, 'Plots')
             df = get_df(path, model_types, baseline_model_type, target_val, expansion)
-            y_true = df['Measurement value']
 
+            y_true = df['Measurement value']
             # Residuals - Scatter
             for label,color in zip(df.columns[1:],plot_colors[1:]):#
                 y_pred = df[label]
                 residual = y_true - y_pred
                 residual = (residual - np.mean(residual)) / np.std(residual)
                 # P-P Plot
-                plt_dist.plot_qq(residual, resid_pp_dir, f'Dataset {usecase} - Standardized Residual - {label}', store_csv=True)
+                xlim = [-8,8] if usecase == 'Solarhouse2' else None
+                ylim = [-8,8] if usecase == 'Solarhouse2' else None
+                plt_dist.plot_qq(residual, resid_pp_dir, f'Dataset {usecase} - Standardized Residual - {label}', store_csv=True,xlim=xlim, ylim=ylim)
 
+            if usecase == 'Solarhouse2':
+                df = df.drop(pd.date_range(pd.Timestamp(year=2020, month=2, day=1), pd.Timestamp(year=2020,month=2,day=5),freq='15min'),axis=0)
+                df = df.drop(
+                    pd.date_range(pd.Timestamp(year=2020, month=3, day=15),
+                                  pd.Timestamp(year=2020, month=3, day=24, hour=23, minute=30), freq='15min'),
+                    axis=0)
+                print(df.shape[0])
+                for label, color in zip(df.columns[1:], plot_colors[1:]):  #
+                    y_true = df['Measurement value']
+                    y_pred = df[label]
+                    residual = y_true - y_pred
+                    residual = (residual - np.mean(residual)) / np.std(residual)
+                    # P-P Plot
+                    xlim = [-8, 8] if usecase == 'Solarhouse2' else None
+                    ylim = [-8, 8] if usecase == 'Solarhouse2' else None
+                    plt_dist.plot_qq(residual, resid_pp_dir, f'Dataset {usecase} - Standardized Residual - {label} - removed_periods',
+                                     store_csv=True, xlim=xlim, ylim=ylim)
 
 
 #%% Residuals Scatter
@@ -229,6 +257,11 @@ if __name__ == "__main__":
                 plt.savefig((f'{resid_hist_dir}/Hist_Residual_{usecase}_{thresh_name_full}_{label}.png'))
                 plt.show()
 
+
+def plot_line(x, ymax,color, label):
+    plt.plot([x,x], [0,ymax], color=color, label=label)
+
+
 #%%
     resid_spec_dir = f'{resid_dir}/Spectrum'
     os.makedirs(resid_spec_dir,exist_ok=True)
@@ -249,11 +282,12 @@ if __name__ == "__main__":
                 plt.figure(figsize=(10,5))
                 d = 3600/4 if target_val == target_vals[-1] or target_val == target_vals[-2] else 3600
                 plt.stem(24*3600*np.fft.fftfreq(len(residual), d=3600)[:round(len(residual)/2)],spec, label=f'Residual - {label}')
-                plt.plot([1/365,1/365], [0,1.1*max(spec)], color='yellow', label = 'Yearly Trend')
-                plt.plot([1/30,1/30], [0,1.1*max(spec)], color='orange', label = 'Monthly Trend')
-                plt.plot([1/7,1/7], [0,1.1*max(spec)], color='red', label = 'Weekly Trend')
-                plt.plot([1,1], [0,1.1*max(spec)], color='k', label = 'Daily Trend')
-                plt.ylim([0,1.1*max(spec)])
+                ymax = 1.1 * max(spec)
+                plot_line(1 / 365, ymax,'yellow', 'Yearly Trend')
+                plot_line(1 / 30, ymax, 'orange', 'Monthly Trend')
+                plot_line(1 / 7, ymax, 'red', 'Weekly Trend')
+                plot_line(1, ymax, 'black', 'Daily Trend')
+                plt.ylim([0, ymax])
                 plt.gca().set_xscale('log')
                 plt.ylabel('Magnitude Spectrum - normalized')
                 plt.xlabel('Frequency logarithmic [1/d]')
@@ -269,18 +303,16 @@ if __name__ == "__main__":
                 plt.stem(24*3600*np.fft.fftfreq(len(residual), d=d)[:round(len(residual)/2)],spec, label=f'Residual - {label}')
                 plt.plot([1,1], [0,1.1*max(spec)], color='k', label = 'Daily Trend')
                 if d == 3600/4:
-                    plt.plot([6,6], [0,1.1*max(spec)], color='magenta', label = '4h Trend')
-                    plt.plot([12,12], [0,1.1*max(spec)], color='mediumvioletred', label = '2h Trend')
-                    plt.plot([24,24], [0,1.1*max(spec)], color='red', label = 'Hourly Trend')
+                    plot_line(6, ymax, 'magenta', '4h Trend')
+                    plot_line(12, ymax, 'mediumvioletred', '2h Trend')
+                    plot_line(24, ymax, 'red', 'Hourly Trend')
                 else:
-                    plt.plot([2,2], [0,1.1*max(spec)], color='purple', label = '12h Trend')
-                    #plt.plot([3,3], [0,1.1*max(spec)], color='darkviolet', label = '8h Trend')
-                    plt.plot([4,4], [0,1.1*max(spec)], color='violet', label = '6h Trend')
-                    plt.plot([6,6], [0,1.1*max(spec)], color='magenta', label = '4h Trend')
-                    plt.plot([8,8], [0,1.1*max(spec)], color='pink', label = '3h Trend')
-                    plt.plot([12,12], [0,1.1*max(spec)], color='mediumvioletred', label = '2h Trend')
-
-                plt.ylim([0,1.1*max(spec)])
+                    plot_line(2, ymax, 'purple', '12h Trend')
+                    plot_line(4, ymax, 'violet', '6h Trend')
+                    plot_line(6, ymax, 'magenta', '4h Trend')
+                    plot_line(8, ymax, 'pink', '3h Trend')
+                    plot_line(12, ymax, 'mediumvioletred', '2h Trend')
+                plt.ylim([0, ymax])
                 plt.ylabel('Magnitude Spectrum - normalized')
                 plt.xlabel('Frequency [1/d]')
                 plt.legend()

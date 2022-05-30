@@ -8,6 +8,8 @@ import os
 
 def plot_qq(data:pd.DataFrame, path, title, **kwargs):
     fig, ax = plt_utils.create_figure(fig_title=title)
+    ylim = kwargs.pop('ylim', None)
+    xlim = kwargs.pop('xlim', None)
     obj_probplot = sm.ProbPlot(data)
     df_qq = pd.DataFrame(index=obj_probplot.theoretical_quantiles, data=obj_probplot.sample_quantiles, columns=['y'])
     if kwargs.pop('store_csv',False):
@@ -16,21 +18,23 @@ def plot_qq(data:pd.DataFrame, path, title, **kwargs):
     ax0 = qq.axes[0]
     sm.qqline(ax0, line='45', fmt='k--')
     plt.grid(visible=False)
+    plt.ylim(ylim)
+    plt.xlim(xlim)
     ax0.legend(loc='upper left')
     plt_utils.save_figure(path, title)
     plt.show()
 
 
 def plot_density(data: pd.DataFrame, path, title, omit_zero_samples=False, **kwargs):
+    feature_names = data.columns
     if omit_zero_samples:
         data = [data[feature][data[feature] != 0] for feature in data.columns]
-    g = sns.kdeplot(data=data, color='darkblue')
-    ax = plt.gca()
-    for line in ax.lines:
+    ax = sns.kdeplot(data=data, color='darkblue')
+    for line, label in zip(ax.lines, ax.legend_.texts):
         xdata = line.get_xdata()
         ydata = line.get_ydata()
-        df = pd.DataFrame(ydata, columns=['y'], index=xdata)
-    df.to_csv(os.path.join(path, f'{title.replace(" ","")}.csv'), index_label='x')
+        df = pd.DataFrame(ydata, columns=['Density'], index=xdata) #TODO
+        df.to_csv(os.path.join(path, f'{title.replace(" ","")}_{label._text}_.csv'), index_label='x')
     ax.set_title(title)
     plt.tight_layout()
     plt_utils.save_figure(path, title, **kwargs)
