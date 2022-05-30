@@ -8,7 +8,6 @@ from ModelTraining.Training.predict import predict_with_history, predict_gt
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import prepare_data_for_fit, create_pipeline
 from ModelTraining.Preprocessing.FeatureSelection.FeatureSelector import FeatureSelector
-import ModelTraining.Preprocessing.FeatureSelection.feature_selection as feat_select
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
 from ModelTraining.Preprocessing.FeatureSelection.feature_selection_params import FeatureSelectionParams
 
@@ -45,7 +44,7 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
         print(f"Best parameters are {search.best_params_}")
         # Configure model
         model.model.set_params(**search.best_params_)
-        feat_select.configure_feature_select(model.expanders, selectors)
+        FeatureSelector.configure_feature_select(model.expanders, selectors)
         list_selectors.append(selectors)
         # Train model
         model.train(x_train, y_train)

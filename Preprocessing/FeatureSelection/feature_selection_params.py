@@ -1,4 +1,4 @@
-from ModelTraining.Utilities.Parameters.parameters import Parameters
+from ...Utilities.Parameters.parameters import Parameters
 from dataclasses import dataclass
 
 

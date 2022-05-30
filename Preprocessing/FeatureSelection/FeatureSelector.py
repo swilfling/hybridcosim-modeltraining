@@ -1,12 +1,9 @@
-import ennemi
 import numpy as np
-from minepy.mine import MINE
-from mlxtend.feature_selection import SequentialFeatureSelector as SFS
-from sklearn.feature_selection import SelectorMixin, f_regression, r_regression
+from sklearn.feature_selection import SelectorMixin
 from sklearn.base import BaseEstimator
-from sklearn.linear_model import LinearRegression
-from abc import abstractmethod
-from ModelTraining.datamodels.datamodels.processing.feature_extension.StoreInterface import StoreInterface
+from .. import FeatureSelection
+from .. FeatureSelection import FeatureSelectionParams
+from ... datamodels.datamodels.processing.feature_extension.StoreInterface import StoreInterface
 
 
 class FeatureSelector(SelectorMixin, BaseEstimator, StoreInterface):
@@ -21,21 +18,41 @@ class FeatureSelector(SelectorMixin, BaseEstimator, StoreInterface):
     omit_zero_samples=False
     nz_idx = None
     thresh = 0
+    n_features_in_ = 0
 
     @staticmethod
     def from_name(name):
-        dict_selectors = {'F-value': f_threshold, 'R-value': r_threshold, 'MIC-value': mine_mic_threshold,
-                          'Ennemi-value': ennemi_threshold, 'forward_select': ForwardSelector,
-                          'MIC-R-value': MIC_R_selector}
-        selector_class = dict_selectors.get(name, identity)
+        """
+        Get selector by name
+        @param name: selector name
+        @return FeatureSelector object
+        """
+        dict_selectors = {'F-value': 'f_threshold', 'R-value': 'r_threshold', 'MIC-value': 'mine_mic_threshold',
+                          'Ennemi-value': 'ennemi_threshold', 'forward_select': 'ForwardSelector',
+                          'MIC-R-value': 'MIC_R_selector', 'Name': 'SelectorByName'}
+        selector_class = getattr(FeatureSelection, dict_selectors.get(name, 'identity'))
         return selector_class
 
     @staticmethod
-    def from_params(params):
+    def from_params(params: FeatureSelectionParams):
+        """
+        Get selector by name
+        @param name: selector name
+        @return FeatureSelector object
+        """
         return FeatureSelector.from_name(params.sel_type)(thresh=params.threshold, omit_zero_samples=params.omit_zero_samples)
 
+    @staticmethod
+    def configure_feature_select(expanders, selectors):
+        """
+        Configure feature select for multiple expanders and selectors
+        """
+        for expander, selector in zip(expanders, selectors):
+            expander.set_feature_select(selector.get_support())
+            selector.print_metrics()
+
     def __init__(self, thresh=0, omit_zero_samples=False, **kwargs):
-        self.set_params(thresh=thresh, omit_zero_samples=omit_zero_samples)
+        self._set_attrs(thresh=thresh, omit_zero_samples=omit_zero_samples)
 
     def fit(self, X, y=None, **fit_params):
         """
@@ -46,6 +63,7 @@ class FeatureSelector(SelectorMixin, BaseEstimator, StoreInterface):
         X = self.reshape_data(X)
         self.nonzero = ~np.all(X == 0, axis=0)
         self.nz_idx = np.where(self.nonzero)
+        self.n_features_in_ = X.shape[-1]
         if self.omit_zero_samples:
             coef = self._fit(X[:, self.nonzero], y, **fit_params)
             self.coef_ = np.zeros(X.shape[-1])
@@ -62,14 +80,14 @@ class FeatureSelector(SelectorMixin, BaseEstimator, StoreInterface):
         """
         return super(FeatureSelector, self).transform(self.reshape_data(X))
 
-    @abstractmethod
     def _fit(self, X, y, **fit_params):
         """
         Fit transformer - Override this method!
         @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
         @param y: Target feature vector (n_samples)
+        @return coefficients
         """
-        raise NotImplementedError()
+        return None
 
     def _get_support_mask(self):
         """
@@ -116,29 +134,6 @@ class FeatureSelector(SelectorMixin, BaseEstimator, StoreInterface):
         return X
 
 
-class f_threshold(FeatureSelector):
-    """
-    F-Threshold:
-    Threshold based on F-test of the Pearson correlation value.
-    The F-test values are normalized between 0 and 1 for the smallest to highest value.
-    """
-    def _fit(self, X, y=None, **fit_params):
-        f_val = f_regression(X, y)[0]
-        # Normalize f val
-        return f_val / np.nanmax(f_val)
-
-
-class r_threshold(FeatureSelector):
-    """
-    R-Threshold:
-    Threshold based on absolute value of the Pearson correlation value.
-    """
-    def _fit(self, X, y=None, **fit_params):
-        if X.shape[-1] > 0:
-            return np.abs(r_regression(X, y))
-        return None
-
-
 class identity(FeatureSelector):
     """
     Identity:
@@ -151,82 +146,18 @@ class identity(FeatureSelector):
         return np.array([True] * self.coef_.shape[-1])
 
 
-class mine_mic_threshold(FeatureSelector):
+class SelectorByName(FeatureSelector):
     """
-    MIC-threshold
-    Features are selected based on MIC.
+    Selector by name:
+    Select features by name
     """
-    def _fit(self, X, y=None, **fit_params):
-        n_features = X.shape[-1]
-        coef = np.zeros(n_features)
-        mine = MINE()
-        for i in range(n_features):
-            mine.compute_score(X[:, i], np.ravel(y))
-            coef[i] = mine.mic()
-        return coef
-
-
-class ennemi_threshold(FeatureSelector):
-    """
-    ennemi-threshold
-    Features are selected based on ennemi criterion.
-    """
-    def _fit(self, X, y=None, **fit_params):
-        return np.array([ennemi.estimate_corr(np.ravel(y), X[:,i], preprocess=True) for i in range(X.shape[-1])]).ravel()
-
-
-class MIC_R_selector(FeatureSelector):
-    """
-    This is work in progress.
-    """
-    def __init__(self, **kwargs):
+    def __init__(self, feat_names=[], selected_feat_names=[], **kwargs):
         super().__init__(**kwargs)
-        self.mic_thresh = mine_mic_threshold(**kwargs)
-        self.r_thresh = r_threshold(**kwargs)
-        self.num_basic_features = kwargs.get('num_basic_features', 0)
-        self.feature_names = np.array(kwargs.get('feature_names',[]))
-        pass
+        self.feature_names_in_ = feat_names
+        self.selected_feat_names = selected_feat_names
 
-    def fit_transform(self, X, y=None, **fit_params):
-        self.mic_thresh.fit_transform(X, y, **fit_params)
-        self.r_thresh.fit_transform(X, y, **fit_params)
-        self.coef_ = np.array([self.mic_thresh.coef_, self.r_thresh.coef_]).T
-        return X[self.get_support()]
-
-    def _get_support_mask(self,indices=False):
-        # Select features to expand based on MIC value
-        basic_features_to_expand = self.mic_thresh.get_support()[:self.num_basic_features]
-        feature_names_basic = self.feature_names[:self.num_basic_features]
-        feature_names_to_expand = feature_names_basic[basic_features_to_expand]
-        exp_mask = np.array([False] * len(self.feature_names))
-        exp_mask[:self.num_basic_features][np.bitwise_not(basic_features_to_expand)] = True
-        for name in feature_names_to_expand:
-            #expanded_feature_names = [expanded_name for expanded_name in self.feature_names if name in expanded_name]
-            #print(expanded_feature_names)
-            support_mask_feature = np.array([name in self.feature_names[i] for i in range(len(self.feature_names))])
-            exp_mask = np.bitwise_or(support_mask_feature, exp_mask)
-
-        r_mask = self.r_thresh._get_support_mask()
-        return np.bitwise_and(r_mask, exp_mask)
-
-
-class ForwardSelector(FeatureSelector):
-    def _fit(self, X, y=None, **fit_params):
-        f_model = LinearRegression()
-        # efs = EFS(f_model,
-        #           min_features=2,
-        #           max_features=x.shape[1],
-        #           scoring='neg_mean_squared_error',
-        #           cv=3)
-        self.sfs = SFS(f_model,
-                  k_features='best',
-                  forward=True,
-                  n_jobs=-1)
-
-        self.sfs.fit(X, y)
-        self.coef_ = self.sfs.k_score_
-        return self.coef_
+    def _fit(self, X, y, **fit_params):
+        return np.array([name in self.selected_feat_names for name in self.feature_names_in_])
 
     def _get_support_mask(self):
-        f_indx = list(self.sfs.k_feature_idx_)
-        return [True if i in f_indx else False for i in range(self.n_features_in_)]
+        return [name in self.selected_feat_names for name in self.feature_names_in_]

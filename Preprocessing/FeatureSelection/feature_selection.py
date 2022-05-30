@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
 
-
 def forward_select(x, y, training_params):
 
     # model = create_model(training_params, x, y, parameters=kwargs.pop('parameters',None), interaction_only=kwargs.pop('interaction_only',False))
@@ -59,7 +58,3 @@ def permutation(x_train, y_train, features_names):
         # plt.show()
 
 
-def configure_feature_select(expanders, selectors):
-    for expander, selector in zip(expanders, selectors):
-        expander.set_feature_select(selector.get_support())
-        selector.print_metrics()
