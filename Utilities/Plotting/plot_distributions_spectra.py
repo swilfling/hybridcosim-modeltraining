@@ -27,17 +27,21 @@ def plot_qq(data:pd.DataFrame, path, title, **kwargs):
 
 def plot_density(data: pd.DataFrame, path, title, omit_zero_samples=False, **kwargs):
     feature_names = data.columns
+    store_tikz = kwargs.pop('store_tikz',False)
     if omit_zero_samples:
         data = [data[feature][data[feature] != 0] for feature in data.columns]
-    ax = sns.kdeplot(data=data, color='darkblue')
-    for line, label in zip(ax.lines, ax.legend_.texts):
+    #ax = sns.kdeplot(data=data, color='darkblue')
+    for feature in data:
+        ax = feature.plot.kde(**kwargs)
+        line = ax.lines[-1]
         xdata = line.get_xdata()
         ydata = line.get_ydata()
-        df = pd.DataFrame(ydata, columns=['Density'], index=xdata) #TODO
-        df.to_csv(os.path.join(path, f'{title.replace(" ","")}_{label._text}_.csv'), index_label='x')
+        df = pd.DataFrame(ydata, columns=['Density'], index=xdata)  # TODO
+        df.to_csv(os.path.join(path, f'{title.replace(" ", "")}_{feature.name}_.csv'), index_label='x')
+    ax.legend(feature_names)
     ax.set_title(title)
     plt.tight_layout()
-    plt_utils.save_figure(path, title, **kwargs)
+    plt_utils.save_figure(path, title, store_tikz=store_tikz)
     plt.show()
 
 
