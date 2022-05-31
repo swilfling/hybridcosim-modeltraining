@@ -3,7 +3,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 import ModelTraining.Utilities.Plotting.plot_distributions_spectra as plt_dist
-from ModelTraining.ResultAnalysis.result_utils import env_max, env_min, get_df, plot_line
+from ModelTraining.ResultAnalysis.result_utils import env_max, env_min, get_result_df, plot_line
 
 
 if __name__ == "__main__":
@@ -41,8 +41,8 @@ if __name__ == "__main__":
     for usecase, target_val in zip(usecase_names, target_vals):
         for threshold_set in thresholds_rfvals:
             thresh_name_full = "_".join(name for name in threshold_set)
-            path = os.path.join(result_dir, usecase, thresh_name_full, 'Plots')
-            df = get_df(path, model_types, baseline_model_type, target_val, expansion)
+            path = os.path.join(result_dir, usecase, thresh_name_full)
+            df = get_result_df(path, model_types, baseline_model_type, target_val, expansion)
             # Residuals plot
             plt.figure(figsize=(15,5))
             for label,color in zip(df.columns[1:],plot_colors[1:]):
@@ -59,15 +59,15 @@ if __name__ == "__main__":
 
 #%% Residuals P-P
     for usecase, target_val in zip(usecase_names, target_vals):
-        model_types = ['WeightedLS'] if usecase=="SensorC6" else ['LassoRegression'] if usecase=="SensorA6" else ['RidgeRegression']
+        model_types = ['WeightedLS'] if usecase == "SensorC6" else ['LassoRegression'] if usecase == "SensorA6" else ['RidgeRegression']
         for threshold_set in thresholds_rfvals:
             thresh_name_full = "_".join(name for name in threshold_set)
-            path = os.path.join(result_dir, usecase, thresh_name_full, 'Plots')
-            df = get_df(path, model_types, baseline_model_type, target_val, expansion)
+            path = os.path.join(result_dir, usecase, thresh_name_full)
+            df = get_result_df(path, model_types, baseline_model_type, target_val, expansion)
 
             y_true = df['Measurement value']
             # Residuals - Scatter
-            for label,color in zip(df.columns[1:],plot_colors[1:]):#
+            for label,color in zip(df.columns[1:],plot_colors[1:]):
                 y_pred = df[label]
                 residual = y_true - y_pred
                 residual = (residual - np.mean(residual)) / np.std(residual)
@@ -76,31 +76,13 @@ if __name__ == "__main__":
                 ylim = [-8,8] if usecase == 'Solarhouse2' else None
                 plt_dist.plot_qq(residual, resid_pp_dir, f'Dataset {usecase} - Standardized Residual - {label}', store_csv=True,xlim=xlim, ylim=ylim)
 
-            #if usecase == 'Solarhouse2':
-            #    df = df.drop(pd.date_range(pd.Timestamp(year=2020, month=2, day=1), pd.Timestamp(year=2020,month=2,day=5),freq='15min'),axis=0)
-            #    df = df.drop(
-            #        pd.date_range(pd.Timestamp(year=2020, month=3, day=15),
-            #                      pd.Timestamp(year=2020, month=3, day=24, hour=23, minute=30), freq='15min'),
-            #        axis=0)
-            #    print(df.shape[0])
-            #    for label, color in zip(df.columns[1:], plot_colors[1:]):  #
-            #        y_true = df['Measurement value']
-            #        y_pred = df[label]
-            #        residual = y_true - y_pred
-            #        residual = (residual - np.mean(residual)) / np.std(residual)
-            #        # P-P Plot
-            #        xlim = [-8, 8] if usecase == 'Solarhouse2' else None
-            #        ylim = [-8, 8] if usecase == 'Solarhouse2' else None
-            #        plt_dist.plot_qq(residual, resid_pp_dir, f'Dataset {usecase} - Standardized Residual - {label} - removed_periods',
-            #                         store_csv=True, xlim=xlim, ylim=ylim)
-
 
 #%% Residuals Scatter
     for usecase, target_val in zip(usecase_names, target_vals):
         for threshold_set in thresholds_rfvals:
             thresh_name_full = "_".join(name for name in threshold_set)
-            path = os.path.join(result_dir, usecase, thresh_name_full, 'Plots')
-            df = get_df(path, model_types, baseline_model_type, target_val, expansion)
+            path = os.path.join(result_dir, usecase, thresh_name_full)
+            df = get_result_df(path, model_types, baseline_model_type, target_val, expansion)
             y_true = df['Measurement value']
 
             # Residuals - Scatter
@@ -147,8 +129,8 @@ if __name__ == "__main__":
     for usecase, target_val in zip(usecase_names, target_vals):
         for threshold_set in thresholds_rfvals:
             thresh_name_full = "_".join(name for name in threshold_set)
-            path = os.path.join(result_dir, usecase, thresh_name_full, 'Plots')
-            df = get_df(path, model_types, baseline_model_type, target_val, expansion)
+            path = os.path.join(result_dir, usecase, thresh_name_full)
+            df = get_result_df(path, model_types, baseline_model_type, target_val, expansion)
             y_true = df['Measurement value']
             # Residuals - Histogram
             for label,color in zip(df.columns[1:],plot_colors[1:]):
@@ -180,8 +162,8 @@ if __name__ == "__main__":
     for usecase, target_val in zip(usecase_names, target_vals):
         for threshold_set in thresholds_rfvals:
             thresh_name_full = "_".join(name for name in threshold_set)
-            path = os.path.join(result_dir, usecase, thresh_name_full, 'Plots')
-            df = get_df(path, model_types, baseline_model_type, target_val, expansion)
+            path = os.path.join(result_dir, usecase, thresh_name_full)
+            df = get_result_df(path, model_types, baseline_model_type, target_val, expansion)
             y_true = df['Measurement value']
 
             for label,color in zip(df.columns[1:],plot_colors[1:]):

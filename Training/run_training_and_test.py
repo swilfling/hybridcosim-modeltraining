@@ -16,7 +16,7 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
                           results_dir_path, prediction_type="History", **kwargs):
     models, results, list_selectors = [], [], []
     # Get optional arguments
-    model_parameters = kwargs.get('model_parameters', {})
+    model_params = kwargs.get('model_parameters', {})
     expander_parameters = kwargs.get('expander_parameters',{})
 
     for training_params in list_training_parameters:
@@ -32,9 +32,8 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
         model = create_model(training_params, expander_parameters=expander_parameters, feature_names=feature_names)
 
         # Select features + Grid Search
-        search = GridSearchCV(model.model, model_parameters,
-                              scoring=['r2', 'neg_mean_squared_error', 'neg_mean_absolute_error'], refit='r2',
-                              verbose=4)
+        search = GridSearchCV(model.model, model_params, scoring=['r2', 'neg_mean_squared_error', 'neg_mean_absolute_error'],
+                              refit='r2', verbose=4)
         selectors = [FeatureSelector.from_params(params) for params in
                      kwargs.get('feature_select_params', [FeatureSelectionParams()])]
         pipeline = create_pipeline(model.expanders, selectors, search)
@@ -52,11 +51,12 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
         # Save Model
         train_utils.save_model_and_parameters(os.path.join(results_dir_path, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"), model, training_params)
         # Predict test data
-        predict_function = predict_with_history if prediction_type == 'History' else predict_gt
-        result_prediction = predict_function(model, index_test, x_test, y_test, training_params)
-        test_prediction = result_prediction[[f"predicted_{feature}" for feature in target_features]].to_numpy()
+        result_prediction_history = predict_with_history(model, index_test, x_test, y_test, training_params)
+        test_prediction = result_prediction_history[[f"predicted_{feature}" for feature in target_features]].to_numpy() if prediction_type == 'History' else model.predict(x_test)
         results.append(TrainingResults(train_index=index_train, train_target=y_train,
-                                 test_index=index_test, test_target=y_test, test_prediction=test_prediction, test_input=x_test))
+                                       test_index=index_test, test_target=y_test,
+                                       test_prediction=test_prediction, test_input=x_test,
+                                       target_feat_names=training_params.target_features))
 
     return models, [results, list_selectors]
 

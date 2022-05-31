@@ -2,7 +2,9 @@ from dataclasses import dataclass
 from ModelTraining.Utilities.Parameters import Parameters
 from ModelTraining.datamodels.datamodels.processing.feature_extension import StoreInterface
 import numpy as np
-
+import os
+import pandas as pd
+from typing import List
 
 @dataclass
 class TrainingResults(Parameters, StoreInterface):
@@ -13,3 +15,33 @@ class TrainingResults(Parameters, StoreInterface):
     test_target: np.ndarray = None
     test_prediction: np.ndarray = None
     test_input: np.ndarray = None
+    target_feat_names: List[str] = None
+
+    def test_results_to_csv(self, dir, filename="test_results.csv", index_label='t'):
+        self.test_result_df().to_csv(os.path.join(dir, filename), index_label=index_label)
+
+    def train_results_to_csv(self, dir, filename="train_results.csv", index_label='t'):
+        df = pd.DataFrame(index=self.train_index, data=np.hstack((self.train_target, self.train_prediction)), columns=['GroundTruth', 'Prediction'])
+        df.to_csv(os.path.join(dir, filename), index_label=index_label)
+
+    def test_result_df(self, feat="", col_names=[]):
+        if feat == "":
+            return pd.DataFrame(index=self.test_index, data=np.hstack((self.test_target, self.test_prediction)),
+                                columns=self._get_df_cols() if col_names == [] else col_names)
+        else:
+            feat_ind = self.target_feat_names.index(feat)
+            return pd.DataFrame(index=self.test_index, data=np.vstack((self.test_target[:,feat_ind],self.test_prediction[:,feat_ind])).T,
+                                columns=[f'GroundTruth_{feat}',f'Prediction_{feat}'])
+
+    def test_target_vals(self, feat=""):
+        return self.test_target[:,self.target_feat_names.index(feat)] if feat else self.test_target
+
+    def test_pred_vals(self, feat=""):
+        return self.test_prediction[:,self.target_feat_names.index(feat)] if feat else self.test_prediction
+
+    def _get_df_cols(self):
+        if self.target_feat_names is None:
+            num_target_feats = self.test_target.shape[1]
+            return [f'GroundTruth_{i}' for i in range(num_target_feats)] + [f'Prediction_{i}' for i in range(num_target_feats)]
+        else:
+            return [f'GroundTruth_{feat}' for feat in self.target_feat_names] + [f'Prediction_{feat}' for feat in self.target_feat_names]

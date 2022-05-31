@@ -2,7 +2,7 @@ import os
 import matplotlib.pyplot as plt
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 import tikzplotlib
-from ModelTraining.ResultAnalysis.result_utils import get_df
+from ModelTraining.ResultAnalysis.result_utils import get_result_df
 
 if __name__ == "__main__":
 # %%
@@ -33,16 +33,14 @@ if __name__ == "__main__":
     os.makedirs(timeseries_dir, exist_ok=True)
     os.makedirs(scatter_dir, exist_ok=True)
 
-
 #%% Timeseries plots
     for usecase, target_val in zip(usecase_names, target_vals):
-        model_types = ['WeightedLS'] if usecase=="SensorC6" else ['LassoRegression'] if usecase=="SensorA6" else ['RidgeRegression']
+        model_types = ['WeightedLS'] if usecase == "SensorC6" else ['LassoRegression'] if usecase == "SensorA6" else ['RidgeRegression']
 
         for threshold_set in thresholds_rfvals:
             thresh_name_full = "_".join(name for name in threshold_set)
-            path = os.path.join(result_dir, usecase, thresh_name_full, 'Plots')
-            df = get_df(path, model_types, baseline_model_type, target_val, expansion)
-
+            path = os.path.join(result_dir, usecase, thresh_name_full)
+            df = get_result_df(path, model_types, baseline_model_type, target_val, expansion)
             df.to_csv(os.path.join(timeseries_dir, f'{usecase}.csv'), index_label='t')
 
             plt.figure(figsize=(15,5))
