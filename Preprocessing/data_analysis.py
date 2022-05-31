@@ -3,6 +3,10 @@ import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from statsmodels.stats import outliers_influence as stats
 from scipy.stats import boxcox
+from scipy.stats import kstest
+from scipy.stats import shapiro
+from statsmodels.tsa.stattools import adfuller
+
 
 
 ########################### Variable Inflation Factor (VIF) ###########################################################
@@ -74,3 +78,14 @@ def boxcox_transf(data:pd.DataFrame,omit_zero_samples=False, offset=0.000001):
             cur_feat = data[feat] + np.min(data[feat]) + offset
         df[feat] = boxcox(cur_feat)[0]
     return df
+
+############################################# Tests ####################################################################
+
+def norm_stat_tests(cur_data):
+    df_tests = pd.DataFrame(index=cur_data.columns, columns=['Shapiro', 'KS', 'ADF'])
+    for feat in cur_data:
+        cur_feat = cur_data[feat]
+        df_tests['Shapiro'][feat] = shapiro(cur_feat).pvalue
+        df_tests['KS'][feat] = kstest(cur_feat, 'norm').pvalue
+        df_tests['ADF'][feat] = adfuller(cur_feat, autolag="AIC")[1]
+    return df_tests

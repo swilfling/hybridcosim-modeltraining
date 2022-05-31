@@ -76,8 +76,6 @@ if __name__ == '__main__':
         df_sparsity_exp.to_csv(os.path.join(sparsity_dir, f"Sparsity_{usecase_name}_expanded_percent.csv"), float_format="%.2f",
                            index_label="Dataset")
 
-
-
     #%%
     ##### Density
     density_dir ="./Figures/Density"
@@ -154,3 +152,38 @@ if __name__ == '__main__':
         df_skew_nonzero = data_analysis.calc_skew_kurtosis(data[feats_for_density_full], True)
         df_skew.to_csv(os.path.join(density_dir_usecase, f"{usecase_name}_skew_kurtosis.csv"), index_label='Metric')
         df_skew_nonzero.to_csv(os.path.join(density_dir_usecase, f"{usecase_name}_skew_kurtosis_nonzero.csv"), index_label='Metric')
+
+
+    #%%
+    ##### Stationarity/Normal Distribution
+    stationarity_dir = "./Figures/Stationarity"
+    os.makedirs(stationarity_dir, exist_ok=True)
+    for dict_usecase in dict_usecases:
+        usecase_name = dict_usecase['name']
+        # Get data and feature set
+        data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(
+            os.path.join(data_dir, dict_usecase['dataset']),
+            os.path.join(root_dir, dict_usecase['fmu_interface']))
+        data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
+        data = data.astype('float')
+
+        features_for_corrmatrix = [feature.name for feature in feature_set.get_input_feats() if
+                                   not feature.cyclic and not feature.statistical]
+        if usecase_name in ['CPS-Data', 'SensorA6', 'SensorB2', 'SensorC6']:
+            features_for_corrmatrix.remove("holiday_weekend")
+            features_for_corrmatrix.append("holiday")
+
+        cur_data = data[features_for_corrmatrix]
+        cur_data = cur_data.dropna(axis=0)
+        if usecase_name == "Solarhouse1":
+            cur_data['SGlobal'][cur_data['SGlobal'] < 30] = 0
+
+        cur_data = cur_data.dropna(axis=0)
+        expanded_features = train_utils.expand_features(cur_data, cur_data[features_for_corrmatrix].columns, [],
+                                                        expander_parameters=expander_parameters)
+
+        if usecase_name == 'Solarhouse2' or usecase_name == 'Solarhouse1':
+            df_tests = data_analysis.norm_stat_tests(cur_data)
+            df_tests.to_csv(os.path.join(stationarity_dir, f'Tests_{usecase_name}.csv'), index_label='Feature')
+            df_tests_exp = data_analysis.norm_stat_tests(expanded_features)
+            df_tests_exp.to_csv(os.path.join(stationarity_dir, f'Tests_{usecase_name}_exp.csv'), index_label='Feature')

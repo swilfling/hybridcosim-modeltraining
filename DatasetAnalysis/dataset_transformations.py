@@ -81,6 +81,10 @@ if __name__ == '__main__':
         df_skew.to_csv(os.path.join(output_dir, f"{usecase_name}_sqrt_skew_kurtosis.csv"), index_label='Metric')
         df_skew_nonzero.to_csv(os.path.join(output_dir, f"{usecase_name}_sqrt_skew_kurtosis_nonzero.csv"),
                                index_label='Metric')
+        df_tests = data_analysis.norm_stat_tests(vals_sqrt_full)
+        df_tests.to_csv(os.path.join(output_dir, f'{usecase_name}_tests.csv'))
+
+
 
     #%%
     ##### Box-cox transformation
@@ -135,40 +139,7 @@ if __name__ == '__main__':
         df_skew_nonzero.to_csv(os.path.join(output_dir, f"{usecase_name}_boxcox_skew_kurtosis_nonzero.csv"),
                                index_label='Metric')
 
-    #%% Skew and kurtosis
-    density_dir = "./Figures/Density"
-    os.makedirs(density_dir, exist_ok=True)
+        df_tests = data_analysis.norm_stat_tests(boxcox_df)
+        df_tests.to_csv(os.path.join(output_dir, f'{usecase_name}_tests.csv'))
 
-    for dict_usecase in dict_usecases:
-        usecase_name = dict_usecase['name']
-        density_dir_usecase = os.path.join(density_dir, usecase_name)
-        os.makedirs(density_dir_usecase, exist_ok=True)
-        # Get data and feature set
-        data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(
-            os.path.join(data_dir, dict_usecase['dataset']),
-            os.path.join(root_dir, dict_usecase['fmu_interface']))
-        data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
-        data = data.astype('float')
-        # Data preprocessing
-        # data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=True)
 
-        feats_for_density = [feature.name for feature in feature_set.get_input_feats() if
-                             not feature.cyclic and not feature.statistical]
-        if usecase_name in ['CPS-Data', 'SensorA6', 'SensorB2', 'SensorC6']:
-            feats_for_density.remove("holiday_weekend")
-            feats_for_density.remove('daylight')
-        if usecase_name == 'Solarhouse1':
-            feats_for_density.remove('VDSolar_inv')
-        if usecase_name == 'Solarhouse1':
-            data['SGlobal'][data['SGlobal'] < 30] = 0
-
-        feats_for_density_full = feats_for_density + feature_set.get_output_feature_names()
-
-        scaler = Normalizer()
-        scaler.fit(data)
-        data = scaler.transform(data)
-
-        df_skew = data_analysis.calc_skew_kurtosis(data[feats_for_density_full])
-        df_skew_nonzero = data_analysis.calc_skew_kurtosis(data[feats_for_density_full], True)
-        df_skew.to_csv(os.path.join(density_dir_usecase, f"{usecase_name}_skew_kurtosis.csv"), index_label='Metric')
-        df_skew_nonzero.to_csv(os.path.join(density_dir_usecase, f"{usecase_name}_skew_kurtosis_nonzero.csv"), index_label='Metric')
