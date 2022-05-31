@@ -49,7 +49,8 @@ class ennemi_threshold(FeatureSelector):
     Features are selected based on ennemi criterion.
     """
     def _fit(self, X, y=None, **fit_params):
-        return np.array([ennemi.estimate_corr(np.ravel(y), X[:,i], preprocess=True) for i in range(X.shape[-1])]).ravel()
+        vals = [ennemi.estimate_corr(np.ravel(y), X[:,i], preprocess=True) for i in range(X.shape[-1])]
+        return np.array(vals).ravel()
 
 
 class MIC_R_selector(FeatureSelector):

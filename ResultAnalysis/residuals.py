@@ -1,46 +1,13 @@
-
 import pandas as pd
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 import ModelTraining.Utilities.Plotting.plot_distributions_spectra as plt_dist
-import tikzplotlib
-
-#%%
-
-def env_max(maxvals, windowsize):
-    maxvals_downsampled = maxvals.rolling(window=windowsize).max().drop_duplicates()
-    maxvals_downsampled[maxvals.index[0]] = maxvals.iloc[0]
-    maxvals_downsampled[maxvals.index[-1]] = maxvals.iloc[-1]
-    return maxvals_downsampled.reindex(maxvals.index).interpolate()
-
-def env_min(maxvals, windowsize):
-    maxvals_downsampled = maxvals.rolling(window=windowsize).min().drop_duplicates()
-    maxvals_downsampled[maxvals.index[0]] = maxvals.iloc[0]
-    maxvals_downsampled[maxvals.index[-1]] = maxvals.iloc[-1]
-    return maxvals_downsampled.reindex(maxvals.index).interpolate()
-
-
-#%%
-def get_df(path, model_types, baseline_model_type, target_val, expansion):
-    dict_expansion_names = {'IdentityExpander': 'basic features', 'PolynomialExpansion': 'Polyfeatures'}
-    df = pd.read_csv(os.path.join(path, f'Timeseries_{baseline_model_type}_{target_val}_IdentityExpander.csv'))
-    df.index = pd.DatetimeIndex(df[df.columns[0]])
-    df = df.drop(df.columns[0], axis=1)
-    df = df.rename({f'predicted_{target_val}':baseline_model_type, target_val:'Measurement value'},axis=1)
-    for model_type in model_types:
-        for expansion_set in expansion:
-            df_new = pd.read_csv(os.path.join(path, f'Timeseries_{model_type}_{target_val}_{expansion_set[-1]}.csv'))
-            df_new.index = pd.DatetimeIndex(df_new[df_new.columns[0]])
-            df = df.join(df_new[f'predicted_{target_val}'])
-            df = df.rename({f'predicted_{target_val}':f'{model_type} - {dict_expansion_names[expansion_set[-1]]}'},axis=1)
-    return df
+from ModelTraining.ResultAnalysis.result_utils import env_max, env_min, get_df, plot_line
 
 
 if __name__ == "__main__":
-# %%
-
+    #%%
     csv_files = ['CPS-Data', 'Sensor A6', 'Sensor B2', 'Sensor C6', 'Solarhouse 1', 'Solarhouse 2', 'Beyond B20 Gas']
 
     colormap = plt.cm.get_cmap('tab10')
@@ -69,55 +36,6 @@ if __name__ == "__main__":
     resid_pp_dir = f'{resid_dir}/PP'
     os.makedirs(resid_pp_dir, exist_ok=True)
 
-    scatter_dir = f'{output_dir}/Scatter'
-    timeseries_dir = f'{output_dir}/Timeseries'
-    os.makedirs(timeseries_dir, exist_ok=True)
-    os.makedirs(scatter_dir, exist_ok=True)
-
-
-#%% Timeseries plots
-    for usecase, target_val in zip(usecase_names, target_vals):
-        model_types = ['WeightedLS'] if usecase=="SensorC6" else ['LassoRegression'] if usecase=="SensorA6" else ['RidgeRegression']
-
-        for threshold_set in thresholds_rfvals:
-            thresh_name_full = "_".join(name for name in threshold_set)
-            path = os.path.join(result_dir, usecase, thresh_name_full, 'Plots')
-            df = get_df(path, model_types, baseline_model_type, target_val, expansion)
-
-            df.to_csv(os.path.join(timeseries_dir, f'{usecase}.csv'), index_label='t')
-
-            if usecase == 'Solarhouse2':
-                df = df.drop(
-                    pd.date_range(pd.Timestamp(year=2020, month=2, day=1), pd.Timestamp(year=2020, month=2, day=14),freq='15min'),
-                    axis=0)
-                df = df.drop(
-                    pd.date_range(pd.Timestamp(year=2020, month=3, day=15), pd.Timestamp(year=2020, month=3, day=24, hour=23, minute=30), freq='15min'),
-                    axis=0)
-                print(df.index)
-
-            plt.figure(figsize=(15,5))
-            ylabel = 'Energy Consumption' if target_val == 'energy' else 'Gas Consumption' if target_val == 'B20Gas' else 'Solar Collector Supply Temperature'
-            plt.title(f'{ylabel} - Dataset {usecase}')
-            for color, column in zip(plot_colors,df.columns):
-                plt.plot(df[column], linewidth=0.75, color=color)
-            plt.legend(df.columns,loc='upper right')
-            plt.ylabel(f'{ylabel} [kWh]')
-            plt.xlabel('Time')
-            plt.grid('both')
-            tikzplotlib.save(f'{timeseries_dir}/{usecase}.tex')
-            plt.savefig(f'{timeseries_dir}/{usecase}.png')
-            #plt.show()
-
-            y_true = df['Measurement value']
-
-            for label, color in zip(df.columns[1:],plot_colors[1:]):
-                # Scatterplot
-                y_pred = df[label]
-                plt_utils.scatterplot(y_pred, y_true, scatter_dir,
-                                      filename=f'Scatter_{usecase}_{thresh_name_full}_{label}'.replace(" ",""),
-                                      fig_title=f'Correlation - Dataset {usecase}',
-                                      figsize=(4,4), color=color, label=label)
-
 
 #%% Residuals plots
     for usecase, target_val in zip(usecase_names, target_vals):
@@ -130,7 +48,7 @@ if __name__ == "__main__":
             for label,color in zip(df.columns[1:],plot_colors[1:]):
                 plt.plot(df['Measurement value'] - df[label], label=f'Residual {label}', linewidth=0.75,color=color)
             plt.legend(loc='upper right')
-            plt.ylabel(f'{ylabel} [kWh]')
+            plt.ylabel('Residual value')
             plt.xlabel('Time')
             plt.title(f'Residuals - Dataset {usecase} - {thresh_name_full}')
             plt.grid('both')
@@ -158,23 +76,23 @@ if __name__ == "__main__":
                 ylim = [-8,8] if usecase == 'Solarhouse2' else None
                 plt_dist.plot_qq(residual, resid_pp_dir, f'Dataset {usecase} - Standardized Residual - {label}', store_csv=True,xlim=xlim, ylim=ylim)
 
-            if usecase == 'Solarhouse2':
-                df = df.drop(pd.date_range(pd.Timestamp(year=2020, month=2, day=1), pd.Timestamp(year=2020,month=2,day=5),freq='15min'),axis=0)
-                df = df.drop(
-                    pd.date_range(pd.Timestamp(year=2020, month=3, day=15),
-                                  pd.Timestamp(year=2020, month=3, day=24, hour=23, minute=30), freq='15min'),
-                    axis=0)
-                print(df.shape[0])
-                for label, color in zip(df.columns[1:], plot_colors[1:]):  #
-                    y_true = df['Measurement value']
-                    y_pred = df[label]
-                    residual = y_true - y_pred
-                    residual = (residual - np.mean(residual)) / np.std(residual)
-                    # P-P Plot
-                    xlim = [-8, 8] if usecase == 'Solarhouse2' else None
-                    ylim = [-8, 8] if usecase == 'Solarhouse2' else None
-                    plt_dist.plot_qq(residual, resid_pp_dir, f'Dataset {usecase} - Standardized Residual - {label} - removed_periods',
-                                     store_csv=True, xlim=xlim, ylim=ylim)
+            #if usecase == 'Solarhouse2':
+            #    df = df.drop(pd.date_range(pd.Timestamp(year=2020, month=2, day=1), pd.Timestamp(year=2020,month=2,day=5),freq='15min'),axis=0)
+            #    df = df.drop(
+            #        pd.date_range(pd.Timestamp(year=2020, month=3, day=15),
+            #                      pd.Timestamp(year=2020, month=3, day=24, hour=23, minute=30), freq='15min'),
+            #        axis=0)
+            #    print(df.shape[0])
+            #    for label, color in zip(df.columns[1:], plot_colors[1:]):  #
+            #        y_true = df['Measurement value']
+            #        y_pred = df[label]
+            #        residual = y_true - y_pred
+            #        residual = (residual - np.mean(residual)) / np.std(residual)
+            #        # P-P Plot
+            #        xlim = [-8, 8] if usecase == 'Solarhouse2' else None
+            #        ylim = [-8, 8] if usecase == 'Solarhouse2' else None
+            #        plt_dist.plot_qq(residual, resid_pp_dir, f'Dataset {usecase} - Standardized Residual - {label} - removed_periods',
+            #                         store_csv=True, xlim=xlim, ylim=ylim)
 
 
 #%% Residuals Scatter
@@ -223,9 +141,6 @@ if __name__ == "__main__":
                 plt.show()
 
 
-
-
-
 #%% Residuals Histogram
     resid_hist_dir = f'{resid_dir}/Hist'
     os.makedirs(resid_hist_dir,exist_ok=True)
@@ -257,9 +172,6 @@ if __name__ == "__main__":
                 plt.savefig((f'{resid_hist_dir}/Hist_Residual_{usecase}_{thresh_name_full}_{label}.png'))
                 plt.show()
 
-
-def plot_line(x, ymax,color, label):
-    plt.plot([x,x], [0,ymax], color=color, label=label)
 
 
 #%%
