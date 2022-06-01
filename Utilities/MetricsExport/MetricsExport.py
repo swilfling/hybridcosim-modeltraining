@@ -92,9 +92,6 @@ def analyze_result(models, results, list_training_parameters, list_selectors=[],
         title = f'{model_type}_{model.name}_{final_expander_type}'
         num_samples_total = result.train_index.shape[0] + result.test_index.shape[0]
         num_predictors = len(model.get_expanded_feature_names())
-        # Store results
-        result.save_pkl(results_dir_path,
-                        f'results_{model_type}_{"_".join(train_params.target_features)}_{final_expander_type}.pkl')
         result.test_results_to_csv(metrics_exp.get_result_dir(),f'Timeseries_{title}.csv')
 
         for feat in result.target_feat_names:
