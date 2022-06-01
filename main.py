@@ -4,8 +4,7 @@ import numpy as np
 import pathlib
 from sklearn.model_selection import TimeSeriesSplit
 
-import ModelTraining.Preprocessing.get_data_and_feature_set
-import ModelTraining.Training.TrainingUtilities.training_utils
+from ModelTraining.Preprocessing.get_data_and_feature_set import get_data_and_feature_set
 from ModelTraining.Utilities.Parameters import TrainingResults, TrainingParams
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
@@ -22,8 +21,7 @@ if __name__ == '__main__':
     usecase_config_path = os.path.join(hybridcosim_path,'ModelTraining', 'Configuration','UseCaseConfig')
     name = 'CPS-Data'
     dict_usecase = data_import.load_from_json(os.path.join(usecase_config_path, f"{name}.json"))
-
-    data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(os.path.join(hybridcosim_path, dict_usecase['dataset']), os.path.join("./", dict_usecase['fmu_interface']))
+    data, feature_set = get_data_and_feature_set(os.path.join(hybridcosim_path, dict_usecase['dataset']), os.path.join("./", dict_usecase['fmu_interface']))
 
     # Get training and target features
     target_features = feature_set.get_output_feature_names()
@@ -32,7 +30,6 @@ if __name__ == '__main__':
     # Added: Preprocessing - Smooth features
     smoothe_data = False
     data = dp_utils.preprocess_data(data, dict_usecase["to_smoothe"], do_smoothe=smoothe_data)
-
 
     print("Starting Training")
 
@@ -80,7 +77,7 @@ if __name__ == '__main__':
                                              expansion=expansion)
 
         # Get data and reshape
-        index, x, y, _ = ModelTraining.Training.TrainingUtilities.training_utils.extract_training_and_test_set(data, training_parameters)
+        index, x, y, _ = train_utils.extract_training_and_test_set(data, training_parameters)
         ## Training process
         model = create_model(training_parameters)
         model.expanders[0].selected_outputs = range(2)
@@ -114,7 +111,7 @@ if __name__ == '__main__':
                                                                         index[test_ind_best], x[test_ind_best, :], y[
                                                                             test_ind_best]
         else:
-            index_train, x_train, y_train, index_test, x_test, y_test = ModelTraining.Training.TrainingUtilities.training_utils.split_into_training_and_test_set(
+            index_train, x_train, y_train, index_test, x_test, y_test = train_utils.split_into_training_and_test_set(
                 index, x, y, training_parameters.training_split)
 
         logging.info(f"Training model with input of shape: {x_train.shape} and targets of shape {y_train.shape}")
@@ -122,27 +119,31 @@ if __name__ == '__main__':
         model.train(x_train, y_train)
         models.append(model)
 
-        result = TrainingResults(train_index=index_train, train_target=y_train,
-                                 test_index=index_test, test_target=y_test)
         result_prediction = predict_with_history(model, index_test, x_test, y_test, training_parameters)
-        result.test_prediction = np.expand_dims(result_prediction[f"predicted_{feature}"], axis=-1)
-
-        title = f"{training_parameters.model_type}: {training_parameters.model_name}"
+        result = TrainingResults(train_index=index_train, train_target=y_train,
+                                 test_index=index_test, test_target=y_test,
+                                 test_prediction=result_prediction, target_feat_names=target_features)
+        title = f"{training_parameters.model_type} - {training_parameters.model_name}"
 
         plot_dir = pathlib.Path(os.path.join(training_results_path, plot_dir_name))
         os.makedirs(os.path.join(training_results_path, plot_dir_name), exist_ok=True)
-        print(result_prediction.columns)
-        plt_utils.plot_result(result_prediction, plot_dir, title)
+        #print(result_prediction.columns)
+        plt_utils.plot_result(result.test_result_df(), plot_dir, title)
         results.append(result)
         # Calculate metrics
         metrs = []
         # Check lengths for metrics
         for result in results:
-            metrs.append(metrics.all_metrics(y_true=result.test_target, y_pred=result.test_prediction))
+            for feat in result.target_feat_names:
+                y_true = result.test_target_vals(feat)
+                y_pred = result.test_pred_vals(feat)
+                metrs.append(metrics.all_metrics(y_true=y_true, y_pred=y_pred))
+                plt_utils.scatterplot(y_pred, y_true, './results/', f'Scatterplot_{feat}')
         print("Metrics:")
         print(metrs)
         # Save Model
         train_utils.save_model_and_parameters(training_results_path, model, training_parameters)
-        plt_utils.scatterplot(result.test_prediction, result.test_target, './results/', 'Scatterplot')
+
+
 
     print('Experiment finished')

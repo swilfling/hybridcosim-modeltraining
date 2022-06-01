@@ -11,13 +11,15 @@ from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import best_estimator
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
 from ModelTraining.Utilities.MetricsExport.MetricsExport import analyze_result
+from ModelTraining.Preprocessing.FeatureSelection import SelectorByName
+import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 
 if __name__ == '__main__':
     data_dir_path = "../"
     usecase_config_path = os.path.join("./", 'Configuration','UseCaseConfig')
     usecase_name = 'Beyond_T24_arx'
-    results_dir_path = f"./results/{usecase_name}"
-    os.makedirs(results_dir_path, exist_ok=True)
+    result_dir = f"./results/{usecase_name}"
+    os.makedirs(result_dir, exist_ok=True)
     dict_usecase = data_import.load_from_json(os.path.join(usecase_config_path, f"{usecase_name}.json"))
 
     data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(os.path.join(data_dir_path, dict_usecase['dataset']), os.path.join("./", dict_usecase['fmu_interface']))
@@ -32,7 +34,7 @@ if __name__ == '__main__':
 
     training_params = TrainingParams(model_type=model_type,
                                        model_name="Energy",
-                                       lookback_horizon=4,
+                                       lookback_horizon=5,
                                        target_features=target_features,
                                        prediction_horizon=1,
                                        static_input_features=feature_set.get_static_feature_names(),
@@ -53,28 +55,43 @@ if __name__ == '__main__':
     # Create model
     logging.info(f"Training model with input of shape: {x_train.shape} and targets of shape {y_train.shape}")
     model = create_model(training_params, feature_names=feature_names)
+
+    list_sel_feat_names = ['Tint_1','Tint_2','Tint_3','Tint_5',
+                           'Text','Text_1','Text_3', 'Text_4',
+                           'GHI','GHI_1','GHI_2','GHI_4']
+    selector = SelectorByName(feat_names=feature_names, selected_feat_names=list_sel_feat_names)
+    model.expanders[0].set_feature_select(selector.get_support())
+    print(feature_names)
+    print("Support:")
+    print(model.expanders[0].selected_features)
+
     # Grid search
     best_params = best_estimator(model, x_train, y_train, parameters={})
     model.model.set_params(**best_params)
     # Train model
     model.train(x_train, y_train)
     # Save Model
-    train_utils.save_model_and_parameters(os.path.join(results_dir_path, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"), model, training_params)
+    train_utils.save_model_and_parameters(os.path.join(result_dir, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"), model, training_params)
     # Predict test data
-    result_prediction = predict_gt(model, index_test, x_test, y_test, training_params)
-    result_forecast = predict_history_ar(model, index_test, x_test, y_test, training_params, prediction_length=72, feature_names=feature_names)
-    import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
-    plt_utils.plot_result(result_forecast, results_dir_path, "result_forecast")
+    prediction_length = 72
+    y_forecast = predict_history_ar(model, index_test, x_test, y_test, training_params, prediction_length=prediction_length, feature_names=feature_names)
+    result_forecast = TrainingResults(test_target=y_test[:prediction_length + training_params.lookback_horizon + 1],
+                                      test_prediction=y_forecast,
+                                      test_index=index_test[:prediction_length + training_params.lookback_horizon + 1],
+                                      test_input=x_test[:prediction_length + training_params.lookback_horizon + 1],
+                                      target_feat_names=target_features)
+    plt_utils.plot_result(result_forecast.test_result_df(), result_dir, "result_forecast")
 
     # Calculate and export metrics
-    test_prediction = result_prediction[[f"predicted_{feature}" for feature in target_features]].to_numpy()
+    test_prediction = model.predict(x_test)
     result_data = TrainingResults(train_index=index_train.to_numpy(), train_target=y_train, test_index=index_test.to_numpy(),
-                                  test_target=y_test, test_prediction=test_prediction, test_input=x_test)
-    result_data.save_pkl(results_dir_path, "result_data.pkl")
+                                  test_target=y_test, test_prediction=test_prediction, test_input=x_test, target_feat_names=target_features)
+    result_data.save_pkl(result_dir, "result_data.pkl")
+    result_data.test_results_to_csv(result_dir, "test_results.csv")
     # Export metrics
     df_metrics = analyze_result([model], [result_data], [training_params], plot_enabled=plot_enabled,
-                                results_dir_path=results_dir_path)
+                                results_dir_path=result_dir)
 
-    metr_exp.store_all_metrics(df_metrics, results_path=results_dir_path, timestamp=metr_exp.create_file_name_timestamp())
+    metr_exp.store_all_metrics(df_metrics, results_path=result_dir, timestamp=metr_exp.create_file_name_timestamp())
 
     print('Experiment finished')

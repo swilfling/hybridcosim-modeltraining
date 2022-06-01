@@ -4,7 +4,7 @@ from typing import List
 
 from sklearn.model_selection import GridSearchCV
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
-from ModelTraining.Training.predict import predict_with_history, predict_gt
+from ModelTraining.Training.predict import predict_with_history
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import prepare_data_for_fit, create_pipeline
 from ModelTraining.Preprocessing.FeatureSelection.FeatureSelector import FeatureSelector
@@ -51,11 +51,10 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams],
         # Save Model
         train_utils.save_model_and_parameters(os.path.join(results_dir_path, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"), model, training_params)
         # Predict test data
-        result_prediction_history = predict_with_history(model, index_test, x_test, y_test, training_params)
-        test_prediction = result_prediction_history[[f"predicted_{feature}" for feature in target_features]].to_numpy() if prediction_type == 'History' else model.predict(x_test)
+        y_pred = predict_with_history(model, index_test, x_test, y_test, training_params) if prediction_type == 'History' else model.predict(x_test)
         results.append(TrainingResults(train_index=index_train, train_target=y_train,
                                        test_index=index_test, test_target=y_test,
-                                       test_prediction=test_prediction, test_input=x_test,
+                                       test_prediction=y_pred, test_input=x_test,
                                        target_feat_names=training_params.target_features))
 
     return models, [results, list_selectors]

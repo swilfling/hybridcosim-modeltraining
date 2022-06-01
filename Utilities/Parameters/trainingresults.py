@@ -34,10 +34,10 @@ class TrainingResults(Parameters, StoreInterface):
                                 columns=[f'GroundTruth_{feat}',f'Prediction_{feat}'])
 
     def test_target_vals(self, feat=""):
-        return self.test_target[:,self.target_feat_names.index(feat)] if feat else self.test_target
+        return self.test_target[:,self.target_feat_names.index(feat)].reshape(self.test_target.shape[0],1) if feat else self.test_target
 
     def test_pred_vals(self, feat=""):
-        return self.test_prediction[:,self.target_feat_names.index(feat)] if feat else self.test_prediction
+        return self.test_prediction[:,self.target_feat_names.index(feat)].reshape(self.test_target.shape[0],1) if feat else self.test_prediction
 
     def _get_df_cols(self):
         if self.target_feat_names is None:
