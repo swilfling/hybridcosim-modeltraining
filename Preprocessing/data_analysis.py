@@ -86,6 +86,7 @@ def norm_stat_tests(cur_data):
     for feat in cur_data:
         cur_feat = cur_data[feat]
         df_tests['Shapiro'][feat] = shapiro(cur_feat).pvalue
+        print(shapiro(cur_feat))
         df_tests['KS'][feat] = kstest(cur_feat, 'norm').pvalue
         df_tests['ADF'][feat] = adfuller(cur_feat, autolag="AIC")[1]
     return df_tests
