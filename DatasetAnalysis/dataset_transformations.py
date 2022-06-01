@@ -82,7 +82,7 @@ if __name__ == '__main__':
         df_skew_nonzero.to_csv(os.path.join(output_dir, f"{usecase_name}_sqrt_skew_kurtosis_nonzero.csv"),
                                index_label='Metric')
         df_tests = data_analysis.norm_stat_tests(vals_sqrt_full)
-        df_tests.to_csv(os.path.join(output_dir, f'{usecase_name}_tests.csv'))
+        df_tests.to_csv(os.path.join(output_dir, f'{usecase_name}_sqrt_tests.csv'))
 
 
 
@@ -140,6 +140,6 @@ if __name__ == '__main__':
                                index_label='Metric')
 
         df_tests = data_analysis.norm_stat_tests(boxcox_df)
-        df_tests.to_csv(os.path.join(output_dir, f'{usecase_name}_tests.csv'))
+        df_tests.to_csv(os.path.join(output_dir, f'{usecase_name}_boxcox_tests.csv'))
 
 
