@@ -138,7 +138,7 @@ if __name__ == '__main__':
                 y_true = result.test_target_vals(feat)
                 y_pred = result.test_pred_vals(feat)
                 metrs.append(metrics.all_metrics(y_true=y_true, y_pred=y_pred))
-                plt_utils.scatterplot(y_pred, y_true, './results/', f'Scatterplot_{feat}')
+                plt_utils.scatterplot(y_pred.flatten(), y_true.flatten(), './results/', f'Scatterplot_{feat}')
         print("Metrics:")
         print(metrs)
         # Save Model

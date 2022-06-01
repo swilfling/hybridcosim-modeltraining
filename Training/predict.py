@@ -45,7 +45,8 @@ def predict_with_history(model, index_test, x_test, y_true, training_params):
         for feature, index in index_dyn_feats.items():
             queues[f'{feature}_queue'].append(predicted_vals[index])
         # update predictions
-        predictions[:][index] = predicted_vals
+        for i, col in enumerate(predictions.columns):
+            predictions[col][index] = predicted_vals[i]
     return predictions.to_numpy(dtype='float')
 
 
