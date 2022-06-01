@@ -6,7 +6,7 @@ import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_ut
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import ModelTraining.datamodels.datamodels.validation.white_test
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
-from ModelTraining.Training.predict import predict_gt, predict_history_ar
+from ModelTraining.Training.predict import predict_history_ar
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import best_estimator
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
@@ -71,7 +71,7 @@ if __name__ == '__main__':
     # Train model
     model.train(x_train, y_train)
     # Save Model
-    train_utils.save_model_and_parameters(os.path.join(result_dir, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"), model, training_params)
+    train_utils.save_model_and_params(os.path.join(result_dir, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"), model, training_params)
     # Predict test data
     prediction_length = 72
     y_forecast = predict_history_ar(model, index_test, x_test, y_test, training_params, prediction_length=prediction_length, feature_names=feature_names)

@@ -14,12 +14,18 @@ from ModelTraining.datamodels.datamodels.processing.shape import split_into_targ
 
 ############################# Model saving and plotting ##############################
 
-def save_model_and_parameters(results_main_dir, model, training_params: TrainingParams):
+def save_model_and_params(results_main_dir, model, training_params: TrainingParams):
     model_dir = os.path.join(results_main_dir, training_params.model_name)
     os.makedirs(model_dir, exist_ok=True)
     # Save model and parameters
     model.save(model_dir)
     training_params.to_file(os.path.join(model_dir, f"parameters_{training_params.model_name}.json"))
+
+
+def save_selectors(results_main_dir, selectors):
+    os.makedirs(results_main_dir)
+    for i, selector in enumerate(selectors):
+        selector.save_pkl(results_main_dir,f'selector_{i}.pkl')
 
 
 def set_train_params_model(training_params_basic_config, feature_set, target_feature, model_type, expansion=None):

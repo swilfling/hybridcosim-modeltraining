@@ -30,7 +30,7 @@ def plot_density(data: pd.DataFrame, path, title, omit_zero_samples=False, **kwa
     store_tikz = kwargs.pop('store_tikz',False)
     if omit_zero_samples:
         data = [data[feature][data[feature] != 0] for feature in data.columns]
-    #ax = sns.kdeplot(data=data, color='darkblue')
+    ax = plt.gca()
     for feature in data:
         ax = feature.plot.kde(**kwargs)
         line = ax.lines[-1]
