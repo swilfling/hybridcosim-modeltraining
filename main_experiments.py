@@ -1,13 +1,14 @@
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
-import ModelTraining.Utilities.MetricsExport.export_metrics as export_metrics
+import ModelTraining.Utilities.MetricsExport.metr_utils as export_metrics
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
 from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams, FeatureSelector
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Training.run_training_and_test import run_training_model
-from ModelTraining.Utilities.MetricsExport.MetricsExport import analyze_result
+from ModelTraining.Utilities.MetricsExport.MetricsExport import MetricsExport
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 from ModelTraining.Preprocessing.get_data_and_feature_set import get_data_and_feature_set
+from ModelTraining.Preprocessing.feature_set import FeatureSet
 from ModelTraining.datamodels.datamodels import Model
 import os
 import pandas as pd
@@ -43,6 +44,8 @@ if __name__ == '__main__':
     timestamp = export_metrics.create_file_name_timestamp()
     results_path = os.path.join(root_dir, 'results', timestamp)
     os.makedirs(results_path, exist_ok=True)
+    metrics_path = os.path.join(root_dir, 'results', timestamp, 'Metrics')
+    os.makedirs(metrics_path, exist_ok=True)
 
     metrics_names = {'FeatureSelect': ['selected_features', 'all_features'], 'Metrics': ['R2_SKLEARN', 'CV-RMS', 'MAPE', 'RA_SKLEARN'], 'pvalues': ['pvalue_lm', 'pvalue_f']}
     for dict_usecase in dict_usecases:
@@ -84,36 +87,40 @@ if __name__ == '__main__':
 
 #%%
     print('Analyzing results')
-    df_full = pd.DataFrame(index=model_types)
+    df_full = pd.DataFrame()
+    metr_exp = MetricsExport(plot_enabled=False, metr_names=metrics_names, results_root=metrics_path)
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
         results_path_dataset = os.path.join(results_path, usecase_name)
-        # Get data and feature set
-        data, feature_set = get_data_and_feature_set(os.path.join(data_dir, dict_usecase['dataset']), os.path.join(root_dir, dict_usecase['fmu_interface']))
-        data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
+        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
+        feature_set = feat_utils.add_features_to_featureset(dict_usecase, feature_set)
         # Main loop
         df_thresh = pd.DataFrame(index=model_types)
         for feature_sel_params in list_feature_select_params:
             params_name = "_".join(params.get_full_name() for params in feature_sel_params)
-            results_path_thresh = os.path.join(results_path_dataset, params_name)
+            res_dir_thresh = os.path.join(results_path_dataset, params_name)
+            metr_exp.results_root = res_dir_thresh
             for expansion in expansion_types:
                 df_metrics_models = pd.DataFrame()
                 for model_type in model_types:
-                    list_train_params = [train_utils.set_train_params_model(trainparams_basic, feature_set, feature, model_type, expansion)
-                                         for feature in feature_set.get_output_feature_names()]
-                    list_models, list_results, list_selectors = [],[],[]
-
-                    for train_params in list_train_params:
-                        result = TrainingResults.load_pkl(results_path_thresh, f'results_{model_type}_{"_".join(train_params.target_features)}_{train_params.expansion[-1]}.pkl')
-                        models = [Model.load(os.path.join(results_path_thresh, f"Models/{train_params.model_name}/{train_params.model_type}_{train_params.expansion[-1]}/{feature}")) for feature in train_params.target_features][0]
-                        selectors = [FeatureSelector.load_pkl(results_path_thresh, f'FeatureSelectors/{train_params.model_name}_{train_params.model_type}_{train_params.expansion[-1]}/selector_{i}.pkl') for i,_ in enumerate(train_params.expansion)]
-                        list_models.append(models)
-                        list_selectors.append(selectors)
-                        list_results.append(result)
-                    df_metrics = analyze_result(list_models, list_results, list_train_params, list_selectors, plot_enabled=plot_enabled, results_dir_path=results_path_thresh, metrics_names=metrics_names)
+                    df_metrics = pd.DataFrame()
+                    for feature in feature_set.get_output_feature_names():
+                        train_params = train_utils.set_train_params_model(trainparams_basic, feature_set, feature,
+                                                                          model_type, expansion)
+                        result = TrainingResults.load_pkl(res_dir_thresh,
+                                                          f'results_{model_type}_{"_".join(train_params.target_features)}_{train_params.expansion[-1]}.pkl')
+                        model = Model.load(os.path.join(res_dir_thresh,
+                                                        f"Models/{train_params.model_name}/{train_params.model_type}_{train_params.expansion[-1]}/{feature}"))
+                        selectors = [FeatureSelector.load_pkl(res_dir_thresh,
+                                                              f'FeatureSelection/{train_params.model_name}/{train_params.model_type}_{train_params.expansion[-1]}/selector_{i}.pkl')
+                                     for i, _ in enumerate(train_params.expansion)]
+                        df_metr = metr_exp.analyze_result(model, result).join(
+                            metr_exp.analyze_featsel(model, selectors))
+                        df_metrics = df_metr if df_metrics.empty else df_metrics.join(df_metr)
                     df_metrics_models = df_metrics_models.append(df_metrics)
-                df_thresh = df_thresh.join(df_metrics_models.add_prefix(f'{params_name}_{expansion[-1]}_'))
-            df_thresh.to_csv(os.path.join(results_path_thresh, f'Metrics_{usecase_name}_{params_name}.csv'))
-        df_full = df_full.join(df_thresh.add_prefix(f'{usecase_name}_'))
-    export_metrics.store_all_metrics(df_full, results_path=results_path, timestamp=timestamp, metrics_names=metrics_names)
+                df_thresh = df_thresh.join(df_metrics_models.add_prefix(f'{params_name}_'))
+            df_thresh.to_csv(os.path.join(res_dir_thresh, f'Metrics_{usecase_name}_{params_name}.csv'))
+        df_full = df_thresh.add_prefix(f'{usecase_name}_') if df_full.empty else df_full.join(
+            df_thresh.add_prefix(f'{usecase_name}_'))
+    metr_exp.store_all_metrics(df_full, results_path=metrics_path, timestamp=timestamp)
     print('Result analysis finished')

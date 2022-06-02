@@ -1,7 +1,7 @@
 import os
 import logging
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
-from ModelTraining.Utilities.MetricsExport import export_metrics as metr_exp
+from ModelTraining.Utilities.MetricsExport import metr_utils as metr_utils
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import ModelTraining.datamodels.datamodels.validation.white_test
@@ -10,7 +10,7 @@ from ModelTraining.Training.predict import predict_history_ar
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import best_estimator
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
-from ModelTraining.Utilities.MetricsExport.MetricsExport import analyze_result
+from ModelTraining.Utilities.MetricsExport.MetricsExport import MetricsExport
 from ModelTraining.Preprocessing.FeatureSelection import SelectorByName
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 
@@ -89,9 +89,8 @@ if __name__ == '__main__':
     result_data.save_pkl(result_dir, "result_data.pkl")
     result_data.test_results_to_csv(result_dir, "test_results.csv")
     # Export metrics
-    df_metrics = analyze_result([model], [result_data], [training_params], plot_enabled=plot_enabled,
-                                results_dir_path=result_dir)
-
-    metr_exp.store_all_metrics(df_metrics, results_path=result_dir, timestamp=metr_exp.create_file_name_timestamp())
+    metr_exp = MetricsExport(results_root=result_dir)
+    df_metrics = metr_exp.analyze_result(model, result_data)
+    metr_exp.store_all_metrics(df_metrics, results_path=result_dir, timestamp=metr_utils.create_file_name_timestamp())
 
     print('Experiment finished')
