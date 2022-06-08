@@ -100,6 +100,7 @@ if __name__ == '__main__':
             params_name = "_".join(params.get_full_name() for params in feature_sel_params)
             res_dir_thresh = os.path.join(results_path_dataset, params_name)
             metr_exp.results_root = res_dir_thresh
+            metr_exp.create_dirs()
             for expansion in expansion_types:
                 df_metrics_models = pd.DataFrame()
                 for model_type in model_types:

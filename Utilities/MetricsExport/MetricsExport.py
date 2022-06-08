@@ -15,7 +15,7 @@ class MetricsExport:
     """
     plot_enabled: bool = False
     results_root: str = "./"
-    result_dir = 'Results'
+    plot_dir = 'Plots'
     scatter_dir = 'Scatter'
     tseries_dir = 'Timeseries'
     featsel_dir = 'FeatureSelection'
@@ -33,7 +33,7 @@ class MetricsExport:
     ############################################### Directories #######################################################
 
     def create_dirs(self):
-        plot_dir = os.path.join(self.results_root, self.result_dir)
+        plot_dir = os.path.join(self.results_root, self.plot_dir)
         os.makedirs(plot_dir, exist_ok=True)
         if self.plot_enabled:
             scatter_plot_dir = os.path.join(plot_dir, self.scatter_dir)
@@ -42,13 +42,13 @@ class MetricsExport:
             os.makedirs(ts_plot_dir, exist_ok=True)
 
     def get_scatter_dir(self):
-        return os.path.join(self.results_root, self.result_dir, self.scatter_dir)
+        return os.path.join(self.results_root, self.plot_dir, self.scatter_dir)
 
     def get_tseries_dir(self):
-        return os.path.join(self.results_root, self.result_dir, self.tseries_dir)
+        return os.path.join(self.results_root, self.plot_dir, self.tseries_dir)
 
-    def get_result_dir(self):
-        return os.path.join(self.results_root, self.result_dir)
+    def get_plot_dir(self):
+        return os.path.join(self.results_root, self.plot_dir)
 
     ############################################## Export functions ####################################################
 
@@ -109,7 +109,7 @@ class MetricsExport:
         @param result: TrainingResults structure
         @param title: Optional: title
         """
-        result.test_results_to_csv(self.get_result_dir(), f'Timeseries_{title}.csv')
+        result.test_results_to_csv(self.get_plot_dir(), f'Timeseries_{title}.csv')
         if self.plot_enabled:
             for feat in result.target_feat_names:
                 plt_utils.plot_result(result.test_result_df(feat), self.get_tseries_dir(),
