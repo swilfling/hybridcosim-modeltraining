@@ -104,6 +104,8 @@ if __name__ == '__main__':
             feats_for_density.remove('VDSolar_inv')
         if usecase_name == 'Solarhouse1':
             data['SGlobal'][data['SGlobal'] < 30] = 0
+        if usecase_name == 'Solarhouse2':
+            feats_for_density.remove('Vd_Solar_inv')
 
         feats_for_density_full = feats_for_density + feature_set.get_output_feature_names()
 
@@ -141,6 +143,8 @@ if __name__ == '__main__':
             feats_for_density.remove('VDSolar_inv')
         if usecase_name == 'Solarhouse1':
             data['SGlobal'][data['SGlobal'] < 30] = 0
+        if usecase_name == 'Solarhouse2':
+            feats_for_density.remove('Vd_Solar_inv')
 
         feats_for_density_full = feats_for_density + feature_set.get_output_feature_names()
 
