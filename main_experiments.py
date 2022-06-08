@@ -1,10 +1,10 @@
+#%%
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
-import ModelTraining.Utilities.MetricsExport.metr_utils as export_metrics
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
 from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams, FeatureSelector
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Training.run_training_and_test import run_training_model
-from ModelTraining.Utilities.MetricsExport.MetricsExport import MetricsExport
+from ModelTraining.Utilities.MetricsExport import MetricsCalc, ResultExport, metr_utils
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 from ModelTraining.Preprocessing.get_data_and_feature_set import get_data_and_feature_set
@@ -14,6 +14,7 @@ import os
 import pandas as pd
 import argparse
 
+#%%
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--usecase_names", type=str, default='CPS-Data,SensorA6,SensorB2,SensorC6,Solarhouse1,Solarhouse2')
@@ -41,7 +42,7 @@ if __name__ == '__main__':
                      list_usecases]
 
     # Results output
-    timestamp = export_metrics.create_file_name_timestamp()
+    timestamp = metr_utils.create_file_name_timestamp()
     results_path = os.path.join(root_dir, 'results', timestamp)
     os.makedirs(results_path, exist_ok=True)
     metrics_path = os.path.join(root_dir, 'results', timestamp, 'Metrics')
@@ -88,7 +89,7 @@ if __name__ == '__main__':
 #%%
     print('Analyzing results')
     df_full = pd.DataFrame()
-    metr_exp = MetricsExport(plot_enabled=False, metr_names=metrics_names, results_root=metrics_path)
+    metr_exp = MetricsCalc(metr_names=metrics_names)
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
         results_path_dataset = os.path.join(results_path, usecase_name)
@@ -99,8 +100,7 @@ if __name__ == '__main__':
         for feature_sel_params in list_feature_select_params:
             params_name = "_".join(params.get_full_name() for params in feature_sel_params)
             res_dir_thresh = os.path.join(results_path_dataset, params_name)
-            metr_exp.results_root = res_dir_thresh
-            metr_exp.create_dirs()
+            result_exp = ResultExport(results_root=res_dir_thresh, plot_enabled=False)
             for expansion in expansion_types:
                 df_metrics_models = pd.DataFrame()
                 for model_type in model_types:
@@ -115,9 +115,14 @@ if __name__ == '__main__':
                         selectors = [FeatureSelector.load_pkl(res_dir_thresh,
                                                               f'FeatureSelection/{train_params.model_name}/{train_params.model_type}_{train_params.expansion[-1]}/selector_{i}.pkl')
                                      for i, _ in enumerate(train_params.expansion)]
-                        df_metr = metr_exp.analyze_result(model, result).join(
-                            metr_exp.analyze_featsel(model, selectors))
-                        df_metrics = df_metr if df_metrics.empty else df_metrics.join(df_metr)
+                        # Export results
+                        result_exp.export_model_properties(model)
+                        model_name = f'{model.name}_{model.expanders[-2].__class__.__name__}'
+                        model_name_full = f'{model.__class__.__name__}_{model_name}'
+                        result_exp.export_result(result, model_name_full)
+                        # Calculate metrics
+                        df_met = metr_exp.analyze_result(model, result).join(metr_exp.analyze_featsel(model, selectors))
+                        df_metrics = df_met if df_metrics.empty else df_metrics.join(df_met)
                     df_metrics_models = df_metrics_models.append(df_metrics)
                 df_thresh = df_thresh.join(df_metrics_models.add_prefix(f'{params_name}_'))
             df_thresh.to_csv(os.path.join(res_dir_thresh, f'Metrics_{usecase_name}_{params_name}.csv'))

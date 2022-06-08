@@ -10,7 +10,8 @@ from ModelTraining.Training.predict import predict_history_ar
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import best_estimator
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
-from ModelTraining.Utilities.MetricsExport.MetricsExport import MetricsExport
+from ModelTraining.Utilities.MetricsExport.MetricsCalc import MetricsCalc
+from ModelTraining.Utilities.MetricsExport.ResultExport import ResultExport
 from ModelTraining.Preprocessing.FeatureSelection import SelectorByName
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 
@@ -87,10 +88,12 @@ if __name__ == '__main__':
     result_data = TrainingResults(train_index=index_train.to_numpy(), train_target=y_train, test_index=index_test.to_numpy(),
                                   test_target=y_test, test_prediction=test_prediction, test_input=x_test, target_feat_names=target_features)
     result_data.save_pkl(result_dir, "result_data.pkl")
-    result_data.test_results_to_csv(result_dir, "test_results.csv")
-    # Export metrics
-    metr_exp = MetricsExport(results_root=result_dir)
+    # Calculate metrics
+    metr_exp = MetricsCalc()
     df_metrics = metr_exp.analyze_result(model, result_data)
     metr_exp.store_all_metrics(df_metrics, results_path=result_dir, timestamp=metr_utils.create_file_name_timestamp())
-
+    # Export results
+    result_exp = ResultExport(results_root=result_dir)
+    result_exp.export_result(result_data)
+    result_exp.export_model_properties(model)
     print('Experiment finished')
