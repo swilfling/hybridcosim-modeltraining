@@ -1,6 +1,6 @@
 import pandas as pd
 from typing import List
-from . Filter import ButterworthFilter, ChebyshevFilter, Envelope_MA
+from .filters import ButterworthFilter, ChebyshevFilter, Envelope_MA
 
 
 def preprocess_data(data: pd.DataFrame, features_to_smoothe: List[str], do_smoothe=False, keep_nans=False):

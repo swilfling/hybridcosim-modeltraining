@@ -1,2 +1,2 @@
-from .Filter import Filter, ButterworthFilter, ChebyshevFilter, Envelope_MA
+from . import filters
 from . import data_preprocessing
