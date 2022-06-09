@@ -1,9 +1,10 @@
 import numpy as np
-from sklearn.feature_selection import SelectorMixin
 from sklearn.base import BaseEstimator
-from .. import FeatureSelection
-from .. FeatureSelection import FeatureSelectionParams
-from ... datamodels.datamodels.processing.feature_extension.store_interface import StoreInterface
+from sklearn.feature_selection import SelectorMixin
+
+from ModelTraining.Preprocessing import FeatureSelection
+from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams
+from ModelTraining.datamodels.datamodels.processing.feature_extension import StoreInterface
 
 
 class FeatureSelector(SelectorMixin, BaseEstimator, StoreInterface):
@@ -27,10 +28,10 @@ class FeatureSelector(SelectorMixin, BaseEstimator, StoreInterface):
         @param name: selector name
         @return FeatureSelector object
         """
-        dict_selectors = {'F-value': 'f_threshold', 'R-value': 'r_threshold', 'MIC-value': 'mine_mic_threshold',
-                          'Ennemi-value': 'ennemi_threshold', 'forward_select': 'ForwardSelector',
+        dict_selectors = {'F-value': 'FThreshold', 'R-value': 'RThreshold', 'MIC-value': 'MICThreshold',
+                          'Ennemi-value': 'EnnemiThreshold', 'forward_select': 'ForwardSelector',
                           'MIC-R-value': 'MIC_R_selector', 'Name': 'SelectorByName'}
-        selector_class = getattr(FeatureSelection, dict_selectors.get(name, 'identity'))
+        selector_class = getattr(FeatureSelection, dict_selectors.get(name, 'IdentitySelector'))
         return selector_class
 
     @staticmethod
@@ -132,32 +133,3 @@ class FeatureSelector(SelectorMixin, BaseEstimator, StoreInterface):
         if X.ndim == 3:
             X = X.reshape((X.shape[0], X.shape[1] * X.shape[2]))
         return X
-
-
-class identity(FeatureSelector):
-    """
-    Identity:
-    All features are selected.
-    """
-    def _fit(self, X, y, **fit_params):
-        return np.ones(X.shape[-1])
-
-    def _get_support_mask(self):
-        return np.array([True] * self.coef_.shape[-1])
-
-
-class SelectorByName(FeatureSelector):
-    """
-    Selector by name:
-    Select features by name
-    """
-    def __init__(self, feat_names=[], selected_feat_names=[], **kwargs):
-        super().__init__(**kwargs)
-        self.feature_names_in_ = feat_names
-        self.selected_feat_names = selected_feat_names
-
-    def _fit(self, X, y, **fit_params):
-        return np.array([name in self.selected_feat_names for name in self.feature_names_in_])
-
-    def _get_support_mask(self):
-        return [name in self.selected_feat_names for name in self.feature_names_in_]

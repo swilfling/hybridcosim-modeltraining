@@ -1,6 +1,7 @@
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
-from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams, FeatureSelector
+from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams
+from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import FeatureSelector
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Utilities.MetricsExport.MetricsCalc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.ResultExport import ResultExport
@@ -69,7 +70,7 @@ if __name__ == '__main__':
                         train_params = train_utils.set_train_params_model(trainparams_basic, feature_set, feature,
                                                                           model_type, expansion)
                         result = TrainingResults.load_pkl(res_dir_thresh,
-                                                          f'results_{model_type}_{"_".join(train_params.target_features)}_{train_params.expansion[-1]}.pkl')
+                                                          f'results_{model_type}_{train_params.str_target_feats()}_{train_params.expansion[-1]}.pkl')
                         model = Model.load(os.path.join(res_dir_thresh,
                                                         f"Models/{train_params.model_name}/{train_params.model_type}_{train_params.expansion[-1]}/{feature}"))
                         selectors = [FeatureSelector.load_pkl(res_dir_thresh,

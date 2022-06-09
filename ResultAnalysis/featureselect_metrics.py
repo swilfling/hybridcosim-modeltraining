@@ -1,7 +1,7 @@
 #%%
 import pandas as pd
 import os
-from ModelTraining.Preprocessing.FeatureSelection.FeatureSelector import FeatureSelector
+from ModelTraining.Preprocessing.FeatureSelection import FeatureSelector
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 
 

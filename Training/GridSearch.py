@@ -4,7 +4,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn.model_selection import GridSearchCV
 from typing import List
 from ..datamodels.datamodels.processing.feature_extension import FeatureExpansion
-from ..Preprocessing.FeatureSelection.FeatureSelector import FeatureSelector
+from ..Preprocessing.FeatureSelection.feature_selectors import FeatureSelector
 from ..datamodels.datamodels.model import Model
 
 

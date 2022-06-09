@@ -6,7 +6,7 @@ from ModelTraining.Training.TrainingUtilities import training_utils as train_uti
 from ModelTraining.Training.predict import predict_with_history
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import prepare_data_for_fit, create_pipeline
-from ModelTraining.Preprocessing.FeatureSelection.FeatureSelector import FeatureSelector
+from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import FeatureSelector
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
 from ModelTraining.Preprocessing.FeatureSelection.feature_selection_params import FeatureSelectionParams
 

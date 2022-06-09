@@ -3,7 +3,7 @@ from typing import List
 
 import pandas as pd
 
-from ...Preprocessing.FeatureSelection import FeatureSelector
+from ...Preprocessing.FeatureSelection.feature_selectors import FeatureSelector
 from . import metr_utils
 from ..Parameters import TrainingResults
 from ..Plotting import plotting_utilities as plt_utils

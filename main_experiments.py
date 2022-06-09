@@ -1,7 +1,8 @@
 #%%
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
-from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams, FeatureSelector
+from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams
+from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import FeatureSelector
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Training.run_training_and_test import run_training_model
 from ModelTraining.Utilities.MetricsExport import MetricsCalc, ResultExport, metr_utils

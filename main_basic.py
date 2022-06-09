@@ -12,7 +12,7 @@ from ModelTraining.Training.GridSearch import best_estimator
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
 from ModelTraining.Utilities.MetricsExport.MetricsCalc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.ResultExport import ResultExport
-from ModelTraining.Preprocessing.FeatureSelection import SelectorByName
+from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import SelectorByName
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 
 if __name__ == '__main__':

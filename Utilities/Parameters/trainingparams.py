@@ -18,3 +18,6 @@ class TrainingParams(Parameters):
     expansion: List[str] = field(default_factory=list)
     epochs: int = 0
     dynamic_output_features: List[str] = field(default_factory=list)
+
+    def str_target_feats(self):
+        return "_".join(self.target_features)
