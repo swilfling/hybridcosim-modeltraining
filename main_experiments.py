@@ -117,7 +117,7 @@ if __name__ == '__main__':
                                      for i, _ in enumerate(train_params.expansion)]
                         # Export results
                         result_exp.export_model_properties(model)
-                        model_name = f'{model.name}_{model.expanders[-2].__class__.__name__}'
+                        model_name = f'{model.name}_{model.expanders.type_last_exp()}'
                         model_name_full = f'{model.__class__.__name__}_{model_name}'
                         result_exp.export_result(result, model_name_full)
                         # Calculate metrics

@@ -80,7 +80,7 @@ if __name__ == '__main__':
         index, x, y, _ = train_utils.extract_training_and_test_set(data, training_parameters)
         ## Training process
         model = create_model(training_parameters)
-        model.expanders[0].selected_outputs = range(2)
+        model.expanders.get_expander_by_index(0).selected_outputs = range(2)
         model.set_feature_names(training_parameters.static_input_features + training_parameters.dynamic_input_features)
         rmse_best = None
         train_ind_best = []

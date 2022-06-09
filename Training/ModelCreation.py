@@ -20,7 +20,7 @@ def train_model(model, x_train, y_train):
 def create_expanders(expansion, **kwargs):
     expanders = []
     for expander_name in expansion:
-        type = getattr(ModelTraining.datamodels.datamodels.processing, expander_name)
+        type = getattr(ModelTraining.datamodels.datamodels.processing.feature_extension, expander_name)
         expander = type(**kwargs.get('expander_parameters',None)) if expander_name == 'PolynomialExpansion' else type()
         expanders.append(expander)
     return expanders

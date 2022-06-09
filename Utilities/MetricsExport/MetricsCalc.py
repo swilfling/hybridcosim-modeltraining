@@ -30,7 +30,7 @@ class MetricsCalc:
             @return pd.DataFrame containing metrics and white test
         """
         df_metr_full = pd.DataFrame()
-        model_name = f'{model.name}_{model.expanders[-2].__class__.__name__}'
+        model_name = f'{model.name}_{model.expanders.type_last_exp()}'
         # Perform White test
         df_white = self.white_test_allfeats(result).add_suffix(f'_{model_name}_pvalues')
         df_metr_full = df_white if df_metr_full.empty else df_metr_full.join(df_white)
@@ -75,7 +75,7 @@ class MetricsCalc:
         @param selectors: List of selectors
         @return: pd.DataFrame containing results
         """
-        model_name = f'{model.name}_{model.expanders[-2].__class__.__name__}'
+        model_name = f'{model.name}_{model.expanders.type_last_exp()}'
         df_featsel_full = pd.DataFrame()
         for i, selector in enumerate(selectors):
             sel_metrs = selector.get_metrics()

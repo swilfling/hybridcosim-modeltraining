@@ -78,14 +78,14 @@ def run_training_model(data, training_params=TrainingParams(), expander_paramete
                           scoring=['r2', 'neg_mean_squared_error', 'neg_mean_absolute_error'],
                           refit='r2', verbose=4)
     selectors = [FeatureSelector.from_params(params) for params in feature_select_params]
-    pipeline = create_pipeline(model.expanders, selectors, search)
+    pipeline = create_pipeline(model.expanders.get_list_expanders(), selectors, search)
     pipeline.fit(*prepare_data_for_fit(model, x_train, y_train))
     # Set grid search params
     print(f"Best score for model {model.__class__.__name__} is: {search.best_score_}")
     print(f"Best parameters are {search.best_params_}")
     # Configure model params and feature select params
     model.model.set_params(**search.best_params_)
-    FeatureSelector.configure_feature_select(model.expanders, selectors)
+    FeatureSelector.configure_feature_select(model.expanders.get_list_expanders(), selectors)
     # Train final model
     model.train(x_train, y_train)
     # Predict test data

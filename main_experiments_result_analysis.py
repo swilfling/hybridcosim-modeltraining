@@ -38,7 +38,7 @@ if __name__ == '__main__':
                      list_usecases]
 
     # Results output
-    timestamp = "Experiment_20220602_112340"
+    timestamp = "Experiment_20220609_113050"
     results_path = os.path.join(root_dir, 'results', timestamp)
     os.makedirs(results_path, exist_ok=True)
     metrics_path = os.path.join(root_dir, 'results', timestamp, 'Metrics')
@@ -76,7 +76,7 @@ if __name__ == '__main__':
                                                               f'FeatureSelection/{train_params.model_name}/{train_params.model_type}_{train_params.expansion[-1]}/selector_{i}.pkl')
                                      for i, _ in enumerate(train_params.expansion)]
                         result_exp.export_model_properties(model)
-                        model_name = f'{model.name}_{model.expanders[-2].__class__.__name__}'
+                        model_name = f'{model.name}_{model.expanders.type_last_exp()}'
                         model_name_full = f'{model.__class__.__name__}_{model_name}'
                         result_exp.export_result(result, model_name_full)
                         df_met = metr_exp.analyze_result(model, result).join(metr_exp.analyze_featsel(model, selectors))

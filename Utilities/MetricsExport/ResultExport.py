@@ -60,7 +60,7 @@ class ResultExport:
         for model, selectors in zip(models, list_selectors):
             self.export_featsel_metrs(model.expanders, selectors, model.feature_names)
         for model, result in zip(models, results):
-            model_name = f'{model.name}_{model.expanders[-2].__class__.__name__}'
+            model_name = f'{model.name}_{model.expanders.type_last_exp()}'
             model_name_full = f'{model.__class__.__name__}_{model_name}'
             self.export_model_properties(model)
             self.export_result(result, model_name_full)
@@ -108,7 +108,7 @@ class ResultExport:
         property_dir = os.path.join(self.results_root, self.property_dir)
         os.makedirs(property_dir, exist_ok=True)
         model_type = model.__class__.__name__
-        title = f'{model_type}_{model.name}_{model.expanders[-2].__class__.__name__}'
+        title = f'{model_type}_{model.name}_{model.expanders.type_last_exp()}'
         # Export coefficients
         if model_type in ['RandomForestRegression', 'RidgeRegression', 'LinearRegression']:
             ylabel = 'F-Score' if model_type == 'RandomForestRegression' else 'Coefficients'

@@ -3,7 +3,7 @@ import numpy as np
 import scipy.signal as sig
 import pandas as pd
 from abc import abstractmethod
-from ModelTraining.datamodels.datamodels.processing.feature_extension.StoreInterface import StoreInterface
+from ModelTraining.datamodels.datamodels.processing.feature_extension.store_interface import StoreInterface
 
 
 class Filter(TransformerMixin, StoreInterface):

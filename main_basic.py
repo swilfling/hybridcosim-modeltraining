@@ -61,10 +61,10 @@ if __name__ == '__main__':
                            'Text','Text_1','Text_3', 'Text_4',
                            'GHI','GHI_1','GHI_2','GHI_4']
     selector = SelectorByName(feat_names=feature_names, selected_feat_names=list_sel_feat_names)
-    model.expanders[0].set_feature_select(selector.get_support())
+    model.expanders.get_expander_by_index(0).set_feature_select(selector.get_support())
     print(feature_names)
     print("Support:")
-    print(model.expanders[0].selected_features)
+    print(model.expanders.get_expander_by_index(0).selected_features)
 
     # Grid search
     best_params = best_estimator(model, x_train, y_train, parameters={})
