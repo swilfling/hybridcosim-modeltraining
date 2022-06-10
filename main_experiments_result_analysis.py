@@ -2,7 +2,6 @@ import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
 from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams
 from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import FeatureSelector
-import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
@@ -55,21 +54,18 @@ if __name__ == '__main__':
         feature_set = feat_utils.add_features_to_featureset(dict_usecase, feature_set)
         for feature_sel_params in list_feature_select_params:
             params_name = "_".join(params.get_full_name() for params in feature_sel_params)
-            res_dir_thresh = os.path.join(results_path_dataset, params_name)
-            result_exp = ResultExport(results_root=res_dir_thresh, plot_enabled=False)
+            result_exp = ResultExport(results_root=os.path.join(results_path_dataset, params_name), plot_enabled=False)
             for expansion in expansion_types:
                 for model_type in model_types:
-                    for feature in feature_set.get_output_feature_names():
+                    for feat in feature_set.get_output_feature_names():
                         # Load results
-                        train_params = train_utils.set_train_params_model(trainparams_basic, feature_set, feature,
-                                                                          model_type, expansion)
-                        result = TrainingResults.load_pkl(res_dir_thresh,
-                                                          f'results_{model_type}_{train_params.str_target_feats()}_{train_params.expansion[-1]}.pkl')
-                        model = Model.load(os.path.join(res_dir_thresh,
-                                                        f"Models/{train_params.model_name}/{train_params.model_type}_{train_params.expansion[-1]}/{feature}"))
-                        selectors = [FeatureSelector.load_pkl(res_dir_thresh,
-                                                              f'FeatureSelection/{train_params.model_name}/{train_params.model_type}_{train_params.expansion[-1]}/selector_{i}.pkl')
-                                     for i, _ in enumerate(train_params.expansion)]
+                        result = TrainingResults.load_pkl(result_exp.results_root,
+                                                          f'results_{model_type}_{feat}_{expansion[-1]}.pkl')
+                        model = Model.load(
+                            os.path.join(result_exp.results_root, f"Models/{feat}/{model_type}_{expansion[-1]}/{feat}"))
+                        selectors = [FeatureSelector.load_pkl(result_exp.results_root,
+                                                              f'FeatureSelection/{feat}/{model_type}_{expansion[-1]}/selector_{i}.pkl')
+                                     for i, _ in enumerate(expansion)]
                         # Export model properties
                         result_exp.export_model_properties(model)
                         # Calculate metrics
@@ -80,7 +76,7 @@ if __name__ == '__main__':
                         # Set metrics identifiers
                         for metr_val in metr_vals_perf:
                             metr_val.set_metr_properties(model_type, model.name, model.expanders.type_last_exp(),
-                                                params_name, usecase_name)
+                                                         params_name, usecase_name)
                         metr_exp.metr_vals.add_metr_vals(metr_vals_perf)
     metr_exp.store_all_metrics(results_path=metrics_path, timestamp=timestamp)
     print('Result analysis finished')
