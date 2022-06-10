@@ -2,7 +2,7 @@ import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.feature_selection import SelectorMixin
 
-from ModelTraining.Preprocessing import FeatureSelection
+from ModelTraining.Preprocessing.FeatureSelection import feature_selectors
 from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams
 from ModelTraining.datamodels.datamodels.processing.feature_extension import StoreInterface
 
@@ -31,7 +31,7 @@ class FeatureSelector(SelectorMixin, BaseEstimator, StoreInterface):
         dict_selectors = {'F-value': 'FThreshold', 'R-value': 'RThreshold', 'MIC-value': 'MICThreshold',
                           'Ennemi-value': 'EnnemiThreshold', 'forward_select': 'ForwardSelector',
                           'MIC-R-value': 'MIC_R_selector', 'Name': 'SelectorByName'}
-        selector_class = getattr(FeatureSelection, dict_selectors.get(name, 'IdentitySelector'))
+        selector_class = getattr(feature_selectors, dict_selectors.get(name, 'IdentitySelector'))
         return selector_class
 
     @staticmethod

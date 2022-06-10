@@ -10,8 +10,8 @@ from ModelTraining.Training.predict import predict_history_ar
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.GridSearch import best_estimator
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
-from ModelTraining.Utilities.MetricsExport.MetricsCalc import MetricsCalc
-from ModelTraining.Utilities.MetricsExport.ResultExport import ResultExport
+from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
+from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import SelectorByName
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 
@@ -91,7 +91,8 @@ if __name__ == '__main__':
     # Calculate metrics
     metr_exp = MetricsCalc()
     df_metrics = metr_exp.analyze_result(model, result_data)
-    metr_exp.store_all_metrics(df_metrics, results_path=result_dir, timestamp=metr_utils.create_file_name_timestamp())
+    df_metrics.to_csv(os.path.join(result_dir, f"AllMetrics_{metr_utils.create_file_name_timestamp()}.csv"), index_label='Model',
+                    float_format='%.3f')
     # Export results
     result_exp = ResultExport(results_root=result_dir)
     result_exp.export_result(result_data)
