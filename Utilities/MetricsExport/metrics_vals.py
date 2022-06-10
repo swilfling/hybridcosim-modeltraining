@@ -55,7 +55,7 @@ class MetrValsSet:
         for model_type in model_types:
             metr_vals_model = [metr_val for metr_val in metr_vals if metr_val.model_type == model_type]
             metr_data = {f'{v.usecase_name}_{v.featsel_thresh}_{v.expansion_type}_{v.model_name}_{v.metrics_name}_' \
-                         f'{v.model_name}_{v.target_feat}_{v.metrics_type}':[v.val] for v in metr_vals_model}
+                         f'_{v.target_feat}_{v.metrics_type}':[v.val] for v in metr_vals_model}
             df_metr_cur = pd.DataFrame(data=metr_data, index=[model_type])
             df_metrs = df_metr_cur if df_metrs.empty else df_metrs.append(df_metr_cur)
         return df_metrs
