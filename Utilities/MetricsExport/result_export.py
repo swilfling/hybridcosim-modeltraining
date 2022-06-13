@@ -114,8 +114,8 @@ class ResultExport:
             ylabel = 'F-Score' if model_type == 'RandomForestRegression' else 'Coefficients'
             self.export_coeffs(model.get_coef().T, model.get_expanded_feature_names(), property_dir, title, ylabel)
         if model_type == 'SymbolicRegression':
-            metr_utils.metrics_to_json({'Program': str(model.get_program())},
-                                       os.path.join(property_dir, f'Program_{title}.json'))
+            metr_utils.dict_to_json({'Program': str(model.get_program())},
+                                    os.path.join(property_dir, f'Program_{title}.json'))
         if model_type == 'RuleFitRegression':
             model.get_rules().to_csv(os.path.join(property_dir, f'Rules_{title}.csv'), float_format="%.2f",
                                      index_label='Rule')

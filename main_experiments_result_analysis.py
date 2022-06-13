@@ -49,12 +49,12 @@ if __name__ == '__main__':
     metr_exp = MetricsCalc(metr_names=metrics_names)
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
-        results_path_dataset = os.path.join(results_path, usecase_name)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(dict_usecase, feature_set)
         for feature_sel_params in list_feature_select_params:
             params_name = "_".join(params.get_full_name() for params in feature_sel_params)
-            result_exp = ResultExport(results_root=os.path.join(results_path_dataset, params_name), plot_enabled=False)
+            result_exp = ResultExport(results_root=os.path.join(results_path, usecase_name, params_name),
+                                      plot_enabled=False)
             for expansion in expansion_types:
                 for model_type in model_types:
                     for feat in feature_set.get_output_feature_names():
@@ -77,6 +77,6 @@ if __name__ == '__main__':
                         for metr_val in metr_vals_perf:
                             metr_val.set_metr_properties(model_type, model.name, model.expanders.type_last_exp(),
                                                          params_name, usecase_name)
-                        metr_exp.metr_vals.add_metr_vals(metr_vals_perf)
+                        metr_exp.add_metr_vals(metr_vals_perf)
     metr_exp.store_all_metrics(results_path=metrics_path, timestamp=timestamp)
     print('Result analysis finished')

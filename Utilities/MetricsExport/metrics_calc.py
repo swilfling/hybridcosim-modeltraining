@@ -1,6 +1,7 @@
 import os
 import pandas as pd
 
+from typing import List
 from .metrics_vals import MetricsVal, MetrValsSet
 from ...datamodels.datamodels import Model
 from ...datamodels.datamodels.validation import metrics
@@ -176,6 +177,20 @@ class MetricsCalc:
         return df_featsel_full
 
     ############################################# Store metrics ########################################################
+
+    def add_metr_val(self, metr_val: MetricsVal):
+        """
+        Add metrics to internal metrics set
+        @param metr_val: MetricsVal struct
+        """
+        self.metr_vals.add_metr_val(metr_val)
+
+    def add_metr_vals(self, metrs: List[MetricsVal]):
+        """
+        Add metrics to internal metrics set
+        @param metrs: list of metrics
+        """
+        self.metr_vals.add_metr_vals(metrs)
 
     def get_metr_df(self):
         """

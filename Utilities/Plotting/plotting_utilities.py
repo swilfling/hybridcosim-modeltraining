@@ -2,6 +2,7 @@ import os
 import seaborn as sns
 from typing import List
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import ModelTraining.Utilities.Plotting.utils as plt_utils
 
@@ -31,7 +32,6 @@ def plot_result(data: pd.DataFrame, plot_path="./", output_file_name='Result', s
             data.to_csv(os.path.join(plot_path, f'{output_file_name}.csv'), index=True)
 
 
-
 '''
 Parameters:
 - List of variables
@@ -49,8 +49,6 @@ def plt_subplots(list_df : List, fig_save_path, fig_title, **kwargs):
         plt_utils.plot_df_twinx(ax, data, **kwargs)
     fig.suptitle(fig_title)
     plt_utils.save_figure(fig_save_path, fig_title)
-
-
 
 
 def plot_df_subplots(df,fig_save_path, fig_title, plot_params={'axes.labelsize':8,
@@ -100,7 +98,6 @@ def scatterplot(y_pred, y_true, fig_save_path="./", filename="Scatterplot", **kw
     plt_utils.save_figure(fig_save_path, filename)
 
 
-import numpy as np
 def barplot(feature_names, values, fig_save_path = './', filename='Features', **kwargs):
     fig_title = kwargs.pop('fig_title',"")
     fig, ax = plt_utils.create_figure(fig_title, figsize=kwargs.pop('figsize', None))
