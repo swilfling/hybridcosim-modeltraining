@@ -5,7 +5,7 @@ from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import Featu
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
-from ModelTraining.Preprocessing.feature_set import FeatureSet
+from ModelTraining.Preprocessing.featureset import FeatureSet
 from ModelTraining.datamodels.datamodels import Model
 import os
 import argparse

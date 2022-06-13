@@ -3,8 +3,8 @@ import logging
 import numpy as np
 import pathlib
 from sklearn.model_selection import TimeSeriesSplit
-
-from ModelTraining.Preprocessing.get_data_and_feature_set import get_data_and_feature_set
+from ModelTraining.Preprocessing.featureset import FeatureSet
+from ModelTraining.Preprocessing.get_data_and_feature_set import get_data
 from ModelTraining.Utilities.Parameters import TrainingResults, TrainingParams
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Utilities.Plotting.plot_data as plt_utils
@@ -21,8 +21,8 @@ if __name__ == '__main__':
     usecase_config_path = os.path.join(hybridcosim_path,'ModelTraining', 'Configuration','UseCaseConfig')
     name = 'CPS-Data'
     dict_usecase = data_import.load_from_json(os.path.join(usecase_config_path, f"{name}.json"))
-    data, feature_set = get_data_and_feature_set(os.path.join(hybridcosim_path, dict_usecase['dataset']), os.path.join("./", dict_usecase['fmu_interface']))
-
+    data = get_data(os.path.join(hybridcosim_path, dict_usecase['dataset']))
+    feature_set = FeatureSet(os.path.join("./", dict_usecase['fmu_interface']))
     # Get training and target features
     target_features = feature_set.get_output_feature_names()
     input_features = feature_set.get_input_feature_names()

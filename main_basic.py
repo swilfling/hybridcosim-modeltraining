@@ -4,6 +4,7 @@ import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import ModelTraining.datamodels.datamodels.validation.white_test
+from ModelTraining.Preprocessing.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.Training.predict import predict_history_ar
 from ModelTraining.Training.ModelCreation import create_model
@@ -23,7 +24,9 @@ if __name__ == '__main__':
     os.makedirs(result_dir, exist_ok=True)
     dict_usecase = data_import.load_from_json(os.path.join(usecase_config_path, f"{usecase_name}.json"))
 
-    data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(os.path.join(data_dir_path, dict_usecase['dataset']), os.path.join("./", dict_usecase['fmu_interface']))
+    data = ModelTraining.Preprocessing.get_data_and_feature_set.get_data(
+        os.path.join(data_dir_path, dict_usecase['dataset']))
+    feature_set = FeatureSet(os.path.join("./", dict_usecase['fmu_interface']))
     data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
     target_features = feature_set.get_output_feature_names()
 

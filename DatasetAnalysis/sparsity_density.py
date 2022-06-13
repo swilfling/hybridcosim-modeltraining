@@ -1,6 +1,7 @@
 #%%
 
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
+from ModelTraining.Preprocessing.featureset import FeatureSet
 import ModelTraining.Preprocessing.get_data_and_feature_set
 import ModelTraining.Preprocessing.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
@@ -38,9 +39,9 @@ if __name__ == '__main__':
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
         # Get data and feature set
-        data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(
-            os.path.join(data_dir, dict_usecase['dataset']),
-            os.path.join(root_dir, dict_usecase['fmu_interface']))
+        data = ModelTraining.Preprocessing.get_data_and_feature_set.get_data(
+            os.path.join(data_dir, dict_usecase['dataset']))
+        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
@@ -87,9 +88,9 @@ if __name__ == '__main__':
         os.makedirs(density_dir_usecase, exist_ok=True)
 
         # Get data and feature set
-        data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(
-            os.path.join(data_dir, dict_usecase['dataset']),
-            os.path.join(root_dir, dict_usecase['fmu_interface']))
+        data = ModelTraining.Preprocessing.get_data_and_feature_set.get_data(
+            os.path.join(data_dir, dict_usecase['dataset']))
+        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
@@ -130,9 +131,9 @@ if __name__ == '__main__':
         density_dir_usecase = os.path.join(density_dir, usecase_name)
         os.makedirs(density_dir_usecase, exist_ok=True)
         # Get data and feature set
-        data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(
-            os.path.join(data_dir, dict_usecase['dataset']),
-            os.path.join(root_dir, dict_usecase['fmu_interface']))
+        data = ModelTraining.Preprocessing.get_data_and_feature_set.get_data(
+            os.path.join(data_dir, dict_usecase['dataset']))
+        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
@@ -169,9 +170,9 @@ if __name__ == '__main__':
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
         # Get data and feature set
-        data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(
-            os.path.join(data_dir, dict_usecase['dataset']),
-            os.path.join(root_dir, dict_usecase['fmu_interface']))
+        data = ModelTraining.Preprocessing.get_data_and_feature_set.get_data(
+            os.path.join(data_dir, dict_usecase['dataset']))
+        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
         data = data.astype('float')
 

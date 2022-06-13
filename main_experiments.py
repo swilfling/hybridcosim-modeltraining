@@ -8,8 +8,8 @@ from ModelTraining.Training.run_training_and_test import run_training_model
 from ModelTraining.Utilities.MetricsExport import MetricsCalc, ResultExport, metr_utils
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
-from ModelTraining.Preprocessing.get_data_and_feature_set import get_data_and_feature_set
-from ModelTraining.Preprocessing.feature_set import FeatureSet
+from ModelTraining.Preprocessing.get_data_and_feature_set import get_data
+from ModelTraining.Preprocessing.featureset import FeatureSet
 from ModelTraining.datamodels.datamodels import Model
 import os
 import argparse
@@ -61,7 +61,9 @@ if __name__ == '__main__':
         usecase_name = dict_usecase['name']
         results_path_dataset = os.path.join(results_path, usecase_name)
         # Get data and feature set
-        data, feature_set = get_data_and_feature_set(os.path.join(data_dir, dict_usecase['dataset']), os.path.join(root_dir, dict_usecase['fmu_interface']))
+        data = get_data(os.path.join(data_dir, dict_usecase['dataset']))
+        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
+
         data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
         data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=False)
         # Main loop

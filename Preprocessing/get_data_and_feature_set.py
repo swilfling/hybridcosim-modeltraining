@@ -1,12 +1,11 @@
 import os
 import pandas as pd
-from ModelTraining.Preprocessing import FeatureSet
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
 from . FeatureCreation.feature_creation import create_additional_feats
 
 
-def get_data_and_feature_set(data_filename, interface_filename):
+def get_data(data_filename):
     extension = data_filename.split('.')[-1]
     filename = list(os.path.split(data_filename))[-1].split('.')[0]
     # Check extension and parse hd5
@@ -28,8 +27,7 @@ def get_data_and_feature_set(data_filename, interface_filename):
             data = data[:pd.Timestamp(2019, 10, 25)]
 
     data = create_additional_feats(data=data, filename=data_filename)
-    feature_set = FeatureSet(interface_filename)
-    return data, feature_set
+    return data
 
 
 def create_date_range(y1, m1, d1, y2, m2, d2, freq='1H'):

@@ -1,4 +1,4 @@
-from . feature_set import FeatureSet
+from . import featureset
 from . import DataImport
 from . import DataPreprocessing
 from . import FeatureCreation

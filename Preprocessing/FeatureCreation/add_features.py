@@ -1,6 +1,6 @@
 from ModelTraining.Preprocessing.FeatureCreation.cyclic_features import add_cyclical_features
 from ModelTraining.Preprocessing.FeatureCreation.statistical_features import create_statistical_features
-from ModelTraining.Preprocessing.feature_set import Feature
+from ModelTraining.Preprocessing.featureset import Feature
 
 
 def add_features_to_data(data, stat_feat_names, stat_feat_types, stat_ws):
@@ -20,12 +20,12 @@ def add_features_to_featureset(dict_usecase, feature_set):
     if 'weekdays' in dict_usecase.get('onehot_feats', []):
         cyclic_feature_names += weekday_1hot_feat
     for name in cyclic_feature_names:
-        feature_set.add_feature(Feature(name=name, static=True, cyclic=True, feature_type='input', init=0, models=feature_set.get_output_feature_names()))
+        feature_set.add_feature(Feature(name=name, static=True, cyclic=True, input=True, init=0, models=feature_set.get_output_feature_names()))
     # Add statistical features
     statistical_feature_names = [f"{name}_{stat_name}" for name in dict_usecase.get('stat_feats',[]) for stat_name in
      dict_usecase.get('stat_vals', [])]
     for name in statistical_feature_names:
-        feature_set.add_feature(Feature(name=name, static=True, cyclic=True, feature_type='input', init=0, models=feature_set.get_output_feature_names()))
+        feature_set.add_feature(Feature(name=name, static=True, cyclic=True, input=True, init=0, models=feature_set.get_output_feature_names()))
     return feature_set
 
 
