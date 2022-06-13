@@ -76,21 +76,21 @@ if __name__ == '__main__':
          scaler.fit(static_data)
          static_data_norm = scaler.transform(static_data)
 
-         vif_norm = data_analysis.calc_vif_df(static_data_norm.values, static_data_norm.columns, dropinf=False)
+         vif_norm = data_analysis.calc_vif_df(static_data_norm, dropinf=False)
          vif_norm = vif_norm.rename({"VIF":"VIF normalized"}, axis=1)
-         vif_full = data_analysis.calc_vif_df(static_data.values, static_data.columns, dropinf=False)
+         vif_full = data_analysis.calc_vif_df(static_data, dropinf=False)
          vif_full.to_csv(f'{vif_path}/vif_{usecase_name}_full.csv', float_format=float_format, index_label='Feature')
-         vif = data_analysis.calc_vif_df(static_data.values, static_data.columns, dropinf=True)
+         vif = data_analysis.calc_vif_df(static_data, dropinf=True)
          vif.to_csv(f'{vif_path}/vif_{usecase_name}.csv',float_format=float_format,index_label='Feature')
          print(vif_full)
          print(vif_norm)
 
          expanded_features = train_utils.expand_features(data, static_data.columns, [],expander_parameters=expander_parameters)
-         vif_expanded = data_analysis.calc_vif_df(expanded_features.values, expanded_features.columns, True)
+         vif_expanded = data_analysis.calc_vif_df(expanded_features, True)
 
          scaler.fit(expanded_features)
          expanded_features_norm = scaler.transform(expanded_features)
-         vif_norm = data_analysis.calc_vif_df(expanded_features_norm.values, expanded_features_norm.columns, dropinf=False)
+         vif_norm = data_analysis.calc_vif_df(expanded_features_norm, dropinf=False)
          vif_expanded_norm = vif_norm.rename({"VIF": "VIF normalized"}, axis=1)
 
          print(vif_expanded)
