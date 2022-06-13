@@ -1,7 +1,6 @@
 import os
 import logging
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
-from ModelTraining.Utilities.MetricsExport import metr_utils as metr_utils
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import ModelTraining.datamodels.datamodels.validation.white_test
@@ -14,6 +13,7 @@ from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import SelectorByName
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
+import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
 
 if __name__ == '__main__':
     data_dir_path = "../"
@@ -90,9 +90,12 @@ if __name__ == '__main__':
     result_data.save_pkl(result_dir, "result_data.pkl")
     # Calculate metrics
     metr_exp = MetricsCalc()
-    df_metrics = metr_exp.analyze_result(model, result_data)
-    df_metrics.to_csv(os.path.join(result_dir, f"AllMetrics_{metr_utils.create_file_name_timestamp()}.csv"), index_label='Model',
+    df_metrics = metr_exp.calc_perf_metrics_df(result_data, df_index=[model_type])
+    df_white = metr_exp.white_test_df(result_data, df_index=[model_type])
+    df_metrics.to_csv(os.path.join(result_dir, f"Metrics_{metr_utils.create_file_name_timestamp()}.csv"), index_label='Model',
                     float_format='%.3f')
+    df_white.to_csv(os.path.join(result_dir, f"White_{metr_utils.create_file_name_timestamp()}.csv"),
+                      index_label='Model', float_format='%.3f')
     # Export results
     result_exp = ResultExport(results_root=result_dir)
     result_exp.export_result(result_data)

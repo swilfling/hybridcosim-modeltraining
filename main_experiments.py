@@ -107,8 +107,8 @@ if __name__ == '__main__':
                         # Export model properties
                         result_exp.export_model_properties(model)
                         # Calculate metrics
-                        metr_vals_perf = metr_exp.calc_metrics_allfeats(result, len(model.get_expanded_feature_names()))
-                        metr_vals_white = metr_exp.white_test_allfeats(result)
+                        metr_vals_perf = metr_exp.calc_perf_metrics(result, len(model.get_expanded_feature_names()))
+                        metr_vals_white = metr_exp.white_test(result)
                         metr_vals_featsel = metr_exp.analyze_featsel(selectors)
                         metr_vals = metr_vals_perf + metr_vals_white + metr_vals_featsel
                         # Set metrics identifiers
