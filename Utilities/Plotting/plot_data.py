@@ -55,7 +55,7 @@ def plot_data(data: pd.DataFrame, plot_path="./", filename='Result', store_to_cs
     Optional params: ylabel, figsize, fig_title, plot args
     """
     if data is not None:
-        fig, ax, = plt_utils.create_figure(kwargs.pop('fig_title'), figsize=kwargs.pop('figsize', None))
+        fig, ax, = plt_utils.create_figure(kwargs.pop('fig_title', ""), figsize=kwargs.pop('figsize', None))
         plt.xlabel('Time')
         if kwargs.get('ylim', None):
             plt.ylim(kwargs.pop('ylim'))
