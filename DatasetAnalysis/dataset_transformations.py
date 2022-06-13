@@ -4,8 +4,8 @@ import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
 import ModelTraining.Preprocessing.get_data_and_feature_set
 import ModelTraining.Preprocessing.data_analysis as data_analysis
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
-import ModelTraining.Utilities.Plotting.plot_distributions_spectra as plt_dist
-import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
+import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
+import ModelTraining.Utilities.Plotting.plot_data as plt_utils
 import os
 import numpy as np
 from ModelTraining.datamodels.datamodels.processing.datascaler import Normalizer
@@ -68,12 +68,15 @@ if __name__ == '__main__':
         output_dir = os.path.join(density_dir_usecase, 'SqrtTransformation')
         os.makedirs(output_dir, exist_ok=True)
         vals_sqrt_full = np.sqrt(data[feats_for_density_full])
-        plt_dist.plot_density(vals_sqrt_full[feats_for_density], output_dir, f'Density - {usecase_name} - Square Root Transformation - nonzero samples',
+        fig_title = f'Density - {usecase_name} - Square Root Transformation - nonzero samples'
+        plt_dist.plot_density(vals_sqrt_full[feats_for_density], output_dir, filename=fig_title, fig_title=fig_title,
                               omit_zero_samples=True, store_tikz=False)
-        plt_dist.plot_density(vals_sqrt_full, output_dir, f'Density - {usecase_name} - Square Root Transformation - full - nonzero samples',
+        fig_title_full = f'Density - {usecase_name} - Square Root Transformation - full - nonzero samples'
+        plt_dist.plot_density(vals_sqrt_full, output_dir, filename=fig_title_full, fig_title=fig_title_full,
                               omit_zero_samples=True, store_tikz=False)
         for feature in feats_for_density_full:
-            plt_dist.plot_qq(vals_sqrt_full[feature], output_dir, f'QQ - {usecase_name} - {feature} - Box-cox - nonzero samples')
+            fig_title = f'QQ - {usecase_name} - {feature} - Sqrt - nonzero samples'
+            plt_dist.plot_qq(vals_sqrt_full[feature], output_dir, filename=fig_title, fig_title=fig_title)
 
         df_skew = data_analysis.calc_skew_kurtosis(vals_sqrt_full)
         df_skew_nonzero = data_analysis.calc_skew_kurtosis(vals_sqrt_full, True)
@@ -123,14 +126,15 @@ if __name__ == '__main__':
         output_dir = os.path.join(density_dir_usecase, 'Box-coxTransformation')
         os.makedirs(output_dir, exist_ok=True)
         boxcox_df = data_analysis.boxcox_transf(data[feats_for_density_full])
-        plt_dist.plot_density(boxcox_df[feats_for_density], output_dir,
-                              f'Density - {usecase_name} - Box-cox Transformation - nonzero samples',
+        fig_title = f'Density - {usecase_name} - Box-cox Transformation - nonzero samples'
+        plt_dist.plot_density(boxcox_df[feats_for_density], output_dir, filename=fig_title, fig_title=fig_title,
                               omit_zero_samples=True, store_tikz=False)
-        plt_dist.plot_density(boxcox_df, output_dir,
-                              f'Density - {usecase_name} - Box-cox Transformation - full - nonzero samples',
+        fig_title_full = f'Density - {usecase_name} - Box-cox Transformation - full - nonzero samples'
+        plt_dist.plot_density(boxcox_df, output_dir, filename=fig_title, fig_title=fig_title,
                               omit_zero_samples=True, store_tikz=False)
         for feature in feats_for_density_full:
-            plt_dist.plot_qq(boxcox_df[feature], output_dir, f'QQ - {usecase_name} - {feature} - Box-cox - nonzero samples')
+            fig_title = f'QQ - {usecase_name} - {feature} - Box-cox - nonzero samples'
+            plt_dist.plot_qq(boxcox_df[feature], output_dir, filename=fig_title, fig_title=fig_title)
 
         df_skew = data_analysis.calc_skew_kurtosis(boxcox_df)
         df_skew_nonzero = data_analysis.calc_skew_kurtosis(boxcox_df, True)
@@ -182,16 +186,18 @@ if __name__ == '__main__':
         output_dir = os.path.join(density_dir_usecase, 'Differencing')
         os.makedirs(output_dir, exist_ok=True)
         diff_df = data[feats_for_density_full].diff()
-        plt_dist.plot_density(diff_df[feats_for_density], output_dir,
-                              f'Density - {usecase_name} - Differencing - nonzero samples',
+        fig_title = f'Density - {usecase_name} - Differencing - nonzero samples'
+        plt_dist.plot_density(diff_df[feats_for_density], output_dir, filename=fig_title, fig_title=fig_title,
                               omit_zero_samples=True, store_tikz=False)
-        plt_dist.plot_density(diff_df, output_dir,
-                              f'Density - {usecase_name} - Differencing - full - nonzero samples',
+        fig_title_full = f'Density - {usecase_name} - Differencing - full - nonzero samples',
+        plt_dist.plot_density(diff_df, output_dir, filename=fig_title_full, fig_title=fig_title_full,
                               omit_zero_samples=True, store_tikz=False)
-        plt_utils.plot_result(diff_df, output_dir, f'Timeseries - Differencing')
+        fig_title = f'Timeseries - Differencing'
+        plt_utils.plot_data(diff_df, output_dir, fig_title=fig_title, filename=fig_title)
 
         for feature in feats_for_density_full:
-            plt_dist.plot_qq(diff_df[feature], output_dir, f'QQ - {usecase_name} - {feature} - Differencing - nonzero samples')
+            fig_title = f'QQ - {usecase_name} - {feature} - Differencing - nonzero samples'
+            plt_dist.plot_qq(diff_df[feature], output_dir, filename=fig_title, fig_title=fig_title)
 
         df_skew = data_analysis.calc_skew_kurtosis(diff_df)
         df_skew_nonzero = data_analysis.calc_skew_kurtosis(diff_df, True)

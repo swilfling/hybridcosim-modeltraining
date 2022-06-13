@@ -1,12 +1,12 @@
 #%%
 
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
-import ModelTraining.Preprocessing.get_data_and_feature_set
+from ModelTraining.Preprocessing.get_data_and_feature_set import get_data_and_feature_set
 import ModelTraining.Preprocessing.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
-import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
+import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
 import os
 from ModelTraining.datamodels.datamodels.processing.datascaler import Normalizer
 
@@ -33,8 +33,8 @@ if __name__ == '__main__':
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
         # Get data and feature set
-        data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(os.path.join(data_dir, dict_usecase['dataset']),
-                                                                                                          os.path.join(root_dir, dict_usecase['fmu_interface']))
+        data, feature_set = get_data_and_feature_set(os.path.join(data_dir, dict_usecase['dataset']),
+                                                     os.path.join(root_dir, dict_usecase['fmu_interface']))
         # Add features to dataset
         data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
         # Data preprocessing
@@ -45,7 +45,7 @@ if __name__ == '__main__':
         if data.shape[1] > 1:
             filename_basic = f'Correlation_{usecase_name}_IdentityExpander'
             corr = data_analysis.corrmatrix(data[features_for_corrmatrix])
-            plt_utils.printHeatMap(corr, matrix_path,filename_basic, plot_enabled=True, annot=True)
+            plt_dist.printHeatMap(corr, matrix_path, filename_basic, vmin=-1, vmax=1, cmap='coolwarm', annot=True, fmt='.2f')
             data_analysis.reshape_corrmatrix(corr).to_csv(os.path.join(matrix_path, f'{filename_basic}_flat.csv'))
 
             filename_exp = f'Correlation_{usecase_name}_PolynomialExpansion'
@@ -53,15 +53,15 @@ if __name__ == '__main__':
                                                             expander_parameters=expander_parameters)
             corr_exp = data_analysis.corrmatrix(expanded_features)
             data_analysis.reshape_corrmatrix(corr).to_csv(os.path.join(matrix_path, f'{filename_exp}_flat.csv'))
-            plt_utils.printHeatMap(corr_exp, matrix_path,filename_exp, plot_enabled=True, annot=True)
+            plt_dist.printHeatMap(corr_exp, matrix_path, filename_exp, vmin=-1, vmax=1, cmap='coolwarm', annot=True, fmt='.2f')
 
 
 #%% VIF calculation
     for dict_usecase in dict_usecases:
          usecase_name = dict_usecase['name']
          # Get data and feature set
-         data, feature_set = ModelTraining.Preprocessing.get_data_and_feature_set.get_data_and_feature_set(os.path.join(data_dir, dict_usecase['dataset']),
-                                                                                                           os.path.join(root_dir, dict_usecase['fmu_interface']))
+         data, feature_set = get_data_and_feature_set(os.path.join(data_dir, dict_usecase['dataset']),
+                                                      os.path.join(root_dir, dict_usecase['fmu_interface']))
          data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
          data = data.astype('float')
          # Data preprocessing

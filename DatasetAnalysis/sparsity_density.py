@@ -5,7 +5,7 @@ import ModelTraining.Preprocessing.get_data_and_feature_set
 import ModelTraining.Preprocessing.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
-import ModelTraining.Utilities.Plotting.plot_distributions_spectra as plt_dist
+import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
 import os
 import numpy as np
 import pandas as pd
@@ -113,8 +113,12 @@ if __name__ == '__main__':
         scaler.fit(data)
         data = scaler.transform(data)
 
-        plt_dist.plot_density(data[feats_for_density], density_dir_usecase, f'Density - {usecase_name} - nonzero samples', omit_zero_samples=True, store_tikz=True)
-        plt_dist.plot_density(data[feats_for_density_full], density_dir_usecase, f'Density - {usecase_name} - full - nonzero samples', omit_zero_samples=True, store_tikz=True)
+        fig_title = f'Density - {usecase_name} - nonzero samples'
+        plt_dist.plot_density(data[feats_for_density], density_dir_usecase, filename=fig_title,
+                              fig_title=fig_title, omit_zero_samples=True, store_tikz=True)
+        fig_title_full = f'Density - {usecase_name} - full - nonzero samples'
+        plt_dist.plot_density(data[feats_for_density_full], density_dir_usecase, filename=fig_title_full,
+                              fig_title=fig_title_full, omit_zero_samples=True, store_tikz=True)
 
 
     #%% Skew and kurtosis

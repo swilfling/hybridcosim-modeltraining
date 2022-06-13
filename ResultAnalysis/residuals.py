@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-import ModelTraining.Utilities.Plotting.plot_distributions_spectra as plt_dist
+import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
 from ModelTraining.ResultAnalysis.result_utils import env_max, env_min, get_result_df, plot_line
 
 
@@ -74,7 +74,8 @@ if __name__ == "__main__":
                 # P-P Plot
                 xlim = [-8,8] if usecase == 'Solarhouse2' else None
                 ylim = [-8,8] if usecase == 'Solarhouse2' else None
-                plt_dist.plot_qq(residual, resid_pp_dir, f'Dataset {usecase} - Standardized Residual - {label}', store_csv=True,xlim=xlim, ylim=ylim)
+                title = f'Dataset {usecase} - Standardized Residual - {label}'
+                plt_dist.plot_qq(residual, resid_pp_dir, title, fig_title=title, store_csv=True,xlim=xlim, ylim=ylim)
 
 
 #%% Residuals Scatter

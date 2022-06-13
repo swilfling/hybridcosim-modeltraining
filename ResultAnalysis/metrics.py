@@ -3,7 +3,8 @@ import pandas as pd
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
+
+import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
 
 
 if __name__ == "__main__":
@@ -38,11 +39,9 @@ if __name__ == "__main__":
                     figsize = (6,4) if expansion_name == 'IdentityExpander' else (10,10)
                 else:
                     figsize = (8,6) if expansion_name == 'IdentityExpander' else (30,10)
-
-                plt_utils.barplot(df.index, df.values.flatten(), coeff_dir,
-                                  filename=f'Coefficients_{model_type}_{target_val}_{usecase}_{thresh_name_full}_{expansion_name}',
-                                  fig_title=f"{model_type} Coefficients - {target_val} - Dataset {usecase}", figsize=figsize,
-                                  ylabel='Coefficient')
+                filename = f'Coefficients_{model_type}_{target_val}_{usecase}_{thresh_name_full}_{expansion_name}'
+                fig_title = f"{model_type} Coefficients - {target_val} - Dataset {usecase}"
+                plt_dist.barplot(df, coeff_dir, filename=filename, fig_title=fig_title, figsize=figsize, ylabel='Coefficient')
 
 
     #%% Metrics
@@ -56,18 +55,18 @@ if __name__ == "__main__":
         plt.figure(figsize=(8,6))
         width=1
         x = np.arange(len(df.columns)-1)
-        plt.bar(x,df.iloc[-1].values[1:],label='Random Forest', color='lightgray')
+        plt.bar(x, df.iloc[-1].values[1:], label='Random Forest', color='lightgray')
         plt.title(f'Metrics - {metric}')
         # TODO fix this
         #for i in [0,1,3,4,5, 7]:
         #    vals = df.iloc[i].values[1:]
         #    plt.plot(vals, label=df.iloc[i,0])
         #    plt.bar(x+width*i, vals, width, label=df.iloc[i,0])
-        plt.xticks(range(len(df.columns)-1),df.columns[1:])
+        plt.xticks(range(len(df.columns)-1), df.columns[1:])
         plt.grid('both')
         plt.ylabel(metric)
         plt.legend()
-        plt.savefig(os.path.join(metrics_dir,f'Metrics_{metric}.png'))
+        plt.savefig(os.path.join(metrics_dir, f'Metrics_{metric}.png'))
         plt.show()
 
 
@@ -87,6 +86,6 @@ if __name__ == "__main__":
             df[col][df[col] == mincol[col]] = f"\\textbf{{{mincol[col]}}}"
             df[col][df[col] == mincol_sec[col]] = f"\\textit{{{mincol_sec[col]}}}"
     print(df)
-    df.to_csv(os.path.join(metrics_dir,f'Metrics_full_Experiment_{timestamp}_edited.csv'))
+    df.to_csv(os.path.join(metrics_dir, f'Metrics_full_Experiment_{timestamp}_edited.csv'))
 
 

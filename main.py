@@ -7,7 +7,7 @@ from sklearn.model_selection import TimeSeriesSplit
 from ModelTraining.Preprocessing.get_data_and_feature_set import get_data_and_feature_set
 from ModelTraining.Utilities.Parameters import TrainingResults, TrainingParams
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
-import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
+import ModelTraining.Utilities.Plotting.plot_data as plt_utils
 from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.predict import predict_gt, predict_with_history
 
@@ -128,7 +128,7 @@ if __name__ == '__main__':
         plot_dir = pathlib.Path(os.path.join(training_results_path, plot_dir_name))
         os.makedirs(os.path.join(training_results_path, plot_dir_name), exist_ok=True)
         #print(result_prediction.columns)
-        plt_utils.plot_result(result.test_result_df(), plot_dir, title)
+        plt_utils.plot_data(result.test_result_df(), plot_dir, filename=title, fig_title=title)
         results.append(result)
         # Calculate metrics
         metrs = []

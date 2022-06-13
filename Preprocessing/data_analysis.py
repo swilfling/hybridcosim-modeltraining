@@ -8,7 +8,6 @@ from scipy.stats import shapiro
 from statsmodels.tsa.stattools import adfuller
 
 
-
 ########################### Variable Inflation Factor (VIF) ###########################################################
 
 
@@ -90,3 +89,5 @@ def norm_stat_tests(cur_data):
         df_tests['KS'][feat] = kstest(cur_feat, 'norm').pvalue
         df_tests['ADF'][feat] = adfuller(cur_feat, autolag="AIC")[1]
     return df_tests
+
+

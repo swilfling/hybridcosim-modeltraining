@@ -1,7 +1,9 @@
 #%%
 import pandas as pd
 import os
-from ModelTraining.Preprocessing.FeatureSelection import FeatureSelector
+
+import ModelTraining.Utilities.Plotting.plot_distributions
+from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import FeatureSelector
 import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 
 
@@ -32,14 +34,14 @@ if __name__ == "__main__":
                 threshold_name = threshold.split("_")[0]
                 selector_name = FeatureSelector.from_name(threshold_name).__name__
                 df = pd.read_csv(os.path.join(path, f'Coefficients_{selector_name} - {expansion_name}.csv'), index_col='Feature')
-
                 if usecase in solarhouse_usecases:
                     figsize = (5,5) if expansion_name == 'IdentityExpander' else (6,6)
                 else:
                     figsize = (8,4) if expansion_name == 'IdentityExpander' else (20,15)
-
-                plt_utils.barplot(df.index, df.values.flatten(), fvals_dir,filename=f'{threshold}_{usecase}_{thresh_name_full}_{expansion}',
-                                  fig_title=f"{threshold_name} - Dataset {usecase}", figsize=figsize, ylabel=threshold_name)
+                filename = f'{threshold}_{usecase}_{thresh_name_full}_{expansion}'
+                fig_title = f"{threshold_name} - Dataset {usecase}"
+                ModelTraining.Utilities.Plotting.plot_distributions.barplot(df, fvals_dir, filename=filename, fig_title=fig_title, figsize=figsize,
+                                                                            ylabel=threshold_name)
 
 
 #%% feature select

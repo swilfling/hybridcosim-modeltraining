@@ -12,7 +12,7 @@ from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import SelectorByName
-import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
+import ModelTraining.Utilities.Plotting.plot_data as plt_utils
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
 
 if __name__ == '__main__':
@@ -81,7 +81,7 @@ if __name__ == '__main__':
                                       test_index=index_test[:prediction_length + training_params.lookback_horizon + 1],
                                       test_input=x_test[:prediction_length + training_params.lookback_horizon + 1],
                                       target_feat_names=target_features)
-    plt_utils.plot_result(result_forecast.test_result_df(), result_dir, "result_forecast")
+    plt_utils.plot_data(result_forecast.test_result_df(), result_dir, "result_forecast")
 
     # Calculate and export metrics
     test_prediction = model.predict(x_test)
