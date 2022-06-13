@@ -5,6 +5,9 @@ from typing import List
 
 @dataclass
 class TrainingParams(Parameters):
+    """
+    Training parameters
+    """
     model_type: str = "LinearRegression"
     model_name: str = ""
     static_input_features: List[str] = None
@@ -20,4 +23,7 @@ class TrainingParams(Parameters):
     dynamic_output_features: List[str] = field(default_factory=list)
 
     def str_target_feats(self):
+        """
+        String identifier for target features
+        """
         return "_".join(self.target_features)
