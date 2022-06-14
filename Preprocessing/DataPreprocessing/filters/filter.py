@@ -4,7 +4,7 @@ import numpy as np
 from scipy import signal as sig
 from sklearn.base import TransformerMixin
 
-from ....datamodels.datamodels.processing.feature_extension.store_interface import StoreInterface
+from ....datamodels.datamodels.wrappers.feature_extension.store_interface import StoreInterface
 
 
 class Filter(TransformerMixin, StoreInterface):

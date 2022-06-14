@@ -18,7 +18,7 @@ def get_data(data_filename):
     else:
         if filename == 'Beyond_B20_full' or filename == 'Beyond_B12_full':
             data = data_import.import_data(data_filename, sep=',',freq='1H', index_col='dt')
-            data = data.drop(create_date_range(2014, 4, 13, 2014, 4, 24), axis=0)
+            data = data.drop(pd.date_range(pd.Timestamp(2014, 4, 13), pd.Timestamp(2014, 4, 24), freq='1H'), axis=0)
         elif filename == 'T24_full':
             data = data_import.import_data(data_filename, sep=',',freq='1H', index_col='t')
         else:
@@ -28,7 +28,3 @@ def get_data(data_filename):
 
     data = create_additional_feats(data=data, filename=data_filename)
     return data
-
-
-def create_date_range(y1, m1, d1, y2, m2, d2, freq='1H'):
-    return pd.date_range(pd.Timestamp(y1, m1, d1), pd.Timestamp(y2, m2, d2), freq=freq)

@@ -6,7 +6,7 @@ from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 from ModelTraining.Preprocessing.featureset import FeatureSet
-from ModelTraining.datamodels.datamodels import Model
+from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel
 import os
 import argparse
 
@@ -53,23 +53,21 @@ if __name__ == '__main__':
         feature_set = feat_utils.add_features_to_featureset(dict_usecase, feature_set)
         for feature_sel_params in list_feature_select_params:
             params_name = "_".join(params.get_full_name() for params in feature_sel_params)
-            result_exp = ResultExport(results_root=os.path.join(results_path, usecase_name, params_name),
-                                      plot_enabled=False)
+            result_exp = ResultExport(results_root=os.path.join(results_path, usecase_name, params_name), plot_enabled=True)
             for expansion in expansion_types:
                 for model_type in model_types:
                     for feat in feature_set.get_output_feature_names():
                         # Load results
-                        result = TrainingResults.load_pkl(result_exp.results_root,
-                                                          f'results_{model_type}_{feat}_{expansion[-1]}.pkl')
-                        model = Model.load(
-                            os.path.join(result_exp.results_root, f"Models/{feat}/{model_type}_{expansion[-1]}/{feat}"))
-                        selectors = [FeatureSelector.load_pkl(result_exp.results_root,
-                                                              f'FeatureSelection/{feat}/{model_type}_{expansion[-1]}/selector_{i}.pkl')
+                        result = TrainingResults.load_pkl(result_exp.results_root, f'results_{model_type}_{feat}_{expansion[-1]}.pkl')
+                        model = ExpandedModel.load_pkl(os.path.join(result_exp.results_root, f"Models/{feat}/{model_type}_{expansion[-1]}/{feat}"), "expanded_model.pkl")
+                        #model = Model.load(os.path.join(result_exp.results_root, f"Models/{feat}/{model_type}_{expansion[-1]}/{feat}"))
+                        selectors = [FeatureSelector.load_pkl(result_exp.results_root, f'FeatureSelection/{feat}/{model_type}_{expansion[-1]}/selector_{i}.pkl')
                                      for i, _ in enumerate(expansion)]
                         # Export model properties
                         result_exp.export_model_properties(model)
+                        result_exp.export_result(result, f"{model_type}_{expansion[-1]}")
                         # Calculate metrics
-                        metr_vals_perf = metr_exp.calc_perf_metrics(result, len(model.get_expanded_feature_names()))
+                        metr_vals_perf = metr_exp.calc_perf_metrics(result, model.expanders.get_num_output_feats())
                         metr_vals_white = metr_exp.white_test(result)
                         metr_vals_featsel = metr_exp.analyze_featsel(selectors)
                         metr_vals = metr_vals_perf + metr_vals_white + metr_vals_featsel

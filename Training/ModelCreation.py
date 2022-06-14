@@ -1,7 +1,9 @@
 from tensorflow import keras
 
-import ModelTraining.datamodels
+from ModelTraining.datamodels.datamodels import Model
+from ModelTraining.datamodels.datamodels.processing.datascaler import DataScaler
 from ModelTraining.Utilities.Parameters import TrainingParams
+from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel, ExpanderSet
 
 
 def train_model(model, x_train, y_train):
@@ -17,23 +19,11 @@ def train_model(model, x_train, y_train):
     )
 
 
-def create_expanders(expansion, **kwargs):
-    expanders = []
-    for expander_name in expansion:
-        type = getattr(ModelTraining.datamodels.datamodels.processing.feature_extension, expander_name)
-        expander = type(**kwargs.get('expander_parameters',None)) if expander_name == 'PolynomialExpansion' else type()
-        expanders.append(expander)
-    return expanders
-
-
 def create_model(training_params: TrainingParams, **kwargs):
-    model_type = getattr(ModelTraining.datamodels.datamodels, training_params.model_type)
-    normalizer = getattr(ModelTraining.datamodels.datamodels.processing, training_params.normalizer)
-    expanders = create_expanders(training_params.expansion, expander_parameters=kwargs.get('expander_parameters',{}))
-    model = model_type(x_scaler_class=normalizer,
-                      name="_".join(training_params.target_features),
-                      train_function=train_model,
-                      expanders=expanders,
-                      parameters={})
-    model.set_feature_names(kwargs.get('feature_names',None))
-    return model
+    model = Model.from_name(training_params.model_type,
+                            x_scaler_class=DataScaler.cls_from_name(training_params.normalizer),
+                            name=training_params.str_target_feats(),
+                            train_function=train_model, parameters={})
+    expander_params = kwargs.get('expander_parameters', {})
+    expanded_model = ExpandedModel(expanders=ExpanderSet.from_names(training_params.expansion, **expander_params), model=model)
+    return expanded_model

@@ -7,7 +7,9 @@ import ModelTraining.datamodels.datamodels.validation.white_test
 from ModelTraining.Preprocessing.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.Training.predict import predict_history_ar
-from ModelTraining.Training.ModelCreation import create_model
+from ModelTraining.datamodels.datamodels import Model
+from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpanderSet, ExpandedModel
+from ModelTraining.datamodels.datamodels.processing import DataScaler
 from ModelTraining.Training.GridSearch import best_estimator
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
@@ -34,7 +36,7 @@ if __name__ == '__main__':
     smoothe_data = False
     plot_enabled = True
 
-    model_type = "RandomForestRegression"
+    model_type = "RuleFitRegression"
 
     training_params = TrainingParams(model_type=model_type,
                                        model_name="Energy",
@@ -45,7 +47,7 @@ if __name__ == '__main__':
                                        dynamic_input_features=feature_set.get_dynamic_input_feature_names(),
                                        dynamic_output_features=feature_set.get_dynamic_output_feature_names(),
                                        training_split=0.8,
-                                       normalizer="IdentityScaler",
+                                       normalizer="Normalizer",
                                        expansion=['IdentityExpander'])
 
     # Preprocess data
@@ -58,20 +60,22 @@ if __name__ == '__main__':
 
     # Create model
     logging.info(f"Training model with input of shape: {x_train.shape} and targets of shape {y_train.shape}")
-    model = create_model(training_params, feature_names=feature_names)
+    model_basic = Model.from_name(training_params.model_type,
+                                  x_scaler_class=DataScaler.cls_from_name(training_params.normalizer),
+                                  name=training_params.str_target_feats(), parameters={})
+    # Create expanded model
+    model = ExpandedModel(expanders=ExpanderSet.from_names(training_params.expansion), model=model_basic)
 
     list_sel_feat_names = ['Tint_1','Tint_2','Tint_3','Tint_5',
                            'Text','Text_1','Text_3', 'Text_4',
-                           'GHI','GHI_1','GHI_2','GHI_4']
+                          'GHI','GHI_1','GHI_2','GHI_4']
     selector = SelectorByName(feat_names=feature_names, selected_feat_names=list_sel_feat_names)
     model.expanders.get_expander_by_index(0).set_feature_select(selector.get_support())
-    print(feature_names)
-    print("Support:")
+    model.set_feature_names(feature_names)
     print(model.expanders.get_expander_by_index(0).selected_features)
-
     # Grid search
     best_params = best_estimator(model, x_train, y_train, parameters={})
-    model.model.set_params(**best_params)
+    model.get_estimator().set_params(**best_params)
     # Train model
     model.train(x_train, y_train)
     # Save Model
@@ -100,7 +104,7 @@ if __name__ == '__main__':
     df_white.to_csv(os.path.join(result_dir, f"White_{metr_utils.create_file_name_timestamp()}.csv"),
                       index_label='Model', float_format='%.3f')
     # Export results
-    result_exp = ResultExport(results_root=result_dir)
+    result_exp = ResultExport(results_root=result_dir, plot_enabled=True)
     result_exp.export_result(result_data)
     result_exp.export_model_properties(model)
     print('Experiment finished')

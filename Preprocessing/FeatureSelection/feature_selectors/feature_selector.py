@@ -2,9 +2,9 @@ import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.feature_selection import SelectorMixin
 
-from ModelTraining.Preprocessing.FeatureSelection import feature_selectors
-from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams
-from ModelTraining.datamodels.datamodels.processing.feature_extension import StoreInterface
+from .. import feature_selectors
+from ..feature_selection_params import FeatureSelectionParams
+from ....datamodels.datamodels.wrappers.feature_extension import StoreInterface
 
 
 class FeatureSelector(SelectorMixin, BaseEstimator, StoreInterface):
@@ -38,7 +38,7 @@ class FeatureSelector(SelectorMixin, BaseEstimator, StoreInterface):
     def from_params(params: FeatureSelectionParams):
         """
         Get selector by name
-        @param name: selector name
+        @param params: feature selection params
         @return FeatureSelector object
         """
         return FeatureSelector.from_name(params.sel_type)(thresh=params.threshold, omit_zero_samples=params.omit_zero_samples)
@@ -47,6 +47,8 @@ class FeatureSelector(SelectorMixin, BaseEstimator, StoreInterface):
     def configure_feature_select(expanders, selectors):
         """
         Configure feature select for multiple expanders and selectors
+        @param expanders: Expanders (list of FeatureExpansion objects)
+        @param selectors: Selectors (list of FeatureSelector objects)
         """
         for expander, selector in zip(expanders, selectors):
             expander.set_feature_select(selector.get_support())

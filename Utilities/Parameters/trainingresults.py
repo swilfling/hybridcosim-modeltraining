@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from ModelTraining.datamodels.datamodels.processing.feature_extension import StoreInterface
+from ModelTraining.datamodels.datamodels.wrappers.feature_extension import StoreInterface
 import numpy as np
 import os
 import pandas as pd

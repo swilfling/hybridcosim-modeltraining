@@ -145,7 +145,7 @@ def scatterplot(y_pred, y_true, path="./", filename="Scatterplot", **kwargs):
     """
     # Create pandas dataframe
     store_tikz = kwargs.pop('store_tikz', False)
-    df_vals = pd.DataFrame(index=y_true, data=y_pred, columns=['y'])
+    df_vals = pd.Series(index=y_true.flatten(), data=y_pred.flatten(), name='y')
     df_vals.to_csv(os.path.join(path, f'{filename}.csv'), index_label='x')
     # Create figure
     fig, ax, = plt_utils.create_figure(figsize=kwargs.pop('figsize', None), fig_title=kwargs.pop('fig_title', ""))
@@ -171,10 +171,10 @@ def barplot(data: pd.Series, path='./', filename='Barplot', **kwargs):
     fig_title = kwargs.pop('fig_title', "")
     fig, ax = plt_utils.create_figure(fig_title, figsize=kwargs.pop('figsize', None))
     plt.tight_layout(rect=[0.05, 0.3, 1.0, 1.0])
-    index = np.arange(len(data.columns))
+    index = np.arange(len(data.index))
     plt.bar(index, data.values)
     if kwargs.get('ylabel', None):
         plt.ylabel(kwargs.pop('ylabel'))
-    ax.set_xticks(index, labels=data.columns, rotation=90)
+    ax.set_xticks(index, labels=data.index, rotation=90)
     plt_utils.save_figure(path, filename, store_tikz=store_tikz)
     plt.show()

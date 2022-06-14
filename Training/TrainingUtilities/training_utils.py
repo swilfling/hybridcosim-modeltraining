@@ -8,8 +8,9 @@ from sklearn.model_selection import train_test_split
 
 from ModelTraining.Utilities import type_casting as tc
 from ModelTraining.Utilities.Parameters import TrainingParams
-from ModelTraining.datamodels.datamodels.processing.feature_extension import PolynomialExpansion
+from ModelTraining.datamodels.datamodels.wrappers.feature_extension import PolynomialExpansion, ExpandedModel
 from ModelTraining.datamodels.datamodels.processing.shape import split_into_target_segments
+from ModelTraining.datamodels.datamodels import Model
 
 
 ############################# Model saving and plotting ##############################
@@ -18,12 +19,15 @@ def save_model_and_params(results_main_dir, model, training_params: TrainingPara
     model_dir = os.path.join(results_main_dir, training_params.model_name)
     os.makedirs(model_dir, exist_ok=True)
     # Save model and parameters
-    model.save(model_dir)
+    if type(model) == Model:
+        model.save(model_dir)
+    if type(model) == ExpandedModel:
+        model.save_pkl(model_dir, "expanded_model.pkl")
     training_params.to_file(os.path.join(model_dir, f"parameters_{training_params.model_name}.json"))
 
 
 def save_selectors(results_main_dir, selectors):
-    os.makedirs(results_main_dir)
+    os.makedirs(results_main_dir, exist_ok=True)
     for i, selector in enumerate(selectors):
         selector.save_pkl(results_main_dir,f'selector_{i}.pkl')
 

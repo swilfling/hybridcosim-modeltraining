@@ -6,8 +6,7 @@ from . import metr_utils
 from ..Parameters import TrainingResults
 from ..Plotting import plot_data as plt_utils
 from ..Plotting import plot_distributions as plt_dist
-from ...datamodels.datamodels import Model
-from ...datamodels.datamodels.processing.feature_extension import FeatureExpansion
+from ...datamodels.datamodels.wrappers.feature_extension import ExpandedModel, FeatureExpansion
 
 
 class ResultExport:
@@ -52,7 +51,7 @@ class ResultExport:
 
     ########################################### Export all results #####################################################
 
-    def export_results_full(self, models: List[Model], results: List[TrainingResults], list_selectors: List[List[FeatureSelector]]=[]):
+    def export_results_full(self, models: List[ExpandedModel], results: List[TrainingResults], list_selectors: List[List[FeatureSelector]]=[]):
         """
         Export all results.
         @param models: List of models
@@ -60,10 +59,10 @@ class ResultExport:
         @param list_selectors: List of selector sets
         """
         for model, selectors in zip(models, list_selectors):
-            self.export_featsel_metrs(model.expanders, selectors, model.feature_names)
+            self.export_featsel_metrs(model.expanders.get_list_expanders(), selectors, model.feature_names)
         for model, result in zip(models, results):
             model_name = f'{model.name}_{model.expanders.type_last_exp()}'
-            model_name_full = f'{model.__class__.__name__}_{model_name}'
+            model_name_full = f'{model.model.__class__.__name__}_{model_name}'
             self.export_model_properties(model)
             self.export_result(result, model_name_full)
 
@@ -102,24 +101,24 @@ class ResultExport:
                                title=f'{selector.__class__.__name__} - {expander.__class__.__name__}',
                                ylabel=str(selector.__class__.__name__))
 
-    def export_model_properties(self, model: Model):
+    def export_model_properties(self, model: ExpandedModel):
         """
         Export model properties - F-score or linear regression coeffs
         @param model: model to export
         """
         property_dir = os.path.join(self.results_root, self.property_dir)
         os.makedirs(property_dir, exist_ok=True)
-        model_type = model.__class__.__name__
+        model_type = model.model.__class__.__name__
         title = f'{model_type}_{model.name}_{model.expanders.type_last_exp()}'
         # Export coefficients
         if model_type in ['RandomForestRegression', 'RidgeRegression', 'LinearRegression']:
             ylabel = 'F-Score' if model_type == 'RandomForestRegression' else 'Coefficients'
-            self.export_coeffs(model.get_coef().T, model.get_expanded_feature_names(), property_dir, title, ylabel)
+            self.export_coeffs(model.model.get_coef().T, model.get_expanded_feature_names(), property_dir, title, ylabel)
         if model_type == 'SymbolicRegression':
-            metr_utils.dict_to_json({'Program': str(model.get_program())},
+            metr_utils.dict_to_json({'Program': str(model.model.get_program())},
                                     os.path.join(property_dir, f'Program_{title}.json'))
         if model_type == 'RuleFitRegression':
-            model.get_rules().to_csv(os.path.join(property_dir, f'Rules_{title}.csv'), float_format="%.2f",
+            model.model.get_rules().to_csv(os.path.join(property_dir, f'Rules_{title}.csv'), float_format="%.2f",
                                      index_label='Rule')
 
     def export_result(self, result: TrainingResults, title=""):
