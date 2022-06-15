@@ -4,7 +4,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
-import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
+import ModelTraining.Utilities.Plotting.plot_data as plt_utils
 
 
 if __name__ == "__main__":
@@ -41,7 +41,7 @@ if __name__ == "__main__":
                     figsize = (8,6) if expansion_name == 'IdentityExpander' else (30,10)
                 filename = f'Coefficients_{model_type}_{target_val}_{usecase}_{thresh_name_full}_{expansion_name}'
                 fig_title = f"{model_type} Coefficients - {target_val} - Dataset {usecase}"
-                plt_dist.barplot(df, coeff_dir, filename=filename, fig_title=fig_title, figsize=figsize, ylabel='Coefficient')
+                plt_utils.barplot(df, coeff_dir, filename=filename, fig_title=fig_title, figsize=figsize, ylabel='Coefficient')
 
 
     #%% Metrics

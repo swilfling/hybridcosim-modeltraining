@@ -6,9 +6,14 @@ Plotting functions
     Subplots
     - plot_df_subplots (plots content of dataframe as subplots)
     - plot_subplots (plots list of dataframes as subplots)
+    Additional plots
+    - Barplot
+    - Scatterplot
 """
 
 from typing import List
+
+import numpy as np
 import pandas as pd
 import os
 from matplotlib import pyplot as plt
@@ -110,5 +115,53 @@ def plt_subplots(list_df: List[List[pd.DataFrame]], path="./", filename="Plots",
         # Single x axis plot
         elif type(data) == pd.DataFrame:
             plt_utils.plot_df(ax, data, **kwargs)
+    plt_utils.save_figure(path, filename, store_tikz=store_tikz)
+    plt.show()
+
+##################################### Additional plots #################################################################
+
+
+def scatterplot(y_pred, y_true, path="./", filename="Scatterplot", **kwargs):
+    """
+    Scatterplot - True values vs predicted values. Stores plot to csv, tikz optional
+    @param y_pred: y axis - predicted vals
+    @param y_true: x axis - true vals
+    @param path: Directory to store to
+    @param filename: Output filename
+    Optional args: figsize, fig_title, color, label, store_tikz
+    """
+    # Create pandas dataframe
+    store_tikz = kwargs.pop('store_tikz', False)
+    df_vals = pd.Series(index=y_true.flatten(), data=y_pred.flatten(), name='y')
+    df_vals.to_csv(os.path.join(path, f'{filename}.csv'), index_label='x')
+    # Create figure
+    fig, ax, = plt_utils.create_figure(figsize=kwargs.pop('figsize', None), fig_title=kwargs.pop('fig_title', ""))
+    ax.scatter(y_true, y_pred, alpha=0.5, color=kwargs.get('color', 'blue'), label=kwargs.get('label'))
+    ax.set_xlabel("True values")
+    ax.set_ylabel("Predicted values")
+    limits = [min(min(y_true), min(y_pred)), max(max(y_true), max(y_pred))]
+    ax.plot([limits[0], limits[1]], [limits[0],limits[1]], color='k', linestyle='-', label="Optimal Prediction")
+    ax.legend()
+    plt_utils.save_figure(path, filename, store_tikz=store_tikz)
+    plt.show()
+
+
+def barplot(data: pd.Series, path='./', filename='Barplot', **kwargs):
+    """
+    Barplot of pd Series
+    @param data: pd.Series
+    @param path: directory to save to
+    @param filename: filename
+    Optional args: fig_title, figsize, ylabel, store_tikz
+    """
+    store_tikz = kwargs.pop('store_tikz', False)
+    fig_title = kwargs.pop('fig_title', "")
+    fig, ax = plt_utils.create_figure(fig_title, figsize=kwargs.pop('figsize', None))
+    plt.tight_layout(rect=[0.05, 0.3, 1.0, 1.0])
+    index = np.arange(len(data.index))
+    plt.bar(index, data.values)
+    if kwargs.get('ylabel', None):
+        plt.ylabel(kwargs.pop('ylabel'))
+    ax.set_xticks(index, labels=data.index, rotation=90)
     plt_utils.save_figure(path, filename, store_tikz=store_tikz)
     plt.show()

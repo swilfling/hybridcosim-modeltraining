@@ -5,8 +5,9 @@ from sklearn.metrics import mean_absolute_error
 
 import ModelTraining.Training.TrainingUtilities.training_utils
 from ModelTraining.Training.predict import predict_gt
-from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Utilities.Parameters import TrainingParams
+from ..datamodels.datamodels.processing.datascaler import DataScaler
+from ..datamodels.datamodels import Model
 
 
 def run_training_ensemble(data, list_training_parameters: List[TrainingParams],
@@ -20,7 +21,8 @@ def run_training_ensemble(data, list_training_parameters: List[TrainingParams],
         ensemble = list()
         for i in range(n_members):
             # define and fit the model on the training set
-            model = create_model(training_params)
+            model = Model.from_name(training_params.model_type, x_scaler_class=DataScaler.cls_from_name(training_params.normalizer),
+                                    name=training_params.str_target_feats(), parameters={})
             model.train(x_train, y_train)
             # evaluate model on the test set
             yhat = predict_gt(model, index_test, x_test, y_test, training_params)["predicted"]

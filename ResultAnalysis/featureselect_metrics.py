@@ -4,7 +4,6 @@ import os
 
 import ModelTraining.Utilities.Plotting.plot_distributions
 from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import FeatureSelector
-import ModelTraining.Utilities.Plotting.plotting_utilities as plt_utils
 
 
 if __name__ == "__main__":
@@ -40,8 +39,8 @@ if __name__ == "__main__":
                     figsize = (8,4) if expansion_name == 'IdentityExpander' else (20,15)
                 filename = f'{threshold}_{usecase}_{thresh_name_full}_{expansion}'
                 fig_title = f"{threshold_name} - Dataset {usecase}"
-                ModelTraining.Utilities.Plotting.plot_distributions.barplot(df, fvals_dir, filename=filename, fig_title=fig_title, figsize=figsize,
-                                                                            ylabel=threshold_name)
+                ModelTraining.Utilities.Plotting.plot_data.barplot(df, fvals_dir, filename=filename, fig_title=fig_title, figsize=figsize,
+                                                                   ylabel=threshold_name)
 
 
 #%% feature select

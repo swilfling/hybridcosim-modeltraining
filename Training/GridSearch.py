@@ -1,8 +1,18 @@
+import numpy as np
 from sklearn.model_selection import GridSearchCV
 from ..datamodels.datamodels.wrappers.feature_extension import ExpandedModel
+from ..datamodels.datamodels import Model
 
 
-def best_estimator(model, x_train, y_train, parameters={}):
+def best_estimator(model: Model, x_train: np.ndarray, y_train: np.ndarray, parameters={}):
+    """
+    Grid search for best estimator
+    @param model: object of class Model or ExpandedModel
+    @param x_train: Training input (n_samples, lookback + 1, n_features)
+    @param y_train: Ground truth (n_samples, n_target_features)
+    @parameters: Grid search parameters
+    @return: Best parameters - dict
+    """
     estimator = model.get_estimator()
     search = GridSearchCV(estimator, parameters, scoring=['r2','neg_mean_squared_error','neg_mean_absolute_error'],refit='r2', verbose=4)
     # Transform x train

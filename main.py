@@ -8,12 +8,14 @@ from ModelTraining.Preprocessing.get_data_and_feature_set import get_data
 from ModelTraining.Utilities.Parameters import TrainingResults, TrainingParams
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Utilities.Plotting.plot_data as plt_utils
-from ModelTraining.Training.ModelCreation import create_model
 from ModelTraining.Training.predict import predict_gt, predict_with_history
 
 import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import ModelTraining.datamodels.datamodels.validation.metrics as metrics
+from ModelTraining.datamodels.datamodels import Model
+from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel, FeatureExpansion, TransformerSet
+from ModelTraining.datamodels.datamodels.processing import DataScaler
 
 
 if __name__ == '__main__':
@@ -79,9 +81,11 @@ if __name__ == '__main__':
         # Get data and reshape
         index, x, y, _ = train_utils.extract_training_and_test_set(data, training_parameters)
         ## Training process
-        model = create_model(training_parameters)
-        model.transformers.get_transformer_by_index(0).selected_outputs = range(2)
-        model.set_feature_names(training_parameters.static_input_features + training_parameters.dynamic_input_features)
+        model_basic = Model.from_name(training_parameters.model_type,
+                                x_scaler_class=DataScaler.cls_from_name(training_parameters.normalizer),
+                                name=training_parameters.str_target_feats(), parameters={})
+        model = ExpandedModel(model=model_basic, transformers=TransformerSet(FeatureExpansion.from_names(expansion)),
+                              feature_names=training_parameters.static_input_features + training_parameters.dynamic_input_features)
         rmse_best = None
         train_ind_best = []
         test_ind_best = []

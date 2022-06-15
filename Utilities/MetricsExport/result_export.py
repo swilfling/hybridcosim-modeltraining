@@ -1,11 +1,11 @@
 import os
 from typing import List
 import pandas as pd
+
 from ...Preprocessing.FeatureSelection.feature_selectors import FeatureSelector
 from . import metr_utils
 from ..Parameters import TrainingResults
 from ..Plotting import plot_data as plt_utils
-from ..Plotting import plot_distributions as plt_dist
 from ...datamodels.datamodels.wrappers.feature_extension import ExpandedModel, FeatureExpansion
 
 
@@ -80,8 +80,8 @@ class ResultExport:
         df.to_csv(os.path.join(dir, f'Coefficients_{title}.csv'), float_format='%.2f', index_label='Feature')
         if self.plot_enabled:
             for col in df.columns:
-                plt_dist.barplot(df[col], dir, filename=f'Coefficients_{title}', fig_title=f"Coefficients - {title}",
-                                 ylabel=ylabel, figsize=(30, 7))
+                plt_utils.barplot(df[col], dir, filename=f'Coefficients_{title}', fig_title=f"Coefficients - {title}",
+                                                                   ylabel=ylabel, figsize=(30, 7))
 
     def export_featsel_metrs(self, model: ExpandedModel):
         """
@@ -130,5 +130,5 @@ class ResultExport:
             for feat in result.target_feat_names:
                 plt_utils.plot_data(result.test_result_df(feat), self.get_tseries_dir(), filename=f"Timeseries_{feat}_{title}",
                                     store_to_csv=False, figsize=(14, 4), fig_title=f"Timeseries - {feat} - {title}")
-                plt_dist.scatterplot(result.test_pred_vals(feat), result.test_target_vals(feat), self.get_scatter_dir(),
+                plt_utils.scatterplot(result.test_pred_vals(feat), result.test_target_vals(feat), self.get_scatter_dir(),
                                       f"Scatter_{feat}_{title}")

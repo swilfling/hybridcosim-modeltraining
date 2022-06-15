@@ -1,7 +1,7 @@
 import os
 import matplotlib.pyplot as plt
 
-import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
+import ModelTraining.Utilities.Plotting.plot_data as plt_utils
 import tikzplotlib
 from ModelTraining.ResultAnalysis.result_utils import get_result_df
 
@@ -61,9 +61,9 @@ if __name__ == "__main__":
             for label, color in zip(df.columns[1:],plot_colors[1:]):
                 # Scatterplot
                 y_pred = df[label]
-                plt_dist.scatterplot(y_pred, y_true, scatter_dir,
-                                    filename=f'Scatter_{usecase}_{thresh_name_full}_{label}'.replace(" ", ""),
-                                    fig_title=f'Correlation - Dataset {usecase}',
-                                    figsize=(4, 4), color=color, label=label)
+                plt_utils.scatterplot(y_pred, y_true, scatter_dir,
+                                   filename=f'Scatter_{usecase}_{thresh_name_full}_{label}'.replace(" ", ""),
+                                   fig_title=f'Correlation - Dataset {usecase}',
+                                   figsize=(4, 4), color=color, label=label)
 
 
