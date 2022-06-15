@@ -1,7 +1,11 @@
 from ModelTraining.datamodels.datamodels.processing.datascaler import DataScaler
-from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import ExpandedModel
-from ModelTraining.datamodels.datamodels.processing.feature_extension import ExpanderSet
+from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel, TransformerSet, FeatureExpansion
+from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import FeatureSelector
+from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams
 from ModelTraining.datamodels.datamodels import Model
+
+from functools import reduce
+from operator import concat
 
 if __name__ == "__main__":
     model_type = "RandomForestRegression"
@@ -9,7 +13,19 @@ if __name__ == "__main__":
 
     exp_params = {"degree": 3, "interaction_only": True, "include_bias": False}
     expansion = ['IdentityExpander', 'PolynomialExpansion']
-    expander_set = ExpanderSet.from_names(expansion, **exp_params)
-    expanded_model = ExpandedModel(expanders=expander_set, model=model, feature_names=[])
+    expanders = FeatureExpansion.from_names(expansion, **exp_params)
+    expander_set = TransformerSet(transformers=expanders)
+    expanded_model = ExpandedModel(transformers=expander_set, model=model, feature_names=[])
 
     estimator = expanded_model.get_estimator()
+
+    selection_params_mic = FeatureSelectionParams(sel_type='MIC-value')
+    selector_mic = FeatureSelector.from_params(selection_params_mic)
+    selection_params_r = FeatureSelectionParams(sel_type='R-value')
+    selector_r = FeatureSelector.from_params(selection_params_r)
+    selectors = [selector_mic, selector_r]
+
+    list_transformers = [expanders[0], selector_mic, expanders[1], selector_r]
+    transformer_set = TransformerSet(list_transformers)
+
+    list_transformers_red = reduce(concat, [[expander, selector] for expander, selector in zip(expanders, selectors)])

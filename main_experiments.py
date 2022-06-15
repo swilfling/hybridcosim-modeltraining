@@ -18,7 +18,7 @@ import argparse
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--usecase_names", type=str, default='CPS-Data,SensorA6,SensorB2,SensorC6,Solarhouse1,Solarhouse2')
-    parser.add_argument("--model_types", type=str, default='RidgeRegression,LassoRegression,RandomForestRegression')
+    parser.add_argument("--model_types", type=str, default='RidgeRegression,LassoRegression,WeightedLS,PLSRegression,RandomForestRegression,RuleFitRegression')
     args = parser.parse_args()
     model_types = model_names = args.model_types.split(",")
     list_usecases = args.usecase_names.split(",")
@@ -84,8 +84,7 @@ if __name__ == '__main__':
                         model_dir = f"{train_params.model_name}/{train_params.model_type}_{train_params.expansion[-1]}"
                         train_utils.save_model_and_params(os.path.join(results_path_thresh, "Models", model_dir),
                                                           model, train_params)
-                        train_utils.save_selectors(os.path.join(results_path_thresh, 'FeatureSelection', model_dir), selectors)
-                        result.save_pkl(results_path_thresh, f'results_{model_type}_{"_".join(train_params.target_features)}_{train_params.expansion[-1]}.pkl')
+                        result.save_pkl(results_path_thresh, f'results_{model_type}_{train_params.str_target_feats()}_{train_params.expansion[-1]}.pkl')
     print('Experiments finished')
 
 # %%
@@ -97,27 +96,29 @@ if __name__ == '__main__':
         feature_set = feat_utils.add_features_to_featureset(dict_usecase, feature_set)
         for feature_sel_params in list_feature_select_params:
             params_name = "_".join(params.get_full_name() for params in feature_sel_params)
-            result_exp = ResultExport(results_root=os.path.join(results_path, usecase_name, params_name), plot_enabled=True)
+            result_exp = ResultExport(results_root=os.path.join(results_path, usecase_name, params_name),
+                                      plot_enabled=True)
             for expansion in expansion_types:
                 for model_type in model_types:
                     for feat in feature_set.get_output_feature_names():
                         # Load results
-                        result = TrainingResults.load_pkl(result_exp.results_root, f'results_{model_type}_{feat}_{expansion[-1]}.pkl')
-                        model = ExpandedModel.load_pkl(os.path.join(result_exp.results_root, f"Models/{feat}/{model_type}_{expansion[-1]}/{feat}"), "expanded_model.pkl")
-                        #model = Model.load(os.path.join(result_exp.results_root, f"Models/{feat}/{model_type}_{expansion[-1]}/{feat}"))
-                        selectors = [FeatureSelector.load_pkl(result_exp.results_root, f'FeatureSelection/{feat}/{model_type}_{expansion[-1]}/selector_{i}.pkl')
-                                     for i, _ in enumerate(expansion)]
+                        result = TrainingResults.load_pkl(result_exp.results_root,
+                                                          f'results_{model_type}_{feat}_{expansion[-1]}.pkl')
+                        model_dir = os.path.join(result_exp.results_root,
+                                                 f"Models/{feat}/{model_type}_{expansion[-1]}/{feat}")
+                        model = ExpandedModel.load_pkl(model_dir, "expanded_model.pkl")
                         # Export model properties
                         result_exp.export_model_properties(model)
+                        result_exp.export_featsel_metrs(model)
                         result_exp.export_result(result, f"{model_type}_{expansion[-1]}")
                         # Calculate metrics
-                        metr_vals_perf = metr_exp.calc_perf_metrics(result, model.expanders.get_num_output_feats())
+                        metr_vals_perf = metr_exp.calc_perf_metrics(result, model.get_num_predictors())
                         metr_vals_white = metr_exp.white_test(result)
-                        metr_vals_featsel = metr_exp.analyze_featsel(selectors)
+                        metr_vals_featsel = metr_exp.analyze_featsel(model.transformers.get_transformers_of_type(FeatureSelector))
                         metr_vals = metr_vals_perf + metr_vals_white + metr_vals_featsel
                         # Set metrics identifiers
                         for metr_val in metr_vals_perf:
-                            metr_val.set_metr_properties(model_type, model.name, model.expanders.type_last_exp(),
+                            metr_val.set_metr_properties(model_type, model.name, model.transformers.type_last_transf(),
                                                          params_name, usecase_name)
                         metr_exp.add_metr_vals(metr_vals_perf)
     metr_exp.store_all_metrics(results_path=metrics_path, timestamp=timestamp)

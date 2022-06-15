@@ -8,7 +8,7 @@ from ModelTraining.Preprocessing.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.Training.predict import predict_history_ar
 from ModelTraining.datamodels.datamodels import Model
-from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpanderSet, ExpandedModel
+from ModelTraining.datamodels.datamodels.wrappers.feature_extension import TransformerSet, ExpandedModel, FeatureExpansion
 from ModelTraining.datamodels.datamodels.processing import DataScaler
 from ModelTraining.Training.GridSearch import best_estimator
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
@@ -64,20 +64,19 @@ if __name__ == '__main__':
                                   x_scaler_class=DataScaler.cls_from_name(training_params.normalizer),
                                   name=training_params.str_target_feats(), parameters={})
     # Create expanded model
-    model = ExpandedModel(expanders=ExpanderSet.from_names(training_params.expansion), model=model_basic)
-
-    list_sel_feat_names = ['Tint_1','Tint_2','Tint_3','Tint_5',
-                           'Text','Text_1','Text_3', 'Text_4',
-                          'GHI','GHI_1','GHI_2','GHI_4']
+    expanders = FeatureExpansion.from_names(training_params.expansion)
+    list_sel_feat_names = ['Tint_1', 'Tint_2', 'Tint_3', 'Tint_5',
+                           'Text', 'Text_1', 'Text_3', 'Text_4',
+                           'GHI', 'GHI_1', 'GHI_2', 'GHI_4']
     selector = SelectorByName(feat_names=feature_names, selected_feat_names=list_sel_feat_names)
-    model.expanders.get_expander_by_index(0).set_feature_select(selector.get_support())
-    model.set_feature_names(feature_names)
-    print(model.expanders.get_expander_by_index(0).selected_features)
+    transformers = TransformerSet(expanders + [selector])
+    model = ExpandedModel(transformers=transformers, model=model_basic)
     # Grid search
     best_params = best_estimator(model, x_train, y_train, parameters={})
     model.get_estimator().set_params(**best_params)
     # Train model
     model.train(x_train, y_train)
+    model.transformers.get_transformer_by_name('selectorbyname').print_metrics()
     # Save Model
     train_utils.save_model_and_params(os.path.join(result_dir, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"), model, training_params)
     # Predict test data

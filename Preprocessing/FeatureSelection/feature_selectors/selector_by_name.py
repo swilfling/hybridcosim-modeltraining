@@ -17,4 +17,4 @@ class SelectorByName(FeatureSelector):
         return np.array([name in self.selected_feat_names for name in self.feature_names_in_])
 
     def _get_support_mask(self):
-        return [name in self.selected_feat_names for name in self.feature_names_in_]
+        return np.array([name in self.selected_feat_names for name in self.feature_names_in_])

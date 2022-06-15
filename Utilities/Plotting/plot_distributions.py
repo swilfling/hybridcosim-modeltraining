@@ -6,8 +6,6 @@ Plot distributions
     - Missing value plot
     - Heatmap
     - Histogram (multiple histograms as subplots)
-    - Scatterplot
-    - Barplot
 """
 import numpy as np
 import seaborn as sns

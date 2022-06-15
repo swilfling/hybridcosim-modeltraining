@@ -3,7 +3,7 @@ from tensorflow import keras
 from ModelTraining.datamodels.datamodels import Model
 from ModelTraining.datamodels.datamodels.processing.datascaler import DataScaler
 from ModelTraining.Utilities.Parameters import TrainingParams
-from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel, ExpanderSet
+from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel, TransformerSet, FeatureExpansion
 
 
 def train_model(model, x_train, y_train):
@@ -24,6 +24,6 @@ def create_model(training_params: TrainingParams, **kwargs):
                             x_scaler_class=DataScaler.cls_from_name(training_params.normalizer),
                             name=training_params.str_target_feats(),
                             train_function=train_model, parameters={})
-    expander_params = kwargs.get('expander_parameters', {})
-    expanded_model = ExpandedModel(expanders=ExpanderSet.from_names(training_params.expansion, **expander_params), model=model)
+    expanders = FeatureExpansion.from_names(training_params.expansion, **kwargs.get('expander_parameters', {}))
+    expanded_model = ExpandedModel(transformers=expanders, model=model)
     return expanded_model

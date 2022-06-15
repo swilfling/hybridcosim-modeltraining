@@ -58,11 +58,10 @@ class ResultExport:
         @param results: List of results - corresponding to models
         @param list_selectors: List of selector sets
         """
-        for model, selectors in zip(models, list_selectors):
-            self.export_featsel_metrs(model.expanders.get_list_expanders(), selectors, model.feature_names)
         for model, result in zip(models, results):
-            model_name = f'{model.name}_{model.expanders.type_last_exp()}'
+            model_name = f'{model.name}_{model.transformers.type_last_transf()}'
             model_name_full = f'{model.model.__class__.__name__}_{model_name}'
+            self.export_featsel_metrs(model)
             self.export_model_properties(model)
             self.export_result(result, model_name_full)
 
@@ -84,20 +83,19 @@ class ResultExport:
                 plt_dist.barplot(df[col], dir, filename=f'Coefficients_{title}', fig_title=f"Coefficients - {title}",
                                  ylabel=ylabel, figsize=(30, 7))
 
-    def export_featsel_metrs(self, expanders:List[FeatureExpansion] , selectors:List[FeatureSelector], feature_names: List[str]):
+    def export_featsel_metrs(self, model: ExpandedModel):
         """
         Export feature selection metrics - Combination of expanders and selectors
-        @param expanders: Expanders - e.g. PolynomialExpansion
-        @param selectors: Feature selectors
-        @param feature_names: basic input feature names
+        @param model: ExpandedModel
         """
         output_dir = os.path.join(self.results_root, self.featsel_dir)
         os.makedirs(output_dir, exist_ok=True)
-        for i, selector in enumerate(selectors):
-            selector.save_pkl(output_dir, f"{selector.__class__.__name__}_{i}.pickle")
+
+        expanders = model.transformers.get_transformers_of_type(FeatureExpansion)
+        selectors = model.transformers.get_transformers_of_type(FeatureSelector)
         for expander, selector in zip(expanders, selectors):
-            feature_names = expander.get_feature_names_out(feature_names)
-            self.export_coeffs(selector.get_coef(), feature_names=feature_names, dir=output_dir,
+            feature_names = expander.get_feature_names_out(model.feature_names)
+            self.export_coeffs(selector.get_coef(), feature_names=selector.get_feature_names_out(feature_names), dir=output_dir,
                                title=f'{selector.__class__.__name__} - {expander.__class__.__name__}',
                                ylabel=str(selector.__class__.__name__))
 
@@ -109,11 +107,11 @@ class ResultExport:
         property_dir = os.path.join(self.results_root, self.property_dir)
         os.makedirs(property_dir, exist_ok=True)
         model_type = model.model.__class__.__name__
-        title = f'{model_type}_{model.name}_{model.expanders.type_last_exp()}'
+        title = f'{model_type}_{model.name}_{model.transformers.type_transf_full()}'
         # Export coefficients
         if model_type in ['RandomForestRegression', 'RidgeRegression', 'LinearRegression']:
             ylabel = 'F-Score' if model_type == 'RandomForestRegression' else 'Coefficients'
-            self.export_coeffs(model.model.get_coef().T, model.get_expanded_feature_names(), property_dir, title, ylabel)
+            self.export_coeffs(model.model.get_coef().T, model.get_transformed_feature_names(), property_dir, title, ylabel)
         if model_type == 'SymbolicRegression':
             metr_utils.dict_to_json({'Program': str(model.model.get_program())},
                                     os.path.join(property_dir, f'Program_{title}.json'))

@@ -3,7 +3,7 @@ import pandas as pd
 
 from typing import List
 from .metrics_vals import MetricsVal, MetrValsSet
-from ...datamodels.datamodels import Model
+from ...datamodels.datamodels.wrappers.feature_extension import ExpandedModel
 from ...datamodels.datamodels.validation import metrics
 from ...datamodels.datamodels.validation.white_test import white_test
 from ..Parameters.trainingresults import TrainingResults
@@ -22,7 +22,7 @@ class MetricsCalc:
 
     ################################# Metrics calculation #############################################################
 
-    def calc_perf_metrics(self, result:TrainingResults, n_predictors=0):
+    def calc_perf_metrics(self, result: TrainingResults, n_predictors=0):
         n_samples = result.train_index.shape[0] + result.test_index.shape[0]
         list_metrs = []
         for feat in result.target_feat_names:
@@ -115,7 +115,7 @@ class MetricsCalc:
             df_metrs.index = df_index
         return df_metrs
 
-    def analyze_featsel_df(self, model: Model, selectors: List[FeatureSelector], df_index=None):
+    def analyze_featsel_df(self, model: ExpandedModel, selectors: List[FeatureSelector], df_index=None):
         """
         Analyze feature selection
         @param model: Model to analyze - expanders are needed to get feature names
@@ -123,7 +123,7 @@ class MetricsCalc:
         @param df_index: Optional: index for dataframe
         @return: pd.DataFrame containing results
         """
-        model_name = f'{model.name}_{model.expanders.type_last_exp()}'
+        model_name = f'{model.name}_{model.transformers.type_transf_full()}'
         df_featsel_full = pd.DataFrame()
         for i, selector in enumerate(selectors):
             sel_metrs = selector.get_metrics()

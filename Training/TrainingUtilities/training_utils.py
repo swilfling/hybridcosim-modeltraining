@@ -26,12 +26,6 @@ def save_model_and_params(results_main_dir, model, training_params: TrainingPara
     training_params.to_file(os.path.join(model_dir, f"parameters_{training_params.model_name}.json"))
 
 
-def save_selectors(results_main_dir, selectors):
-    os.makedirs(results_main_dir, exist_ok=True)
-    for i, selector in enumerate(selectors):
-        selector.save_pkl(results_main_dir,f'selector_{i}.pkl')
-
-
 def set_train_params_model(training_params_basic_config, feature_set, target_feature, model_type, expansion=None):
     training_params = copy.copy(training_params_basic_config)
     training_params.model_type = model_type
