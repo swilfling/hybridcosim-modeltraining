@@ -6,16 +6,22 @@ import copy
 
 from sklearn.model_selection import train_test_split
 
-from ModelTraining.Utilities import type_casting as tc
-from ModelTraining.Utilities.Parameters import TrainingParams
-from ModelTraining.datamodels.datamodels.wrappers.feature_extension import PolynomialExpansion, ExpandedModel
-from ModelTraining.datamodels.datamodels.processing.shape import split_into_target_segments
-from ModelTraining.datamodels.datamodels import Model
+from ...Utilities import type_casting as tc
+from ...Utilities.Parameters import TrainingParams
+from ...datamodels.datamodels.wrappers.feature_extension import PolynomialExpansion, ExpandedModel
+from ...datamodels.datamodels.processing.shape import split_into_target_segments
+from ...datamodels.datamodels import Model
 
 
 ############################# Model saving and plotting ##############################
 
-def save_model_and_params(results_main_dir, model, training_params: TrainingParams):
+def save_model_and_params(model, training_params: TrainingParams, results_main_dir: str="./"):
+    """
+    Save model and training parameters
+    @param results_main_dir: output directory
+    @param model: Model to save
+    @param training_params: training parameters
+    """
     model_dir = os.path.join(results_main_dir, training_params.model_name)
     os.makedirs(model_dir, exist_ok=True)
     # Save model and parameters
@@ -27,6 +33,9 @@ def save_model_and_params(results_main_dir, model, training_params: TrainingPara
 
 
 def set_train_params_model(training_params_basic_config, feature_set, target_feature, model_type, expansion=None):
+    """
+    Set values of training params - Specific for use case with one target feature!
+    """
     training_params = copy.copy(training_params_basic_config)
     training_params.model_type = model_type
     training_params.model_name = target_feature
@@ -41,21 +50,35 @@ def set_train_params_model(training_params_basic_config, feature_set, target_fea
 ################################ Training and test set #######################################################
 
 
-def expand_features(data, static_feature_names, target_feature_names,expander_parameters={}):
+def expand_features(data: pd.DataFrame, feature_names, expander_parameters={}):
+    """
+    Expand features through polynomial expansion
+    @param data: input data
+    @param feature_names: names of features to expand
+    @param expander_parameters: Parameters for polynomial expansion
+    @return: dataframe containing expanded data
+    """
     expander = PolynomialExpansion(**expander_parameters)
-    data_expanded = expander.fit_transform(data[static_feature_names])
-    feature_names_expanded = expander.get_feature_names_out(static_feature_names)
-    data_outputs = data[target_feature_names]
-    data_expanded_df = pd.DataFrame(data_expanded, columns=feature_names_expanded)
-    return data_expanded_df.join(data_outputs.set_index(data_expanded_df.index))
+    data_expanded = expander.fit_transform(data[feature_names])
+    feature_names_expanded = expander.get_feature_names_out(feature_names)
+    return pd.DataFrame(data_expanded, columns=feature_names_expanded)
 
 
 def add_names_to_features(static_feature_names, static_row):
     return {name: val for name, val in zip(static_feature_names, list(static_row.flatten()))}
 
 
-def split_into_training_and_test_set(index, x, y, training_split, shuffle=False):
-    index_train, index_test, x_train, x_test, y_train, y_test = train_test_split(index, x, y, train_size=training_split,shuffle=shuffle)
+def split_into_training_and_test_set(index, x, y, training_split=0.8, shuffle=False):
+    """
+    Split data into training and test set
+    @param index: index (n_samples)
+    @param x: input data (n_samples, lookback + 1, n_features)
+    @param y: target values (n_samples, n_target_features)
+    @training_split: fraction of data to use in training set
+    @param shuffle: use random sampling
+    @return: separated data
+    """
+    index_train, index_test, x_train, x_test, y_train, y_test = train_test_split(index, x, y, train_size=training_split, shuffle=shuffle)
     return index_train, x_train, y_train, index_test, x_test, y_test
 
 
@@ -73,15 +96,15 @@ def extract_training_and_test_set(data, training_params):
     DYNAMIC FEATURES
     shape: number of samples, lookback horizon + 1, number of features
     """
-    dynamic_features = data[training_params.dynamic_input_features + training_params.dynamic_output_features].to_numpy()
+    dynamic_feat_names = training_params.dynamic_input_features + training_params.dynamic_output_features
+    dynamic_features = data[dynamic_feat_names].to_numpy()
     dynamic_features, y = split_into_target_segments(
         features=dynamic_features,
         targets=targets,
         lookback_horizon=lookback_horizon,
         prediction_horizon=prediction_horizon
     )
-    dynamic_feature_names = create_dynamic_feature_names(training_params.dynamic_input_features + training_params.dynamic_output_features,
-                                                                  lookback_horizon)
+    dynamic_feature_names_full = create_dynamic_feature_names(dynamic_feat_names, lookback_horizon)
 
     static_features = None
     if training_params.static_input_features:
@@ -101,7 +124,7 @@ def extract_training_and_test_set(data, training_params):
             (dynamic_features.shape[0], 1, dynamic_features.shape[1] * dynamic_features.shape[2]))
 
     x = tc.combine_static_and_dynamic_features(static_features, dynamic_features)
-    feature_names = training_params.static_input_features + dynamic_feature_names
+    feature_names = training_params.static_input_features + dynamic_feature_names_full
     return index, x, y, feature_names
 
 """

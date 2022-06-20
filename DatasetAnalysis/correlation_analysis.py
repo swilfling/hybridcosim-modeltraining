@@ -51,8 +51,7 @@ if __name__ == '__main__':
             data_analysis.reshape_corrmatrix(corr).to_csv(os.path.join(matrix_path, f'{filename_basic}_flat.csv'))
 
             filename_exp = f'Correlation_{usecase_name}_PolynomialExpansion'
-            expanded_features = train_utils.expand_features(data, features_for_corrmatrix, [],
-                                                            expander_parameters=expander_parameters)
+            expanded_features = train_utils.expand_features(data, features_for_corrmatrix, expander_parameters=expander_parameters)
             corr_exp = data_analysis.corrmatrix(expanded_features)
             data_analysis.reshape_corrmatrix(corr).to_csv(os.path.join(matrix_path, f'{filename_exp}_flat.csv'))
             plt_dist.printHeatMap(corr_exp, matrix_path, filename_exp, vmin=-1, vmax=1, cmap='coolwarm', annot=True, fmt='.2f')
@@ -88,7 +87,7 @@ if __name__ == '__main__':
          print(vif_full)
          print(vif_norm)
 
-         expanded_features = train_utils.expand_features(data, static_data.columns, [],expander_parameters=expander_parameters)
+         expanded_features = train_utils.expand_features(data, static_data.columns,expander_parameters=expander_parameters)
          vif_expanded = data_analysis.calc_vif_df(expanded_features, True)
 
          scaler.fit(expanded_features)

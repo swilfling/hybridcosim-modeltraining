@@ -82,8 +82,8 @@ if __name__ == '__main__':
                                                          prediction_type='ground truth')
                         # Save models
                         model_dir = f"{train_params.model_name}/{train_params.model_type}_{train_params.expansion[-1]}"
-                        train_utils.save_model_and_params(os.path.join(results_path_thresh, "Models", model_dir),
-                                                          model, train_params)
+                        train_utils.save_model_and_params(model, train_params,
+                                                          os.path.join(results_path_thresh, "Models", model_dir))
                         result.save_pkl(results_path_thresh, f'results_{model_type}_{train_params.str_target_feats()}_{train_params.expansion[-1]}.pkl')
     print('Experiments finished')
 

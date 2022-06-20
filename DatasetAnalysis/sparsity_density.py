@@ -66,8 +66,7 @@ if __name__ == '__main__':
                            index_label="Dataset")
 
         cur_data = cur_data.dropna(axis=0)
-        expanded_features = train_utils.expand_features(cur_data, cur_data[features_for_corrmatrix].columns, [],
-                                                        expander_parameters=expander_parameters)
+        expanded_features = train_utils.expand_features(cur_data, features_for_corrmatrix, expander_parameters)
 
         sparsity_exp = np.array([data_analysis.calc_sparsity_abs(expanded_features[feature]) for feature in expanded_features.columns])
         df_sparsity_exp = pd.DataFrame(data=[sparsity_exp], columns=expanded_features.columns, index=[usecase_name])
@@ -188,8 +187,7 @@ if __name__ == '__main__':
             cur_data['SGlobal'][cur_data['SGlobal'] < 30] = 0
 
         cur_data = cur_data.dropna(axis=0)
-        expanded_features = train_utils.expand_features(cur_data, cur_data[features_for_corrmatrix].columns, [],
-                                                        expander_parameters=expander_parameters)
+        expanded_features = train_utils.expand_features(cur_data, features_for_corrmatrix, expander_parameters)
 
         if usecase_name == 'Solarhouse2' or usecase_name == 'Solarhouse1':
             df_tests = data_analysis.norm_stat_tests(cur_data)

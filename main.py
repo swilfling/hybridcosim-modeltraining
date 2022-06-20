@@ -146,7 +146,7 @@ if __name__ == '__main__':
         print("Metrics:")
         print(metrs)
         # Save Model
-        train_utils.save_model_and_params(training_results_path, model, training_parameters)
+        train_utils.save_model_and_params(model, training_parameters, training_results_path)
 
 
 

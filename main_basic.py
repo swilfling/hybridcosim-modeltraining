@@ -78,7 +78,8 @@ if __name__ == '__main__':
     model.train(x_train, y_train)
     model.transformers.get_transformer_by_name('selectorbyname').print_metrics()
     # Save Model
-    train_utils.save_model_and_params(os.path.join(result_dir, f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"), model, training_params)
+    train_utils.save_model_and_params(model, training_params, os.path.join(result_dir,
+                                                                           f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"))
     # Predict test data
     prediction_length = 72
     y_forecast = predict_history_ar(model, index_test, x_test, y_test, training_params, prediction_length=prediction_length, feature_names=feature_names)
