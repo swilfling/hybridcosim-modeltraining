@@ -2,12 +2,12 @@ from abc import abstractmethod
 
 import numpy as np
 from scipy import signal as sig
-from sklearn.base import TransformerMixin
+from sklearn.base import TransformerMixin, _OneToOneFeatureMixin
 
 from ....datamodels.datamodels.wrappers.feature_extension.store_interface import StoreInterface
 
 
-class Filter(TransformerMixin, StoreInterface):
+class Filter(TransformerMixin, StoreInterface, _OneToOneFeatureMixin):
     """
     Signal filter - based on sklearn TransformerMixin. Can be stored to pickle file (StoreInterface).
     Options:

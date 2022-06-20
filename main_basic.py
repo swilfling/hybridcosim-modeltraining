@@ -28,8 +28,9 @@ if __name__ == '__main__':
 
     data = ModelTraining.Preprocessing.get_data_and_feature_set.get_data(
         os.path.join(data_dir_path, dict_usecase['dataset']))
+    data = feat_utils.add_features_to_data(data, dict_usecase)
     feature_set = FeatureSet(os.path.join("./", dict_usecase['fmu_interface']))
-    data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
+    feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
     target_features = feature_set.get_output_feature_names()
 
     # Added: Preprocessing - Smooth features

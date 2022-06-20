@@ -50,7 +50,7 @@ if __name__ == '__main__':
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
-        feature_set = feat_utils.add_features_to_featureset(dict_usecase, feature_set)
+        feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         for feature_sel_params in list_feature_select_params:
             params_name = "_".join(params.get_full_name() for params in feature_sel_params)
             result_exp = ResultExport(results_root=os.path.join(results_path, usecase_name, params_name),

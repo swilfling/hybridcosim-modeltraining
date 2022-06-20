@@ -16,10 +16,10 @@
     ],
     "stat_ws": 24,
     "cyclical_feats": [
-        "daytime_cos"
+        "hour"
     ],
     "onehot_feats": [
-        "hours",
-        "weekdays"
+        "hour",
+        "weekday"
     ]
 }

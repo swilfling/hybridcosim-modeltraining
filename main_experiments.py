@@ -62,9 +62,9 @@ if __name__ == '__main__':
         results_path_dataset = os.path.join(results_path, usecase_name)
         # Get data and feature set
         data = get_data(os.path.join(data_dir, dict_usecase['dataset']))
+        data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
-
-        data, feature_set = feat_utils.add_features(data, feature_set, dict_usecase)
+        feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=False)
         # Main loop
         for feature_sel_params in list_feature_select_params:
@@ -93,7 +93,7 @@ if __name__ == '__main__':
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
-        feature_set = feat_utils.add_features_to_featureset(dict_usecase, feature_set)
+        feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         for feature_sel_params in list_feature_select_params:
             params_name = "_".join(params.get_full_name() for params in feature_sel_params)
             result_exp = ResultExport(results_root=os.path.join(results_path, usecase_name, params_name),
