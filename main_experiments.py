@@ -75,11 +75,11 @@ if __name__ == '__main__':
                     list_train_params = [train_utils.set_train_params_model(trainparams_basic, feature_set, feature, model_type, expansion)
                                          for feature in feature_set.get_output_feature_names()]
                     for train_params in list_train_params:
-                        model, result, selectors = run_training_model(data, train_params,
-                                                                         feature_select_params=feature_sel_params,
-                                                                         model_parameters=parameters_full[model_type],
-                                                                         expander_parameters=expander_parameters,
-                                                                         prediction_type='ground truth')
+                        model, result = run_training_model(data, train_params,
+                                                         feature_select_params=feature_sel_params,
+                                                         model_parameters=parameters_full[model_type],
+                                                         expander_parameters=expander_parameters,
+                                                         prediction_type='ground truth')
                         # Save models
                         model_dir = f"{train_params.model_name}/{train_params.model_type}_{train_params.expansion[-1]}"
                         train_utils.save_model_and_params(os.path.join(results_path_thresh, "Models", model_dir),
