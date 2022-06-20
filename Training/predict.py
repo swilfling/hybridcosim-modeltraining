@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from collections import deque
 from ..datamodels.datamodels.wrappers import AutoRecursive
-from ..Utilities import type_casting as tc
+from ..Utilities import feature_combination as fc
 
 
 def predict_gt(model, df_index, x, y_true, training_params):
@@ -32,12 +32,12 @@ def predict_with_history(model, index_test, x_test, y_true, training_params):
     index_dyn_feats = {feature:np.where(training_params.target_features == feature) for feature in training_params.dynamic_output_features}
     # loop over the testing dataset
     for index, row in enumerate(x_test):
-        dynamic_feature_vector = tc.create_dynamic_feature_vector(training_params.dynamic_output_features, queues, num_lookback_states)
+        dynamic_feature_vector = fc.create_dynamic_feature_vector(training_params.dynamic_output_features, queues, num_lookback_states)
         # Static features
         static_feats = {name: val for name, val in zip(training_params.static_input_features, list(row.flatten()))}
-        static_feature_vector = tc.create_static_feature_vector(static_feats)
+        static_feature_vector = fc.create_static_feature_vector(static_feats)
         # Combine both
-        x = tc.combine_static_and_dynamic_features(static_feature_vector, dynamic_feature_vector)
+        x = fc.combine_static_and_dynamic_features(static_feature_vector, dynamic_feature_vector)
         # Do prediction
         predicted_vals = model.predict(x)[0]
         ## update the queue
