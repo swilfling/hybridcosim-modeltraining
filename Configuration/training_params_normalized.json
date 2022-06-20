@@ -11,9 +11,7 @@
         "training_split": 0.8,
         "flatten_dynamic_input_features": true,
         "normalizer": "Normalizer",
-        "expansion": [
-            "IdentityExpander"
-        ],
+        "expansion": null,
         "epochs": 0,
         "dynamic_output_features": []
     }

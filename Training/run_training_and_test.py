@@ -74,17 +74,16 @@ def run_training_model(data, training_params=TrainingParams(), expander_paramete
 
     # Create model
     logging.info(f"Training model with input of shape: {x_train.shape} and targets of shape {y_train.shape}")
-    model_basic = Model.from_name(training_params.model_type,
+    model = Model.from_name(training_params.model_type,
                                   x_scaler_class=DataScaler.cls_from_name(training_params.normalizer),
                                   name=training_params.str_target_feats(),
                                   parameters={})
-    # Create expanded model
-    expanders = FeatureExpansion.from_names(training_params.expansion, **expander_parameters)
-    selectors = [FeatureSelector.from_params(params) for params in feature_select_params]
-    transformers = reduce(concat, [[expander, selector] for expander, selector in zip(expanders, selectors)])
-    model = ExpandedModel(transformers=TransformerSet(transformers),
-                          model=model_basic,
-                          feature_names=feature_names)
+    # Create expanded model wrapper
+    if training_params.expansion is not None:
+        expanders = FeatureExpansion.from_names(training_params.expansion, **expander_parameters)
+        selectors = [FeatureSelector.from_params(params) for params in feature_select_params]
+        transformers = reduce(concat, [[expander, selector] for expander, selector in zip(expanders, selectors)])
+        model = ExpandedModel(transformers=TransformerSet(transformers), model=model, feature_names=feature_names)
     # Select features + Grid Search
     best_params = best_estimator(model, x_train, y_train, parameters=model_parameters)
     model.get_estimator().set_params(**best_params)

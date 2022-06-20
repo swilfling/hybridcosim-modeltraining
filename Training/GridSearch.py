@@ -22,10 +22,10 @@ def best_estimator(model: Model, x_train: np.ndarray, y_train: np.ndarray, param
         y_train = y_train.ravel()
     x_train = model.reshape_data(x_train)
     x_train, y_train = model.scale(x_train, y_train)
-    if type(model) == ExpandedModel:
+    if isinstance(model, ExpandedModel):
         x_train = model.transformers.fit_transform(x_train, y_train)
     search.fit(x_train, y_train)
-    if type(model) == ExpandedModel:
+    if isinstance(model, ExpandedModel):
         print(f"Best score for model {model.__class__.__name__} - {model.model.__class__.__name__} is: {search.best_score_}")
     else:
         print(f"Best score for model {model.__class__.__name__} is: {search.best_score_}")

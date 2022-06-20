@@ -19,9 +19,9 @@ def save_model_and_params(results_main_dir, model, training_params: TrainingPara
     model_dir = os.path.join(results_main_dir, training_params.model_name)
     os.makedirs(model_dir, exist_ok=True)
     # Save model and parameters
-    if type(model) == Model:
+    if isinstance(model, Model):
         model.save(model_dir)
-    if type(model) == ExpandedModel:
+    if isinstance(model, ExpandedModel):
         model.save_pkl(model_dir, "expanded_model.pkl")
     training_params.to_file(os.path.join(model_dir, f"parameters_{training_params.model_name}.json"))
 
