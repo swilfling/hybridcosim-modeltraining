@@ -33,3 +33,11 @@ class FeatureCreator(TransformerMixin, StoreInterface):
         @return: transformed data
         """
         return []
+
+    def get_feature_names_out(self, feature_names=None):
+        """
+        Get output feature names
+        @param feature_names: input feature names
+        @return: output feature names
+        """
+        return (feature_names if feature_names is not None else []) + self.get_additional_feat_names()

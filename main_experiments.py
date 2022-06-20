@@ -10,7 +10,7 @@ import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_ut
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 from ModelTraining.Preprocessing.get_data_and_feature_set import get_data
 from ModelTraining.Preprocessing.featureset import FeatureSet
-from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel
+from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel, FeatureExpansion
 import os
 import argparse
 
@@ -118,7 +118,8 @@ if __name__ == '__main__':
                         metr_vals = metr_vals_perf + metr_vals_white + metr_vals_featsel
                         # Set metrics identifiers
                         for metr_val in metr_vals_perf:
-                            metr_val.set_metr_properties(model_type, model.name, model.transformers.type_last_transf(),
+                            print(model.transformers.type_last_transf(FeatureExpansion))
+                            metr_val.set_metr_properties(model_type, model.name, model.transformers.type_last_transf(FeatureExpansion),
                                                          params_name, usecase_name)
                         metr_exp.add_metr_vals(metr_vals_perf)
     metr_exp.store_all_metrics(results_path=metrics_path, timestamp=timestamp)

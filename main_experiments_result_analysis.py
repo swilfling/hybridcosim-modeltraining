@@ -6,7 +6,7 @@ from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 from ModelTraining.Preprocessing.featureset import FeatureSet
-from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel
+from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel, FeatureExpansion
 import os
 import argparse
 
@@ -44,7 +44,7 @@ if __name__ == '__main__':
     os.makedirs(metrics_path, exist_ok=True)
     metrics_names = {'FeatureSelect': ['selected_features', 'all_features'], 'Metrics': ['R2_SKLEARN', 'CV-RMS', 'MAPE', 'RA_SKLEARN'], 'pvalues': ['pvalue_lm', 'pvalue_f']}
 
-    # %%
+#%%
     print('Analyzing results')
     metr_exp = MetricsCalc(metr_names=metrics_names)
     for dict_usecase in dict_usecases:
@@ -61,9 +61,9 @@ if __name__ == '__main__':
                         # Load results
                         result = TrainingResults.load_pkl(result_exp.results_root,
                                                           f'results_{model_type}_{feat}_{expansion[-1]}.pkl')
-                        model = ExpandedModel.load_pkl(
-                            os.path.join(result_exp.results_root, f"Models/{feat}/{model_type}_{expansion[-1]}/{feat}"),
-                            "expanded_model.pkl")
+                        model_dir = os.path.join(result_exp.results_root,
+                                                 f"Models/{feat}/{model_type}_{expansion[-1]}/{feat}")
+                        model = ExpandedModel.load_pkl(model_dir, "expanded_model.pkl")
                         # Export model properties
                         result_exp.export_model_properties(model)
                         result_exp.export_featsel_metrs(model)
@@ -75,7 +75,8 @@ if __name__ == '__main__':
                         metr_vals = metr_vals_perf + metr_vals_white + metr_vals_featsel
                         # Set metrics identifiers
                         for metr_val in metr_vals_perf:
-                            metr_val.set_metr_properties(model_type, model.name, model.transformers.type_last_transf(),
+                            print(model.transformers.type_last_transf(FeatureExpansion))
+                            metr_val.set_metr_properties(model_type, model.name, model.transformers.type_last_transf(FeatureExpansion),
                                                          params_name, usecase_name)
                         metr_exp.add_metr_vals(metr_vals_perf)
     metr_exp.store_all_metrics(results_path=metrics_path, timestamp=timestamp)
