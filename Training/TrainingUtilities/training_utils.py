@@ -6,7 +6,7 @@ import copy
 
 from sklearn.model_selection import train_test_split
 
-from ...Utilities import type_casting as tc
+from ...Utilities import feature_combination as fc
 from ...Utilities.Parameters import TrainingParams
 from ...datamodels.datamodels.wrappers.feature_extension import PolynomialExpansion, ExpandedModel
 from ...datamodels.datamodels.processing.shape import split_into_target_segments
@@ -64,10 +64,6 @@ def expand_features(data: pd.DataFrame, feature_names, expander_parameters={}):
     return pd.DataFrame(data_expanded, columns=feature_names_expanded)
 
 
-def add_names_to_features(static_feature_names, static_row):
-    return {name: val for name, val in zip(static_feature_names, list(static_row.flatten()))}
-
-
 def split_into_training_and_test_set(index, x, y, training_split=0.8, shuffle=False):
     """
     Split data into training and test set
@@ -82,7 +78,13 @@ def split_into_training_and_test_set(index, x, y, training_split=0.8, shuffle=Fa
     return index_train, x_train, y_train, index_test, x_test, y_test
 
 
-def extract_training_and_test_set(data, training_params):
+def extract_training_and_test_set(data: pd.DataFrame, training_params: TrainingParams):
+    """
+    Extract training and test set
+    @param data: full dataset
+    @param training_params: training parameters
+    @return: index, x, y, feature names
+    """
     lookback_horizon = training_params.lookback_horizon
     prediction_horizon = training_params.prediction_horizon
 
@@ -90,7 +92,7 @@ def extract_training_and_test_set(data, training_params):
 
     num_targets = len(training_params.target_features)
     num_samples = data.shape[0]
-    targets = np.reshape(data[training_params.target_features].to_numpy(), (num_samples,num_targets))
+    targets = np.reshape(data[training_params.target_features].to_numpy(), (num_samples, num_targets))
 
     """
     DYNAMIC FEATURES
@@ -104,7 +106,8 @@ def extract_training_and_test_set(data, training_params):
         lookback_horizon=lookback_horizon,
         prediction_horizon=prediction_horizon
     )
-    dynamic_feature_names_full = create_dynamic_feature_names(dynamic_feat_names, lookback_horizon)
+    dynamic_feat_names_lag = [f'{name}_{lag}' for lag in range(1,lookback_horizon+1) for name in dynamic_feat_names]
+    dynamic_feature_names_full = dynamic_feat_names + dynamic_feat_names_lag
 
     static_features = None
     if training_params.static_input_features:
@@ -123,7 +126,7 @@ def extract_training_and_test_set(data, training_params):
         dynamic_features = dynamic_features.reshape(
             (dynamic_features.shape[0], 1, dynamic_features.shape[1] * dynamic_features.shape[2]))
 
-    x = tc.combine_static_and_dynamic_features(static_features, dynamic_features)
+    x = fc.combine_static_and_dynamic_features(static_features, dynamic_features)
     feature_names = training_params.static_input_features + dynamic_feature_names_full
     return index, x, y, feature_names
 
@@ -146,6 +149,3 @@ def replace_dataset(data, list_training_parameters, first_train_results_path, lo
 
     return new_dataset
 
-
-def create_dynamic_feature_names(dynamic_feature_names, lookback_horizon):
-    return dynamic_feature_names + [f'{name}_{lag}' for lag in range(1,lookback_horizon+1) for name in dynamic_feature_names]
