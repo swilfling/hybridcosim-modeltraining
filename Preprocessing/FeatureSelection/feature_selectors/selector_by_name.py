@@ -10,8 +10,8 @@ class SelectorByName(FeatureSelector):
     """
     def __init__(self, feat_names=[], selected_feat_names=[], **kwargs):
         super().__init__(**kwargs)
-        self.feature_names_in_ = feat_names
-        self.selected_feat_names = selected_feat_names
+        self.feature_names_in_ = np.array(feat_names)
+        self.selected_feat_names = np.array(selected_feat_names)
 
     def _fit(self, X, y, **fit_params):
         return np.array([name in self.selected_feat_names for name in self.feature_names_in_])
