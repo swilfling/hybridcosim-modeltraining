@@ -1,8 +1,8 @@
 import os
 import pandas as pd
-import ModelTraining.Preprocessing.DataImport.data_import as data_import
-import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
-from . FeatureCreation.feature_creation import create_additional_feats
+from .DataImport import data_import as data_import
+from .DataPreprocessing import data_preprocessing as dp_utils
+from .DataImport.feature_creation import create_additional_feats
 
 
 def get_data(data_filename):

@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
 from statsmodels.stats import outliers_influence as stats
-from scipy.stats import boxcox
 from scipy.stats import kstest
 from scipy.stats import shapiro
 from statsmodels.tsa.stattools import adfuller
