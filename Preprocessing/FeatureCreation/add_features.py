@@ -16,9 +16,8 @@ def add_features_to_featureset(feature_set: FeatureSet, dict_usecase: dict):
     onehot_feats = dict_usecase.get('onehot_feats',[])
     cyclic_feat_cr = CyclicFeatures(cyclic_feats)
     categorical_feat_cr = CategoricalFeatures(onehot_feats)
-    statistical_feat_cr = StatisticalFeatures(dict_usecase.get('stat_feats', []),
-                                              dict_usecase.get('stat_vals', []),
-                                              dict_usecase.get('stat_ws', 1))
+    statistical_feat_cr = StatisticalFeatures(selected_feats=dict_usecase.get('stat_feats', []), statistical_features=dict_usecase.get('stat_vals', []),
+                                              window_size=dict_usecase.get('stat_ws', 1))
     for name in cyclic_feat_cr.get_additional_feat_names() + categorical_feat_cr.get_additional_feat_names():
         feature_set.add_cyclic_input_feature(name)
     # Add statistical features

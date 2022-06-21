@@ -15,14 +15,14 @@ from ModelTraining.Utilities.Plotting import plot_data as plt_utils
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
-from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import SelectorByName
+from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import SelectorByName, MICThreshold
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
 from ModelTraining.Preprocessing.DataPreprocessing.filters import ButterworthFilter
 
 if __name__ == '__main__':
     data_dir_path = "../"
     usecase_config_path = os.path.join("./", 'Configuration','UseCaseConfig')
-    usecase_name = 'Beyond_T24_arx'
+    usecase_name = 'Beyond_B12_LR'
     result_dir = f"./results/{usecase_name}"
     os.makedirs(result_dir, exist_ok=True)
     dict_usecase = data_import.load_from_json(os.path.join(usecase_config_path, f"{usecase_name}.json"))
@@ -33,14 +33,14 @@ if __name__ == '__main__':
     feature_set = FeatureSet(os.path.join("./", dict_usecase['fmu_interface']))
 
     # Added: Preprocessing - Smooth features
-    smoothe_data = True
+    smoothe_data = False
     plot_enabled = True
 
     # Cyclic, categorical and statistical features
     cyclic_feat_cr = CyclicFeatures(dict_usecase.get('cyclical_feats', []))
     categorical_feat_cr = CategoricalFeatures(dict_usecase.get('onehot_feats', []))
-    statistical_feat_cr = StatisticalFeatures(dict_usecase.get('stat_feats', []), dict_usecase.get('stat_vals', []),
-                                              dict_usecase.get('stat_ws', 1))
+    statistical_feat_cr = StatisticalFeatures(selected_feats=dict_usecase.get('stat_feats', []), statistical_features=dict_usecase.get('stat_vals', []),
+                                              window_size=dict_usecase.get('stat_ws', 1))
     preproc_steps = [cyclic_feat_cr, categorical_feat_cr, statistical_feat_cr]
     # Smoothing - filter
     if smoothe_data:
@@ -86,6 +86,7 @@ if __name__ == '__main__':
                            'Text', 'Text_1', 'Text_3', 'Text_4',
                            'GHI', 'GHI_1', 'GHI_2', 'GHI_4']
     selector = SelectorByName(feat_names=feature_names, selected_feat_names=list_sel_feat_names)
+    selector = MICThreshold()
     transformers = TransformerSet(expanders + [selector])
     model = ExpandedModel(transformers=transformers, model=model_basic)
     # Grid search
@@ -93,7 +94,7 @@ if __name__ == '__main__':
     model.get_estimator().set_params(**best_params)
     # Train model
     model.train(x_train, y_train)
-    model.transformers.get_transformer_by_name('selectorbyname').print_metrics()
+    #model.transformers.get_transformer_by_name('selectorbyname').print_metrics()
     # Save Model
     train_utils.save_model_and_params(model, training_params, os.path.join(result_dir,
                                                                            f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"))
@@ -105,7 +106,7 @@ if __name__ == '__main__':
                                       test_index=index_test[:prediction_length + training_params.lookback_horizon + 1],
                                       test_input=x_test[:prediction_length + training_params.lookback_horizon + 1],
                                       target_feat_names=target_features)
-    plt_utils.plot_data(result_forecast.test_result_df(), result_dir, "result_forecast")
+    #plt_utils.plot_data(result_forecast.test_result_df(), result_dir, "result_forecast")
 
     # Calculate and export metrics
     test_prediction = model.predict(x_test)
