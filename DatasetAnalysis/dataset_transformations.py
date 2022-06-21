@@ -3,12 +3,12 @@
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
 from ModelTraining.Preprocessing.get_data_and_feature_set import get_data
 import ModelTraining.Preprocessing.data_analysis as data_analysis
+from ModelTraining.Preprocessing.DataPreprocessing.transformers import SqrtTransform, Boxcox
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
 import ModelTraining.Utilities.Plotting.plot_data as plt_utils
 from ModelTraining.Preprocessing.featureset import FeatureSet
 import os
-import numpy as np
 from ModelTraining.datamodels.datamodels.processing.datascaler import Normalizer
 
 
@@ -22,6 +22,7 @@ if __name__ == '__main__':
 
     dict_usecases = [data_import.load_from_json(os.path.join(usecase_config_path, f"{name}.json")) for name in
                      list_usecases]
+    dict_usecases = [dict_usecases[0]]
 
     interaction_only=True
     matrix_path = "./Figures/Correlation"
@@ -62,13 +63,12 @@ if __name__ == '__main__':
 
         feats_for_density_full = feats_for_density + feature_set.get_output_feature_names()
 
-        scaler = Normalizer()
-        scaler.fit(data)
-        data = scaler.transform(data)
+        data = Normalizer().fit(data).transform(data)
 
         output_dir = os.path.join(density_dir_usecase, 'SqrtTransformation')
         os.makedirs(output_dir, exist_ok=True)
-        vals_sqrt_full = np.sqrt(data[feats_for_density_full])
+        vals_sqrt_full = SqrtTransform(features_to_transform=feats_for_density_full).fit_transform(data)[feats_for_density_full]
+
         fig_title = f'Density - {usecase_name} - Square Root Transformation - nonzero samples'
         plt_dist.plot_density(vals_sqrt_full[feats_for_density], output_dir, filename=fig_title, fig_title=fig_title,
                               omit_zero_samples=True, store_tikz=False)
@@ -120,13 +120,13 @@ if __name__ == '__main__':
 
         feats_for_density_full = feats_for_density + feature_set.get_output_feature_names()
 
-        scaler = Normalizer()
-        scaler.fit(data)
-        data = scaler.transform(data)
+        data = Normalizer().fit(data).transform(data)
 
         output_dir = os.path.join(density_dir_usecase, 'Box-coxTransformation')
         os.makedirs(output_dir, exist_ok=True)
-        boxcox_df = data_analysis.boxcox_transf(data[feats_for_density_full])
+
+        boxcox_df = Boxcox(features_to_transform=feats_for_density_full, omit_zero_samples=False).transform(data)[feats_for_density_full]
+
         fig_title = f'Density - {usecase_name} - Box-cox Transformation - nonzero samples'
         plt_dist.plot_density(boxcox_df[feats_for_density], output_dir, filename=fig_title, fig_title=fig_title,
                               omit_zero_samples=True, store_tikz=False)

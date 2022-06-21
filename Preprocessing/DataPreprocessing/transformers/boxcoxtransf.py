@@ -9,9 +9,9 @@ class Boxcox(Transformer_SelectedFeats):
     Box-cox transformation - supports only samples > 0
     """
     omit_zero_samples = False
-    offset = 0.00001
+    offset = 0.000001
 
-    def __init__(self, omit_zero_samples=False, offset=0.00001, **kwargs):
+    def __init__(self, omit_zero_samples=False, offset=0.000001, **kwargs):
         self.omit_zero_samples = omit_zero_samples
         self.offset = offset
         super().__init__(**kwargs)

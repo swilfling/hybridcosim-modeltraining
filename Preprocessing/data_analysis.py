@@ -100,26 +100,6 @@ def calc_skew_kurtosis(data: pd.DataFrame, omit_zero_samples=False):
     else:
         return data.agg(selected_metrics)
 
-############################################ Transformations ###########################################################
-
-
-def boxcox_transf(data: pd.DataFrame, omit_zero_samples=False, offset=0.000001):
-    """
-    Box-Cox Transformation
-    https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.boxcox.html?highlight=boxcox#scipy.stats.boxcox
-    @param data: pandas dataframe
-    @param omit_zero_samples: do not transform zero samples
-    @param offset: offset to prevent zero values if not omitting zero samples
-    @return: transformed df
-    """
-    df = pd.DataFrame(columns=data.columns, index=data.index)
-    for feat in data.columns:
-        if omit_zero_samples:
-            cur_feat = data[feat][data[feat] != 0]
-        else:
-            cur_feat = data[feat] + np.min(data[feat]) + offset
-        df[feat] = boxcox(cur_feat)[0]
-    return df
 
 ############################################# Tests ####################################################################
 
