@@ -14,7 +14,7 @@ def preprocess_data(data: pd.DataFrame, features_to_smoothe: List[str], do_smoot
     """
     if do_smoothe:
         filter = ButterworthFilter(order=2, T=10, keep_nans=keep_nans, remove_offset=True,
-                                   features_to_filter=features_to_smoothe)
+                                   features_to_transform=features_to_smoothe)
         data = filter.fit_transform(data)
 
     data = data.astype('float')

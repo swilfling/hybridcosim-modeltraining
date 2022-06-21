@@ -45,7 +45,7 @@ if __name__ == '__main__':
     # Smoothing - filter
     if smoothe_data:
         preproc_steps.insert(0, ButterworthFilter(order=2, T=10, keep_nans=False, remove_offset=True,
-                               features_to_filter=dict_usecase['to_smoothe']))
+                               features_to_transform=dict_usecase['to_smoothe']))
 
     preproc = make_pipeline(*preproc_steps, 'passthrough')
     data = preproc.fit_transform(data)

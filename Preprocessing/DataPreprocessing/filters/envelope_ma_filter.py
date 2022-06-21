@@ -20,7 +20,7 @@ class Envelope_MA(Filter):
     def _fit(self, X, y=None, **fit_params):
         return None
 
-    def _transform(self, X):
+    def _transform_feats(self, X):
         """
         Calculate envelope.
         This is taken from https://stackoverflow.com/a/69357933

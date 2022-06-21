@@ -1,7 +1,6 @@
 from ModelTraining.Preprocessing.get_data_and_feature_set import get_data
-from ModelTraining.Preprocessing.FeatureCreation.categoricalfeatures import CategoricalFeatures, \
-    CategoricalFeaturesDivider
-from ModelTraining.Preprocessing.FeatureCreation.cyclicfeatures import CyclicFeatures, CyclicFeaturesSampleTime
+from ModelTraining.Preprocessing.FeatureCreation.featurecreators import CategoricalFeatures, CategoricalFeaturesDivider,\
+    CyclicFeatures, CyclicFeaturesSampleTime
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
