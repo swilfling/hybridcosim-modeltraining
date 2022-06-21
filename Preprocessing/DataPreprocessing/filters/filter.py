@@ -1,8 +1,8 @@
 from abc import abstractmethod
-
+import pandas as pd
 import numpy as np
 from scipy import signal as sig
-from sklearn.base import TransformerMixin, _OneToOneFeatureMixin
+from sklearn.base import TransformerMixin
 
 from ....datamodels.datamodels.wrappers.feature_extension.store_interface import StoreInterface
 
@@ -73,7 +73,10 @@ class Filter(TransformerMixin, StoreInterface):
         @param x: Input feature vector (n_samples, n_features)
         """
         # Select features to filter
-        X_to_filter = X[:, self.features_to_filter] if self.features_to_filter is not None else X
+        if self.features_to_filter is not None:
+            X_to_filter = X[self.features_to_filter] if isinstance(X, pd.DataFrame) else X[:, self.features_to_filter]
+        else:
+            X_to_filter = X
         # Remove offset
         if self.remove_offset:
             X_to_filter = self.offset_comp.fit_transform(X_to_filter)
@@ -91,7 +94,10 @@ class Filter(TransformerMixin, StoreInterface):
         # Add non-selected features
         if self.features_to_filter is not None:
             x_filt_new = X
-            x_filt_new[:, self.features_to_filter] = x_filt
+            if isinstance(X, pd.DataFrame):
+                x_filt_new[self.features_to_filter] = x_filt
+            else:
+                x_filt_new[:, self.features_to_filter] = x_filt
             return x_filt_new
         return x_filt
 

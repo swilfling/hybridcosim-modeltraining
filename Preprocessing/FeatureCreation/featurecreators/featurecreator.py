@@ -1,5 +1,5 @@
 from sklearn.base import TransformerMixin
-from ...datamodels.datamodels.wrappers.feature_extension import StoreInterface
+from ....datamodels.datamodels.wrappers.feature_extension import StoreInterface
 
 
 class FeatureCreator(TransformerMixin, StoreInterface):
@@ -12,7 +12,7 @@ class FeatureCreator(TransformerMixin, StoreInterface):
         self.selected_feats = selected_feats
         pass
 
-    def fit(self, X, y, **fit_params):
+    def fit(self, X, y=None, **fit_params):
         """
         Fit to data. This function is not used here
         """

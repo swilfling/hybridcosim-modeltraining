@@ -13,7 +13,9 @@ def preprocess_data(data: pd.DataFrame, features_to_smoothe: List[str], do_smoot
         @return: pre-processed data
     """
     if do_smoothe:
-        data = smoothe_data(data, features_to_smoothe, keep_nans)
+        filter = ButterworthFilter(order=2, T=10, keep_nans=keep_nans, remove_offset=True,
+                                   features_to_filter=features_to_smoothe)
+        data = filter.fit_transform(data)
 
     data = data.astype('float')
     data = data.dropna(axis=0)
@@ -36,17 +38,5 @@ def demod_signals(data: pd.DataFrame, labels: List[str], keep_nans=True, T_mod=2
     return data
 
 
-def smoothe_data(data: pd.DataFrame, features_to_smoothe: List[str], keep_nans=False):
-    """
-    Smoothe signals through Butterworth filter
-    @param data: Data
-    @param features_to_smoothe: Labels of features to smoothe
-    @param keep_nans: Keep NaN values during smoothing
-    @return: dataframe containing smoothed values
-    """
-    filter = ButterworthFilter(order=2, T=10, keep_nans=keep_nans)
-    filtered_vals = filter.fit_transform(data[features_to_smoothe].to_numpy())
-    data[features_to_smoothe] = filtered_vals
-    return data
 
 

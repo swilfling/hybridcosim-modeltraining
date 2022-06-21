@@ -88,6 +88,20 @@ class FeatureSet:
     def add_feature(self, feature):
         self.features.append(feature)
 
+    def add_cyclic_input_feature(self, name:str=""):
+        self.add_feature(Feature(name=name, static=True, cyclic=True, input=True, init=0, models=self.get_output_feature_names()))
+
+    def add_cyclic_input_features(self, names: List[str] = []):
+        for name in names:
+            self.add_cyclic_input_feature(name)
+
+    def add_statistial_input_feature(self, name:str=""):
+        self.add_feature(Feature(name=name, static=True, statistical=True, input=True, init=0, models=self.get_output_feature_names()))
+
+    def add_statistical_input_features(self, names: List[str] = []):
+        for name in names:
+            self.add_statistial_input_feature(name)
+
     def remove_feature_by_name(self, name):
         for feature in self.features:
             if feature.name == name:

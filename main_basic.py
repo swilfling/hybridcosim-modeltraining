@@ -1,7 +1,7 @@
 import os
 import logging
-import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
-import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
+from sklearn.pipeline import make_pipeline
+from ModelTraining.Preprocessing.FeatureCreation.featurecreators import CyclicFeatures, StatisticalFeatures, CategoricalFeatures
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import ModelTraining.datamodels.datamodels.validation.white_test
 from ModelTraining.Preprocessing.featureset import FeatureSet
@@ -11,12 +11,13 @@ from ModelTraining.datamodels.datamodels import Model
 from ModelTraining.datamodels.datamodels.wrappers.feature_extension import TransformerSet, ExpandedModel, FeatureExpansion
 from ModelTraining.datamodels.datamodels.processing import DataScaler
 from ModelTraining.Training.GridSearch import best_estimator
+from ModelTraining.Utilities.Plotting import plot_data as plt_utils
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import SelectorByName
-import ModelTraining.Utilities.Plotting.plot_data as plt_utils
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
+from ModelTraining.Preprocessing.DataPreprocessing.filters import ButterworthFilter
 
 if __name__ == '__main__':
     data_dir_path = "../"
@@ -28,16 +29,32 @@ if __name__ == '__main__':
 
     data = ModelTraining.Preprocessing.get_data_and_feature_set.get_data(
         os.path.join(data_dir_path, dict_usecase['dataset']))
-    data = feat_utils.add_features_to_data(data, dict_usecase)
+
     feature_set = FeatureSet(os.path.join("./", dict_usecase['fmu_interface']))
-    feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
-    target_features = feature_set.get_output_feature_names()
 
     # Added: Preprocessing - Smooth features
-    smoothe_data = False
+    smoothe_data = True
     plot_enabled = True
 
-    model_type = "RuleFitRegression"
+    # Cyclic, categorical and statistical features
+    cyclic_feat_cr = CyclicFeatures(dict_usecase.get('cyclical_feats', []))
+    categorical_feat_cr = CategoricalFeatures(dict_usecase.get('onehot_feats', []))
+    statistical_feat_cr = StatisticalFeatures(dict_usecase.get('stat_feats', []), dict_usecase.get('stat_vals', []),
+                                              dict_usecase.get('stat_ws', 1))
+    preproc_steps = [cyclic_feat_cr, categorical_feat_cr, statistical_feat_cr]
+    # Smoothing - filter
+    if smoothe_data:
+        preproc_steps.insert(0, ButterworthFilter(order=2, T=10, keep_nans=False, remove_offset=True,
+                               features_to_filter=dict_usecase['to_smoothe']))
+
+    preproc = make_pipeline(*preproc_steps, 'passthrough')
+    data = preproc.fit_transform(data)
+
+    feature_set.add_cyclic_input_features(cyclic_feat_cr.get_additional_feat_names() + categorical_feat_cr.get_additional_feat_names())
+    feature_set.add_statistical_input_features(statistical_feat_cr.get_additional_feat_names())
+    target_features = feature_set.get_output_feature_names()
+
+    model_type = "LinearRegression"
 
     training_params = TrainingParams(model_type=model_type,
                                        model_name="Energy",
@@ -51,8 +68,6 @@ if __name__ == '__main__':
                                        normalizer="Normalizer",
                                        expansion=['IdentityExpander'])
 
-    # Preprocess data
-    data = dp_utils.preprocess_data(data, dict_usecase["to_smoothe"], do_smoothe=smoothe_data)
 
     # Extract data and reshape
     index, x, y, feature_names = ModelTraining.Training.TrainingUtilities.training_utils.extract_training_and_test_set(data, training_params)
@@ -64,6 +79,7 @@ if __name__ == '__main__':
     model_basic = Model.from_name(training_params.model_type,
                                   x_scaler_class=DataScaler.cls_from_name(training_params.normalizer),
                                   name=training_params.str_target_feats(), parameters={})
+
     # Create expanded model
     expanders = FeatureExpansion.from_names(training_params.expansion)
     list_sel_feat_names = ['Tint_1', 'Tint_2', 'Tint_3', 'Tint_5',
