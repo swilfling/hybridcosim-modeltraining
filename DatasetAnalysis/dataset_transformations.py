@@ -3,7 +3,7 @@
 import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
 from ModelTraining.Preprocessing.get_data_and_feature_set import get_data
 import ModelTraining.Preprocessing.data_analysis as data_analysis
-from ModelTraining.Preprocessing.DataPreprocessing.transformers import SqrtTransform, Boxcox
+from ModelTraining.Preprocessing.DataPreprocessing.transformers import SqrtTransform, Boxcox, Diff
 import ModelTraining.Preprocessing.DataImport.data_import as data_import
 import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
 import ModelTraining.Utilities.Plotting.plot_data as plt_utils
@@ -180,13 +180,12 @@ if __name__ == '__main__':
 
         feats_for_density_full = feats_for_density + feature_set.get_output_feature_names()
 
-        scaler = Normalizer()
-        scaler.fit(data)
-        data = scaler.transform(data)
+        data = Normalizer().fit(data).transform(data)
+        diff_df = Diff(features_to_transform=feats_for_density_full).fit_transform(data)[feats_for_density_full]
 
         output_dir = os.path.join(density_dir_usecase, 'Differencing')
         os.makedirs(output_dir, exist_ok=True)
-        diff_df = data[feats_for_density_full].diff()
+
         fig_title = f'Density - {usecase_name} - Differencing - nonzero samples'
         plt_dist.plot_density(diff_df[feats_for_density], output_dir, filename=fig_title, fig_title=fig_title,
                               omit_zero_samples=True, store_tikz=False)
