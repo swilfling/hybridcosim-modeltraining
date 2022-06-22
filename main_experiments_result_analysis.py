@@ -1,12 +1,12 @@
-import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
+import ModelTraining.Preprocessing.add_features as feat_utils
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
-from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams
-from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import FeatureSelector
+from ModelTraining.Preprocessing.feature_selectors import FeatureSelectionParams, FeatureSelector
+from ModelTraining.Preprocessing.feature_expanders import FeatureExpansion
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
-import ModelTraining.Preprocessing.DataImport.data_import as data_import
+from ModelTraining.Preprocessing.dataimport.data_import import load_from_json
 from ModelTraining.Preprocessing.featureset import FeatureSet
-from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel, FeatureExpansion
+from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel
 import os
 import argparse
 
@@ -25,15 +25,15 @@ if __name__ == '__main__':
     trainparams_basic = TrainingParams.load(os.path.join(root_dir, 'Configuration', 'training_params_normalized.json'))
 
     # Model parameters and expansion parameters
-    parameters_full = {model_type: data_import.load_from_json(os.path.join(root_dir, 'Configuration/GridSearchParameters', f'parameters_{model_type}.json')) for model_type in model_types}
+    parameters_full = {model_type: load_from_json(os.path.join(root_dir, 'Configuration/GridSearchParameters', f'parameters_{model_type}.json')) for model_type in model_types}
     expansion_types = [['IdentityExpander','IdentityExpander'],['IdentityExpander','PolynomialExpansion']]
-    expander_parameters = data_import.load_from_json(os.path.join(root_dir, 'Configuration','expander_params_PolynomialExpansion.json' ))
+    expander_parameters = load_from_json(os.path.join(root_dir, 'Configuration','expander_params_PolynomialExpansion.json' ))
     # Feature selection
     list_feature_select_params = [[FeatureSelectionParams('MIC-value',0.05), FeatureSelectionParams('R-value',0.05)]]
 
     # Use cases
     usecase_config_path = os.path.join(root_dir, 'Configuration/UseCaseConfig')
-    dict_usecases = [data_import.load_from_json(os.path.join(usecase_config_path, f"{name}.json")) for name in
+    dict_usecases = [load_from_json(os.path.join(usecase_config_path, f"{name}.json")) for name in
                      list_usecases]
 
     # Results output

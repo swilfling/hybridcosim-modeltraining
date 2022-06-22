@@ -1,12 +1,13 @@
 #%%
 
-import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
+import ModelTraining.Preprocessing.add_features as feat_utils
 from ModelTraining.Preprocessing.featureset import FeatureSet
-import ModelTraining.Preprocessing.get_data_and_feature_set
 import ModelTraining.Preprocessing.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
-import ModelTraining.Preprocessing.DataImport.data_import as data_import
+import ModelTraining.Preprocessing.dataimport.data_import as data_import
+from ModelTraining.Preprocessing.dataimport import DataImport
 import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
+from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 import os
 import numpy as np
 import pandas as pd
@@ -18,10 +19,10 @@ if __name__ == '__main__':
     root_dir = "../"
     data_dir = "../../"
     # Added: Preprocessing - Smooth features
-    usecase_config_path = os.path.join(root_dir, 'Configuration/UseCaseConfig')
+    config_path = os.path.join(root_dir, 'Configuration')
     list_usecases = ['CPS-Data', 'SensorA6', 'SensorB2', 'SensorC6', 'Solarhouse1','Solarhouse2']
 
-    dict_usecases = [data_import.load_from_json(os.path.join(usecase_config_path, f"{name}.json")) for name in
+    dict_usecases = [data_import.load_from_json(os.path.join(config_path,"UseCaseConfig", f"{name}.json")) for name in
                      list_usecases]
 
     interaction_only=True
@@ -39,13 +40,16 @@ if __name__ == '__main__':
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
         # Get data and feature set
-        data = get_data(os.path.join(data_dir, dict_usecase['dataset']))
+        data_import = DataImport.load(
+            os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
+        data = data_import.import_data(
+            os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
         data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
-        #data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=True)
+        data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'],dict_usecase['dataset_filename'], do_smoothe=False)
 
         features_for_corrmatrix = [feature.name for feature in feature_set.get_input_feats() if
                                    not feature.cyclic and not feature.statistical]
@@ -87,13 +91,16 @@ if __name__ == '__main__':
         os.makedirs(density_dir_usecase, exist_ok=True)
 
         # Get data and feature set
-        ddata = get_data(os.path.join(data_dir, dict_usecase['dataset']))
+        data_import = DataImport.load(
+            os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
+        data = data_import.import_data(
+            os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
         data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
-        #data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=True)
+        data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'],dict_usecase['dataset_filename'], do_smoothe=False)
 
         feats_for_density = [feature.name for feature in feature_set.get_input_feats() if
                              not feature.cyclic and not feature.statistical]
@@ -130,13 +137,16 @@ if __name__ == '__main__':
         density_dir_usecase = os.path.join(density_dir, usecase_name)
         os.makedirs(density_dir_usecase, exist_ok=True)
         # Get data and feature set
-        data = get_data(os.path.join(data_dir, dict_usecase['dataset']))
+        data_import = DataImport.load(
+            os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
+        data = data_import.import_data(
+            os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
         data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
-        # data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=True)
+        data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'],dict_usecase['dataset_filename'], do_smoothe=False)
 
         feats_for_density = [feature.name for feature in feature_set.get_input_feats() if
                              not feature.cyclic and not feature.statistical]
@@ -169,12 +179,16 @@ if __name__ == '__main__':
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
         # Get data and feature set
-        data = get_data(os.path.join(data_dir, dict_usecase['dataset']))
+        data_import = DataImport.load(
+            os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
+        data = data_import.import_data(
+            os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
         data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
-
+        data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], dict_usecase['dataset_filename'],
+                                        do_smoothe=False)
         features_for_corrmatrix = [feature.name for feature in feature_set.get_input_feats() if
                                    not feature.cyclic and not feature.statistical]
         if usecase_name in ['CPS-Data', 'SensorA6', 'SensorB2', 'SensorC6']:

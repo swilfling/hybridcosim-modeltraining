@@ -1,10 +1,11 @@
-from ModelTraining.Preprocessing.get_data_and_feature_set import get_data
-from ModelTraining.Preprocessing.FeatureCreation.featurecreators import CategoricalFeatures, CategoricalFeaturesDivider,\
+from ModelTraining.Preprocessing.dataimport import DataImport
+from ModelTraining.Preprocessing.featurecreators import CategoricalFeatures, CategoricalFeaturesDivider,\
     CyclicFeatures, CyclicFeaturesSampleTime
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
-    data = get_data("../../Data/AEE/Resampled15min.csv")
+    data = DataImport.load("../Configuration/DataImport/Resampled15min.json").import_data(
+        "../../Data/AEE/Resampled15min")
     cyc_feats = CyclicFeatures()
     print(data.columns)
     data_tr = cyc_feats.transform(data)

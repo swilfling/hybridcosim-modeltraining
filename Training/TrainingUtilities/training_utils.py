@@ -8,7 +8,8 @@ from sklearn.model_selection import train_test_split
 
 from ...Utilities import feature_combination as fc
 from ...Utilities.Parameters import TrainingParams
-from ...datamodels.datamodels.wrappers.feature_extension import PolynomialExpansion, ExpandedModel
+from ...datamodels.datamodels.wrappers.feature_extension import ExpandedModel
+from ...Preprocessing.feature_expanders import PolynomialExpansion
 from ...datamodels.datamodels.processing.shape import split_into_target_segments
 from ...datamodels.datamodels import Model
 

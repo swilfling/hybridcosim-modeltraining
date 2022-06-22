@@ -1,7 +1,8 @@
 {
     "name":"Solarhouse2",
     "fmu_interface":"Configuration/FMUInterface/Solarhouse2/SolarCollector/FMUInterface_TSolar_eq.csv",
-    "dataset":"Data/AEE/P2017_20_Solarhouse_2.hd5",
+    "dataset_dir": "Data/AEE/",
+    "dataset_filename": "P2017_20_Solarhouse_2",
     "stat_feats": ["T_Aussen", "R_Global", "T_Solar_RL"],
     "to_smoothe": ["T_Aussen", "R_Global", "T_Solar_RL", "T_Solar_VL", "Vd_Solar_inv"],
     "stat_vals": [],

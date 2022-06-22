@@ -1,5 +1,5 @@
 from sklearn.base import TransformerMixin
-from ....datamodels.datamodels.wrappers.feature_extension import StoreInterface
+from ...datamodels.datamodels.wrappers.feature_extension import StoreInterface
 
 
 class FeatureCreator(TransformerMixin, StoreInterface):

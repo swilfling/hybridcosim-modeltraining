@@ -2,11 +2,12 @@ import os
 from typing import List
 import pandas as pd
 
-from ...Preprocessing.FeatureSelection.feature_selectors import FeatureSelector
+from ...Preprocessing.feature_selectors import FeatureSelector
+from ...Preprocessing.feature_expanders import FeatureExpansion
 from . import metr_utils
 from ..Parameters import TrainingResults
 from ..Plotting import plot_data as plt_utils
-from ...datamodels.datamodels.wrappers.feature_extension import ExpandedModel, FeatureExpansion
+from ...datamodels.datamodels.wrappers.feature_extension import ExpandedModel
 
 
 class ResultExport:

@@ -1,16 +1,16 @@
 #%%
-import ModelTraining.Preprocessing.FeatureCreation.add_features as feat_utils
+import ModelTraining.Preprocessing.add_features as feat_utils
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
-from ModelTraining.Preprocessing.FeatureSelection import FeatureSelectionParams
-from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import FeatureSelector
+from ModelTraining.Preprocessing.feature_selectors import FeatureSelectionParams, FeatureSelector
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Training.run_training_and_test import run_training_model
+from ModelTraining.Preprocessing.dataimport import DataImport
 from ModelTraining.Utilities.MetricsExport import MetricsCalc, ResultExport, metr_utils
-import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
-import ModelTraining.Preprocessing.DataImport.data_import as data_import
-from ModelTraining.Preprocessing.get_data_and_feature_set import get_data
+import ModelTraining.Preprocessing.data_preprocessing as dp_utils
+from ModelTraining.Preprocessing.dataimport.data_import import load_from_json
 from ModelTraining.Preprocessing.featureset import FeatureSet
-from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel, FeatureExpansion
+from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel
+from ModelTraining.Preprocessing.feature_expanders import FeatureExpansion
 import os
 import argparse
 
@@ -30,15 +30,15 @@ if __name__ == '__main__':
     trainparams_basic = TrainingParams.load(os.path.join(root_dir, 'Configuration', 'training_params_normalized.json'))
 
     # Model parameters and expansion parameters
-    parameters_full = {model_type: data_import.load_from_json(os.path.join(root_dir, 'Configuration/GridSearchParameters', f'parameters_{model_type}.json')) for model_type in model_types}
+    parameters_full = {model_type: load_from_json(os.path.join(root_dir, 'Configuration/GridSearchParameters', f'parameters_{model_type}.json')) for model_type in model_types}
     expansion_types = [['IdentityExpander','IdentityExpander'],['IdentityExpander','PolynomialExpansion']]
-    expander_parameters = data_import.load_from_json(os.path.join(root_dir, 'Configuration','expander_params_PolynomialExpansion.json' ))
+    expander_parameters = load_from_json(os.path.join(root_dir, 'Configuration','expander_params_PolynomialExpansion.json' ))
     # Feature selection
     list_feature_select_params = [[FeatureSelectionParams('MIC-value',0.05), FeatureSelectionParams('R-value',0.05)]]
 
     # Use cases
-    usecase_config_path = os.path.join(root_dir, 'Configuration/UseCaseConfig')
-    dict_usecases = [data_import.load_from_json(os.path.join(usecase_config_path, f"{name}.json")) for name in
+    config_path = os.path.join(root_dir, 'Configuration')
+    dict_usecases = [load_from_json(os.path.join(config_path,"UseCaseConfig", f"{name}.json")) for name in
                      list_usecases]
 
     # Results output
@@ -61,11 +61,14 @@ if __name__ == '__main__':
         usecase_name = dict_usecase['name']
         results_path_dataset = os.path.join(results_path, usecase_name)
         # Get data and feature set
-        data = get_data(os.path.join(data_dir, dict_usecase['dataset']))
+        data_import = DataImport.load(
+            os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
+        data = data_import.import_data(
+            os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
         data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
-        data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], do_smoothe=False)
+        data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], dict_usecase['dataset_filename'], do_smoothe=False)
         # Main loop
         for feature_sel_params in list_feature_select_params:
             params_name = "_".join(params.get_full_name() for params in feature_sel_params)

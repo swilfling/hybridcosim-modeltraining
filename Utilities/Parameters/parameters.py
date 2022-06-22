@@ -1,9 +1,7 @@
-import dataclasses
 import json
 from dataclasses import dataclass
 
-@dataclass
-class Parameters:
+class JSONInterface:
     def __init__(self, **kwargs):
         pass
 
@@ -16,7 +14,7 @@ class Parameters:
             fp.write(self.to_json())
 
     def to_json(self):
-        dict_file = {"Type": type(self).__name__, "Parameters": dataclasses.asdict(self)}
+        dict_file = {"Type": type(self).__name__, "Parameters": self.__dict__}
         return str(json.dumps(dict_file))
 
     @classmethod
@@ -37,6 +35,9 @@ class Parameters:
     def load(cls, filename="testbench_params.json"):
         with open(filename, "r") as f:
             return cls.from_json(json.load(f))
+
+@dataclass
+class Parameters(JSONInterface):
 
     @staticmethod
     def store_parameters_list(parameters_list, path_full):

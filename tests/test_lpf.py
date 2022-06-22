@@ -1,5 +1,5 @@
-from ModelTraining.Preprocessing.DataPreprocessing.filters import ButterworthFilter, Filter
-from ModelTraining.Preprocessing.get_data_and_feature_set import get_data
+from ModelTraining.Preprocessing.dataimport import DataImport
+from ModelTraining.Preprocessing.filters import ButterworthFilter, Filter
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
@@ -18,7 +18,8 @@ if __name__ == "__main__":
     print(filter_3.order)
     print(filter_3.coef_)
 
-    data = get_data("../../Data/AEE/Resampled15min.csv")
+    data = DataImport.load("../Configuration/DataImport/Resampled15min.json").import_data(
+        "../../Data/AEE/Resampled15min")
     filter_4 = ButterworthFilter(features_to_transform=['TSolarVL'], T=20)
     filter_4.fit(data)
     data_tr = filter_4.transform(data)

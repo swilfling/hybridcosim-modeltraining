@@ -1,0 +1,1 @@
+{"Type": "ExcelImport", "Parameters": {"freq": "1H", "index_col": "datetime", "cols_to_rename": {"time": "daytime", "consumption [kWh]": "energy"}, "cols_to_drop": [], "fmt": "xlsx"}}

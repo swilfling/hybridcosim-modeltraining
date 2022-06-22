@@ -3,8 +3,8 @@ from sklearn.base import BaseEstimator
 from sklearn.feature_selection import SelectorMixin
 
 from .. import feature_selectors
-from ..feature_selection_params import FeatureSelectionParams
-from ....datamodels.datamodels.wrappers.feature_extension import StoreInterface
+from .feature_selection_params import FeatureSelectionParams
+from ...datamodels.datamodels.wrappers.feature_extension import StoreInterface
 
 
 class FeatureSelector(SelectorMixin, BaseEstimator, StoreInterface):

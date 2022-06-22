@@ -1,7 +1,8 @@
 {
     "name":"Solarhouse1_VDSGlobal",
     "fmu_interface":"Configuration/FMUInterface/Solarhouse1/SolarCollector/FMUInterface_Solar_VDSGlobal.csv",
-    "dataset":"Data/AEE/Resampled15min.csv",
+    "dataset_dir": "Data/AEE/",
+    "dataset_filename": "Resampled15min",
     "stat_feats": ["TAussen", "SGlobal", "TSolarRL"],
     "to_smoothe": ["TAussen", "SGlobal", "TSolarRL", "TSolarVL","SGlobal_VDSolar_inv","TAussen_VDSolar_inv","TSolarRL_VDSolar_inv"],
     "stat_vals": [],

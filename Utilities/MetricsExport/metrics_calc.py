@@ -7,7 +7,7 @@ from ...datamodels.datamodels.wrappers.feature_extension import ExpandedModel
 from ...datamodels.datamodels.validation import metrics
 from ...datamodels.datamodels.validation.white_test import white_test
 from ..Parameters.trainingresults import TrainingResults
-from ...Preprocessing.FeatureSelection.feature_selectors import FeatureSelector
+from ...Preprocessing.feature_selectors import FeatureSelector
 
 
 class MetricsCalc:

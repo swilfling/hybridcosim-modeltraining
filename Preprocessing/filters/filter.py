@@ -4,7 +4,7 @@ from scipy import signal as sig
 from sklearn.base import TransformerMixin
 
 from ..transformers.transformer_selectedfeats import Transformer_SelectedFeats
-from ....datamodels.datamodels.wrappers.feature_extension.store_interface import StoreInterface
+from ...datamodels.datamodels.wrappers.feature_extension.store_interface import StoreInterface
 
 
 class OffsetComp(TransformerMixin, StoreInterface):

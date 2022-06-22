@@ -4,26 +4,28 @@ import numpy as np
 import pathlib
 from sklearn.model_selection import TimeSeriesSplit
 from ModelTraining.Preprocessing.featureset import FeatureSet
-from ModelTraining.Preprocessing.get_data_and_feature_set import get_data
+from ModelTraining.Preprocessing.dataimport.data_import import load_from_json
 from ModelTraining.Utilities.Parameters import TrainingResults, TrainingParams
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Utilities.Plotting.plot_data as plt_utils
 from ModelTraining.Training.predict import predict_gt, predict_with_history
-
-import ModelTraining.Preprocessing.DataPreprocessing.data_preprocessing as dp_utils
-import ModelTraining.Preprocessing.DataImport.data_import as data_import
+import ModelTraining.Preprocessing.data_preprocessing as dp_utils
+from ModelTraining.Preprocessing.dataimport import DataImport
 import ModelTraining.datamodels.datamodels.validation.metrics as metrics
+from ModelTraining.Preprocessing.feature_expanders import FeatureExpansion
 from ModelTraining.datamodels.datamodels import Model
-from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel, FeatureExpansion, TransformerSet
+from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel, TransformerSet
 from ModelTraining.datamodels.datamodels.processing import DataScaler
 
 
 if __name__ == '__main__':
     hybridcosim_path = "../"
+    config_path = os.path.join(hybridcosim_path,'ModelTraining', 'Configuration')
     usecase_config_path = os.path.join(hybridcosim_path,'ModelTraining', 'Configuration','UseCaseConfig')
     name = 'CPS-Data'
-    dict_usecase = data_import.load_from_json(os.path.join(usecase_config_path, f"{name}.json"))
-    data = get_data(os.path.join(hybridcosim_path, dict_usecase['dataset']))
+    dict_usecase = load_from_json(os.path.join(config_path,"UseCaseConfig", f"{name}.json"))
+    data_import = DataImport.load(os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
+    data = data_import.import_data(os.path.join(hybridcosim_path, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
     feature_set = FeatureSet(os.path.join("./", dict_usecase['fmu_interface']))
     # Get training and target features
     target_features = feature_set.get_output_feature_names()
@@ -31,7 +33,7 @@ if __name__ == '__main__':
 
     # Added: Preprocessing - Smooth features
     smoothe_data = False
-    data = dp_utils.preprocess_data(data, dict_usecase["to_smoothe"], do_smoothe=smoothe_data)
+    data = dp_utils.preprocess_data(data, dict_usecase["to_smoothe"],dict_usecase['dataset_filename'], do_smoothe=smoothe_data)
 
     print("Starting Training")
 

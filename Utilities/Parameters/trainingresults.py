@@ -45,12 +45,13 @@ class TrainingResults(StoreInterface):
         @param col_names: optional: define column names for dataframe
         @return: dataframe containing results
         """
+        test_prediction = np.zeros(self.test_target.shape) if self.test_prediction is None else self.test_prediction
         if feat == "":
-            return pd.DataFrame(index=self.test_index, data=np.hstack((self.test_target, self.test_prediction)),
+            return pd.DataFrame(index=self.test_index, data=np.hstack((self.test_target, test_prediction)),
                                 columns=self._get_df_cols() if col_names == [] else col_names)
         else:
             feat_ind = self.target_feat_names.index(feat)
-            return pd.DataFrame(index=self.test_index, data=np.vstack((self.test_target[:,feat_ind],self.test_prediction[:,feat_ind])).T,
+            return pd.DataFrame(index=self.test_index, data=np.vstack((self.test_target[:,feat_ind], test_prediction[:,feat_ind])).T,
                                 columns=[f'GroundTruth_{feat}', f'Prediction_{feat}'])
 
     def test_target_vals(self, feat=""):

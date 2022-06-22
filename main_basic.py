@@ -1,40 +1,42 @@
 import os
 import logging
 from sklearn.pipeline import make_pipeline
-from ModelTraining.Preprocessing.FeatureCreation.featurecreators import CyclicFeatures, StatisticalFeatures, CategoricalFeatures
-import ModelTraining.Preprocessing.DataImport.data_import as data_import
+from ModelTraining.Preprocessing import data_preprocessing as dp_utils
+from ModelTraining.Preprocessing.featurecreators import CyclicFeatures, StatisticalFeatures, CategoricalFeatures
+from ModelTraining.Preprocessing.dataimport.data_import import DataImport, load_from_json
 import ModelTraining.datamodels.datamodels.validation.white_test
 from ModelTraining.Preprocessing.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.Training.predict import predict_history_ar
 from ModelTraining.datamodels.datamodels import Model
-from ModelTraining.datamodels.datamodels.wrappers.feature_extension import TransformerSet, ExpandedModel, FeatureExpansion
+from ModelTraining.datamodels.datamodels.wrappers.feature_extension import TransformerSet, ExpandedModel
+from ModelTraining.Preprocessing.feature_expanders import FeatureExpansion
 from ModelTraining.datamodels.datamodels.processing import DataScaler
-from ModelTraining.Training.GridSearch import best_estimator
+from ModelTraining.Training.GridSearch import best_estimator, best_pipeline
 from ModelTraining.Utilities.Plotting import plot_data as plt_utils
 from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
-from ModelTraining.Preprocessing.FeatureSelection.feature_selectors import SelectorByName, MICThreshold
+from ModelTraining.Preprocessing.feature_selectors import SelectorByName, MICThreshold
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
-from ModelTraining.Preprocessing.DataPreprocessing.filters import ButterworthFilter
+from ModelTraining.Preprocessing.filters import ButterworthFilter
 
 if __name__ == '__main__':
     data_dir_path = "../"
-    usecase_config_path = os.path.join("./", 'Configuration','UseCaseConfig')
-    usecase_name = 'Beyond_B12_LR'
+    config_path = os.path.join("./", 'Configuration')
+    usecase_name = 'Beyond_T24_arx'
     result_dir = f"./results/{usecase_name}"
     os.makedirs(result_dir, exist_ok=True)
-    dict_usecase = data_import.load_from_json(os.path.join(usecase_config_path, f"{usecase_name}.json"))
-
-    data = ModelTraining.Preprocessing.get_data_and_feature_set.get_data(
-        os.path.join(data_dir_path, dict_usecase['dataset']))
-
+    dict_usecase = load_from_json(os.path.join(config_path,'UseCaseConfig', f"{usecase_name}.json"))
+    data_import = DataImport.load(os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
+    data = data_import.import_data(os.path.join(data_dir_path, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
     feature_set = FeatureSet(os.path.join("./", dict_usecase['fmu_interface']))
 
     # Added: Preprocessing - Smooth features
     smoothe_data = False
     plot_enabled = True
+
+    data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], filename=dict_usecase['dataset_filename'], do_smoothe=smoothe_data)
 
     # Cyclic, categorical and statistical features
     cyclic_feat_cr = CyclicFeatures(dict_usecase.get('cyclical_feats', []))
@@ -85,28 +87,33 @@ if __name__ == '__main__':
     list_sel_feat_names = ['Tint_1', 'Tint_2', 'Tint_3', 'Tint_5',
                            'Text', 'Text_1', 'Text_3', 'Text_4',
                            'GHI', 'GHI_1', 'GHI_2', 'GHI_4']
-    selector = SelectorByName(feat_names=feature_names, selected_feat_names=list_sel_feat_names)
-    selector = MICThreshold()
+    #selector = SelectorByName(feat_names=feature_names, selected_feat_names=list_sel_feat_names)
+    selector = MICThreshold(thresh=0.2)
     transformers = TransformerSet(expanders + [selector])
-    model = ExpandedModel(transformers=transformers, model=model_basic)
+    model = ExpandedModel(transformers=transformers, model=model_basic, feature_names=feature_names)
     # Grid search
+    #parameters = {"micthreshold__thresh": [0.1, 0.2, 0.3, 0.5, 0.75]}
+    #best_params = best_pipeline(model, x_train, y_train, parameters=parameters)
+    #print(best_params)
+    #model.transformers.get_transformer_by_name("micthreshold").set_params(thresh=best_params['micthreshold__thresh'])
     best_params = best_estimator(model, x_train, y_train, parameters={})
     model.get_estimator().set_params(**best_params)
     # Train model
     model.train(x_train, y_train)
-    #model.transformers.get_transformer_by_name('selectorbyname').print_metrics()
+    selector.print_metrics()
     # Save Model
     train_utils.save_model_and_params(model, training_params, os.path.join(result_dir,
                                                                            f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"))
     # Predict test data
-    prediction_length = 72
+    prediction_length = 7
+    print(feature_names)
     y_forecast = predict_history_ar(model, index_test, x_test, y_test, training_params, prediction_length=prediction_length, feature_names=feature_names)
     result_forecast = TrainingResults(test_target=y_test[:prediction_length + training_params.lookback_horizon + 1],
                                       test_prediction=y_forecast,
                                       test_index=index_test[:prediction_length + training_params.lookback_horizon + 1],
                                       test_input=x_test[:prediction_length + training_params.lookback_horizon + 1],
                                       target_feat_names=target_features)
-    #plt_utils.plot_data(result_forecast.test_result_df(), result_dir, "result_forecast")
+    plt_utils.plot_data(result_forecast.test_result_df(), result_dir, "result_forecast")
 
     # Calculate and export metrics
     test_prediction = model.predict(x_test)
@@ -124,5 +131,6 @@ if __name__ == '__main__':
     # Export results
     result_exp = ResultExport(results_root=result_dir, plot_enabled=True)
     result_exp.export_result(result_data)
+    result_exp.export_featsel_metrs(model)
     result_exp.export_model_properties(model)
     print('Experiment finished')
