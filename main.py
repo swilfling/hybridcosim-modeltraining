@@ -3,18 +3,19 @@ import logging
 import numpy as np
 import pathlib
 from sklearn.model_selection import TimeSeriesSplit
-from ModelTraining.Preprocessing.featureset import FeatureSet
-from ModelTraining.Preprocessing.dataimport.data_import import load_from_json
-from ModelTraining.Utilities.Parameters import TrainingResults, TrainingParams
+from ModelTraining.feature_engineering.featureset import FeatureSet
+from ModelTraining.dataimport.data_import import load_from_json
+from ModelTraining.feature_engineering.parameters import TrainingParams
+from ModelTraining.Utilities import TrainingResults
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Utilities.Plotting.plot_data as plt_utils
 from ModelTraining.Training.predict import predict_gt, predict_with_history
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils
-from ModelTraining.Preprocessing.dataimport import DataImport
+from ModelTraining.dataimport import DataImport
 import ModelTraining.datamodels.datamodels.validation.metrics as metrics
-from ModelTraining.Preprocessing.feature_expanders import FeatureExpansion
+from ModelTraining.feature_engineering.feature_expanders import FeatureExpansion
 from ModelTraining.datamodels.datamodels import Model
-from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel, TransformerSet
+from ModelTraining.feature_engineering.expandedmodel import ExpandedModel, TransformerSet
 from ModelTraining.datamodels.datamodels.processing import DataScaler
 
 

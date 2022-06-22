@@ -3,9 +3,9 @@ from typing import List
 from numpy.core.multiarray import asarray
 from sklearn.metrics import mean_absolute_error
 
-import ModelTraining.Training.TrainingUtilities.training_utils
-from ModelTraining.Training.predict import predict_gt
-from ModelTraining.Utilities.Parameters import TrainingParams
+import ModelTraining
+from .predict import predict_gt
+from ..feature_engineering.parameters import TrainingParams
 from ..datamodels.datamodels.processing.datascaler import DataScaler
 from ..datamodels.datamodels import Model
 

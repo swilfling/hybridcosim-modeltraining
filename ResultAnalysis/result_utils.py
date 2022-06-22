@@ -2,8 +2,7 @@ import os
 
 import pandas as pd
 from matplotlib import pyplot as plt
-from ModelTraining.Utilities.Parameters import TrainingResults
-
+from ..Utilities import TrainingResults
 
 def env_max(maxvals, windowsize):
     maxvals_downsampled = maxvals.rolling(window=windowsize).max().drop_duplicates()

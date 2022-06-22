@@ -6,12 +6,13 @@ from operator import concat
 from .TrainingUtilities import training_utils as train_utils
 from .predict import predict_with_history
 from .GridSearch import best_estimator
-from ..Preprocessing.feature_selectors import FeatureSelector, FeatureSelectionParams
-from ..Utilities.Parameters import TrainingParams, TrainingResults
+from ModelTraining.feature_engineering.feature_selectors import FeatureSelector, FeatureSelectionParams
+from ModelTraining.feature_engineering.parameters import TrainingParams
+from ..Utilities.trainingresults import TrainingResults
 from ..datamodels.datamodels.processing.datascaler import DataScaler
 from ..datamodels.datamodels import Model
-from ..datamodels.datamodels.wrappers.feature_extension import ExpandedModel, TransformerSet
-from ..Preprocessing.feature_expanders import FeatureExpansion
+from ModelTraining.feature_engineering.expandedmodel import ExpandedModel, TransformerSet
+from ModelTraining.feature_engineering.feature_expanders import FeatureExpansion
 
 
 def run_training_and_test(data, list_training_parameters: List[TrainingParams], prediction_type="History", **kwargs):

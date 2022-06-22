@@ -2,24 +2,25 @@ import os
 import logging
 from sklearn.pipeline import make_pipeline
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
-from ModelTraining.Preprocessing.featurecreators import CyclicFeatures, StatisticalFeatures, CategoricalFeatures
-from ModelTraining.Preprocessing.dataimport.data_import import DataImport, load_from_json
+from ModelTraining.feature_engineering.featurecreators import CyclicFeatures, StatisticalFeatures, CategoricalFeatures
+from ModelTraining.dataimport.data_import import DataImport, load_from_json
 import ModelTraining.datamodels.datamodels.validation.white_test
-from ModelTraining.Preprocessing.featureset import FeatureSet
+from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.Training.predict import predict_history_ar
 from ModelTraining.datamodels.datamodels import Model
-from ModelTraining.datamodels.datamodels.wrappers.feature_extension import TransformerSet, ExpandedModel
-from ModelTraining.Preprocessing.feature_expanders import FeatureExpansion
+from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
+from ModelTraining.feature_engineering.feature_expanders import FeatureExpansion
 from ModelTraining.datamodels.datamodels.processing import DataScaler
-from ModelTraining.Training.GridSearch import best_estimator, best_pipeline
+from ModelTraining.Training.GridSearch import best_estimator
 from ModelTraining.Utilities.Plotting import plot_data as plt_utils
-from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
+from ModelTraining.feature_engineering.parameters import TrainingParams
+from ModelTraining.Utilities import TrainingResults
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
-from ModelTraining.Preprocessing.feature_selectors import SelectorByName, MICThreshold
+from ModelTraining.feature_engineering.feature_selectors import MICThreshold
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
-from ModelTraining.Preprocessing.filters import ButterworthFilter
+from ModelTraining.feature_engineering.filters import ButterworthFilter
 
 if __name__ == '__main__':
     data_dir_path = "../"

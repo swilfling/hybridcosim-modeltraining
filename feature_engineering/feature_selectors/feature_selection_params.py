@@ -1,4 +1,4 @@
-from ...Utilities.Parameters.parameters import Parameters
+from ..parameters import Parameters
 from dataclasses import dataclass
 
 

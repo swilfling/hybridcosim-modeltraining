@@ -1,12 +1,12 @@
 #%%
 
 import ModelTraining.Preprocessing.add_features as feat_utils
-from ModelTraining.Preprocessing.featureset import FeatureSet
-from ModelTraining.Preprocessing.dataimport import DataImport
+from ModelTraining.feature_engineering.featureset import FeatureSet
+from ModelTraining.dataimport import DataImport
 import ModelTraining.Preprocessing.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils
-import ModelTraining.Preprocessing.dataimport.data_import as data_import
+import ModelTraining.dataimport.data_import as data_import
 import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
 import os
 from ModelTraining.datamodels.datamodels.processing.datascaler import Normalizer

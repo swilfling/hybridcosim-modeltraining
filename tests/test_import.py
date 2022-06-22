@@ -1,4 +1,4 @@
-from ModelTraining.Preprocessing.dataimport import CSVImport, ExcelImport, HDFImport, DataImport
+from ModelTraining.dataimport import CSVImport, ExcelImport, HDFImport, DataImport
 
 if __name__ == "__main__":
     data_filename_solarhouse1 = "../../Data/AEE/Resampled15min"

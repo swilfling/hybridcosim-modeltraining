@@ -1,8 +1,8 @@
 from sklearn.base import TransformerMixin
-from ...datamodels.datamodels.wrappers.feature_extension import StoreInterface
+from ..interfaces.pickleinterface import PickleInterface
 
 
-class FeatureCreator(TransformerMixin, StoreInterface):
+class FeatureCreator(TransformerMixin, PickleInterface):
     """
     Basic feature creator
     """

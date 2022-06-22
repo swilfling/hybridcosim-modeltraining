@@ -1,7 +1,7 @@
 from ModelTraining.datamodels.datamodels.processing.datascaler import DataScaler
-from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel, TransformerSet
-from ModelTraining.Preprocessing.feature_expanders import FeatureExpansion
-from ModelTraining.Preprocessing.feature_selectors import FeatureSelector, FeatureSelectionParams
+from ModelTraining.feature_engineering.expandedmodel import ExpandedModel, TransformerSet
+from ModelTraining.feature_engineering.feature_expanders import FeatureExpansion
+from ModelTraining.feature_engineering.feature_selectors import FeatureSelector, FeatureSelectionParams
 from ModelTraining.datamodels.datamodels import Model
 
 from functools import reduce

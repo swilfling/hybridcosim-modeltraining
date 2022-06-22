@@ -1,10 +1,10 @@
 import pandas as pd
 from sklearn.base import TransformerMixin
 
-from ModelTraining.datamodels.datamodels.wrappers.feature_extension import StoreInterface
+from ..interfaces.pickleinterface import PickleInterface
 
 
-class Transformer_SelectedFeats(TransformerMixin, StoreInterface):
+class Transformer_SelectedFeats(TransformerMixin, PickleInterface):
     """
     Transform only selected features - keep other features
     """

@@ -3,10 +3,10 @@ from typing import List
 
 from sklearn.base import TransformerMixin
 from abc import abstractmethod
-from ...datamodels.datamodels.wrappers.feature_extension.store_interface import StoreInterface
+from ..interfaces.pickleinterface import PickleInterface
 
 
-class FeatureExpansion(TransformerMixin, StoreInterface):
+class FeatureExpansion(TransformerMixin, PickleInterface):
     """
     Feature Expansion
     Base class for feature expansion transformers.

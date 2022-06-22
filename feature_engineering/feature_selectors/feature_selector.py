@@ -4,10 +4,10 @@ from sklearn.feature_selection import SelectorMixin
 
 from .. import feature_selectors
 from .feature_selection_params import FeatureSelectionParams
-from ...datamodels.datamodels.wrappers.feature_extension import StoreInterface
+from ..interfaces.pickleinterface import PickleInterface
 
 
-class FeatureSelector(SelectorMixin, BaseEstimator, StoreInterface):
+class FeatureSelector(SelectorMixin, BaseEstimator, PickleInterface):
     """
         FeatureSelector - implements SelectorMixin interface, can be stored to pickle.
         Basic implementation: threshold

@@ -1,12 +1,12 @@
 from dataclasses import dataclass
-from ModelTraining.datamodels.datamodels.wrappers.feature_extension import StoreInterface
+from ModelTraining.feature_engineering.interfaces import PickleInterface
 import numpy as np
 import os
 import pandas as pd
 from typing import List
 
 @dataclass
-class TrainingResults(StoreInterface):
+class TrainingResults(PickleInterface):
     """
     This class contains the results for training and test set.
     """

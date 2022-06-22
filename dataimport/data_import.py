@@ -3,7 +3,7 @@ import os
 import numpy as np
 import pandas as pd
 from typing import List
-from ...Utilities.Parameters.parameters import JSONInterface
+from ModelTraining.feature_engineering.interfaces import JSONInterface
 
 
 class DataImport(JSONInterface):

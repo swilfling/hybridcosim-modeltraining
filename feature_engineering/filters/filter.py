@@ -4,10 +4,10 @@ from scipy import signal as sig
 from sklearn.base import TransformerMixin
 
 from ..transformers.transformer_selectedfeats import Transformer_SelectedFeats
-from ...datamodels.datamodels.wrappers.feature_extension.store_interface import StoreInterface
+from ..interfaces.pickleinterface import PickleInterface
 
 
-class OffsetComp(TransformerMixin, StoreInterface):
+class OffsetComp(TransformerMixin, PickleInterface):
     offset = None
 
     def __init__(self, **kwargs):
@@ -24,7 +24,7 @@ class OffsetComp(TransformerMixin, StoreInterface):
         return X + self.offset
 
 
-class NaNComp(TransformerMixin, StoreInterface):
+class NaNComp(TransformerMixin, PickleInterface):
     mask_nan = None
 
     def __init__(self, **kwargs):

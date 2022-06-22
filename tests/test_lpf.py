@@ -1,5 +1,5 @@
-from ModelTraining.Preprocessing.dataimport import DataImport
-from ModelTraining.Preprocessing.filters import ButterworthFilter, Filter
+from ModelTraining.dataimport import DataImport
+from ModelTraining.feature_engineering.filters import ButterworthFilter, Filter
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":

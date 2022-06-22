@@ -1,12 +1,13 @@
 import ModelTraining.Preprocessing.add_features as feat_utils
-from ModelTraining.Utilities.Parameters import TrainingParams, TrainingResults
-from ModelTraining.Preprocessing.feature_selectors import FeatureSelectionParams, FeatureSelector
-from ModelTraining.Preprocessing.feature_expanders import FeatureExpansion
+from ModelTraining.feature_engineering.parameters import TrainingParams
+from ModelTraining.Utilities import TrainingResults
+from ModelTraining.feature_engineering.feature_selectors import FeatureSelectionParams, FeatureSelector
+from ModelTraining.feature_engineering.feature_expanders import FeatureExpansion
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
-from ModelTraining.Preprocessing.dataimport.data_import import load_from_json
-from ModelTraining.Preprocessing.featureset import FeatureSet
-from ModelTraining.datamodels.datamodels.wrappers.feature_extension import ExpandedModel
+from ModelTraining.dataimport.data_import import load_from_json
+from ModelTraining.feature_engineering.featureset import FeatureSet
+from ModelTraining.feature_engineering.expandedmodel import ExpandedModel
 import os
 import argparse
 

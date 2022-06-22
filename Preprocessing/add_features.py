@@ -1,6 +1,6 @@
 import pandas as pd
-from .featurecreators import CategoricalFeatures, CyclicFeatures, StatisticalFeatures
-from .featureset import FeatureSet
+from ..feature_engineering.featurecreators import CategoricalFeatures, CyclicFeatures, StatisticalFeatures
+from ..feature_engineering.featureset import FeatureSet
 from sklearn.pipeline import make_pipeline
 
 

@@ -1,5 +1,5 @@
-from ModelTraining.Preprocessing.dataimport import DataImport
-from ModelTraining.Preprocessing.featurecreators import CategoricalFeatures, CategoricalFeaturesDivider,\
+from ModelTraining.dataimport import DataImport
+from ModelTraining.feature_engineering.featurecreators import CategoricalFeatures, CategoricalFeaturesDivider,\
     CyclicFeatures, CyclicFeaturesSampleTime
 import matplotlib.pyplot as plt
 

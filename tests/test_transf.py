@@ -1,6 +1,6 @@
-from ModelTraining.Preprocessing.transformers import Boxcox
+from ModelTraining.feature_engineering.transformers import Boxcox
 from ModelTraining.datamodels.datamodels.processing import Normalizer
-from ModelTraining.Preprocessing.dataimport import DataImport
+from ModelTraining.dataimport import DataImport
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
