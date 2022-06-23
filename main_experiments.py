@@ -36,6 +36,7 @@ if __name__ == '__main__':
     expander_parameters = load_from_json(os.path.join(root_dir, 'Configuration','expander_params_PolynomialExpansion.json' ))
 
     transformer_params_basic = [{'Type': 'MICThreshold', 'Parameters': {'thresh': 0.05}},
+                                {'Type': 'IdentityExpander'},
                                 {'Type': 'RThreshold', 'Parameters': {'thresh': 0.05}}]
 
     transformer_params_poly = [{'Type': 'MICThreshold', 'Parameters': {'thresh': 0.05}},
@@ -81,18 +82,16 @@ if __name__ == '__main__':
             results_path_thresh = os.path.join(results_path_dataset, params_name)
             for transformer_params in list_transformer_params:
                 for model_type in model_types:
-                    list_train_params = [train_utils.set_train_params_model(trainparams_basic, feature_set, feature, model_type)
+                    list_train_params = [train_utils.set_train_params_model(trainparams_basic, feature_set, feature, model_type, transformer_params)
                                          for feature in feature_set.get_output_feature_names()]
-
-                    for train_params in list_train_params:
-                        train_params.transformers = transformer_params
-                        model, result = run_training_model(data, train_params, model_parameters=parameters_full[model_type],
+                    for training_params in list_train_params:
+                        model, result = run_training_model(data, training_params, model_parameters=parameters_full[model_type],
                                                          prediction_type='ground truth')
                         # Save models
-                        model_dir = f"{train_params.model_name}/{train_params.model_type}_{train_params.str_expansion()}"
-                        train_utils.save_model_and_params(model, train_params,
+                        model_dir = f"{training_params.model_name}/{training_params.model_type}_{training_params.str_expansion()}"
+                        train_utils.save_model_and_params(model, training_params,
                                                           os.path.join(results_path_thresh, "Models", model_dir))
-                        result.save_pkl(results_path_thresh, f'results_{model_type}_{train_params.str_target_feats()}_{train_params.str_expansion()}.pkl')
+                        result.save_pkl(results_path_thresh, f'results_{model_type}_{training_params.str_target_feats()}_{training_params.str_expansion()}.pkl')
     print('Experiments finished')
 
 # %%

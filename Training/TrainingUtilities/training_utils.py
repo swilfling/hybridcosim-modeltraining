@@ -7,7 +7,7 @@ import copy
 from sklearn.model_selection import train_test_split
 
 from ...Utilities import feature_combination as fc
-from ModelTraining.feature_engineering.parameters import TrainingParams
+from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded
 from ModelTraining.feature_engineering.expandedmodel import ExpandedModel
 from ModelTraining.feature_engineering.feature_expanders import PolynomialExpansion
 from ...datamodels.datamodels.processing.shape import split_into_target_segments
@@ -33,7 +33,7 @@ def save_model_and_params(model, training_params: TrainingParams, results_main_d
     training_params.to_file(os.path.join(model_dir, f"parameters_{training_params.model_name}.json"))
 
 
-def set_train_params_model(training_params_basic_config, feature_set, target_feature, model_type):
+def set_train_params_model(training_params_basic_config, feature_set, target_feature, model_type, transformer_params=None):
     """
     Set values of training params - Specific for use case with one target feature!
     """
@@ -44,6 +44,8 @@ def set_train_params_model(training_params_basic_config, feature_set, target_fea
     training_params.static_input_features = feature_set.get_static_input_feature_names(target_feature)
     training_params.dynamic_input_features = feature_set.get_dynamic_input_feature_names(target_feature)
     training_params.dynamic_output_features = feature_set.get_dynamic_output_feature_names(target_feature)
+    if isinstance(training_params_basic_config, TrainingParamsExpanded) and transformer_params is not None:
+        training_params.transformers = transformer_params
     return training_params
 
 

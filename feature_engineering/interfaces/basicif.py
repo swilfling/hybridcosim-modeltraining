@@ -1,9 +1,9 @@
 class BasicInterface:
 
     @classmethod
-    def from_name(cls, cls_type: str):
+    def cls_from_name(cls, cls_type: str):
         """
-        Get type of class from string (subclass of StoreInterface)
+        Get type of class from string (subclass of instance)
         Returns None if non-existent.
         @param cls_type: class name
         @return: class type
@@ -14,6 +14,16 @@ class BasicInterface:
             if cls_type == subcl.__name__:
                 return subcl
         return None
+
+    @classmethod
+    def from_name(cls, cls_type: str, **kwargs):
+        """
+        Get instance of class from string (subclass of interface)
+        Returns None if non-existent.
+        @param cls_type: class name
+        @return: instance
+        """
+        return cls.cls_from_name(cls_type)(**kwargs) if cls.cls_from_name(cls_type) is not None else None
 
     @classmethod
     def _get_subclasses(cls, list_subclasses=[]):

@@ -73,7 +73,8 @@ def run_training_model(data, training_params=TrainingParams(), model_parameters=
                                   parameters={})
     # Create expanded model wrapper
     if isinstance(training_params, TrainingParamsExpanded):
-        transformers = [BasicInterface.from_name(transformer_params['Type'])(**transformer_params['Parameters']) for transformer_params in training_params.transformers]
+        transformers = [BasicInterface.from_name(params['Type'], **params.get('Parameters', {}))
+                        for params in training_params.transformers]
         model = ExpandedModel(transformers=TransformerSet(transformers), model=model, feature_names=feature_names)
     # Select features + Grid Search
     best_params = best_estimator(model, x_train, y_train, parameters=model_parameters)
