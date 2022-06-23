@@ -1,5 +1,5 @@
 {
-    "Type": "TrainingParams",
+    "Type": "TrainingParamsExpanded",
     "Parameters": {
         "model_type": "LinearRegression",
         "model_name": "",
@@ -11,7 +11,6 @@
         "training_split": 0.7,
         "flatten_dynamic_input_features": true,
         "normalizer": "IdentityScaler",
-        "expansion": ["IdentityExpander"],
         "epochs": 0,
         "dynamic_output_features": []
     }

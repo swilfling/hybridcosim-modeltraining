@@ -1,8 +1,8 @@
 #%%
 import ModelTraining.Preprocessing.add_features as feat_utils
-from ModelTraining.feature_engineering.parameters import TrainingParams
+from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded
 from ModelTraining.Utilities import TrainingResults
-from ModelTraining.feature_engineering.feature_selectors import FeatureSelectionParams, FeatureSelector
+from ModelTraining.feature_engineering.feature_selectors import FeatureSelector
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Training.run_training_and_test import run_training_model
 from ModelTraining.dataimport import DataImport
@@ -28,14 +28,21 @@ if __name__ == '__main__':
     plot_enabled = False
 
     # basic training params
-    trainparams_basic = TrainingParams.load(os.path.join(root_dir, 'Configuration', 'training_params_normalized.json'))
+    trainparams_basic = TrainingParamsExpanded.load(os.path.join(root_dir, 'Configuration', 'training_params_normalized.json'))
 
     # Model parameters and expansion parameters
-    parameters_full = {model_type: load_from_json(os.path.join(root_dir, 'Configuration/GridSearchParameters', f'parameters_{model_type}.json')) for model_type in model_types}
-    expansion_types = [['IdentityExpander','IdentityExpander'],['IdentityExpander','PolynomialExpansion']]
+    params_dir =os.path.join(root_dir, 'Configuration/GridSearchParameters')
+    parameters_full = {model_type: load_from_json(os.path.join(params_dir, f'parameters_{model_type}.json')) for model_type in model_types}
     expander_parameters = load_from_json(os.path.join(root_dir, 'Configuration','expander_params_PolynomialExpansion.json' ))
-    # Feature selection
-    list_feature_select_params = [[FeatureSelectionParams('MIC-value',0.05), FeatureSelectionParams('R-value',0.05)]]
+
+    transformer_params_basic = [{'Type': 'MICThreshold', 'Parameters': {'thresh': 0.05}},
+                                {'Type': 'RThreshold', 'Parameters': {'thresh': 0.05}}]
+
+    transformer_params_poly = [{'Type': 'MICThreshold', 'Parameters': {'thresh': 0.05}},
+                          {'Type': 'PolynomialExpansion', 'Parameters': expander_parameters},
+                          {'Type': 'RThreshold', 'Parameters': {'thresh': 0.05}}]
+    list_transformer_params = [transformer_params_basic, transformer_params_poly]
+    params_names = ['MIC-value_0.05_R-value_0.05']
 
     # Use cases
     config_path = os.path.join(root_dir, 'Configuration')
@@ -50,10 +57,8 @@ if __name__ == '__main__':
     os.makedirs(metrics_path, exist_ok=True)
 
     metrics_names = {'FeatureSelect': ['selected_features', 'all_features'], 'Metrics': ['R2_SKLEARN', 'CV-RMS', 'MAPE', 'RA_SKLEARN'], 'pvalues': ['pvalue_lm', 'pvalue_f']}
-    for dict_usecase in dict_usecases:
-        for feature_sel_params in list_feature_select_params:
-            params_name = "_".join(params.get_full_name() for params in feature_sel_params)
-            os.makedirs(os.path.join(results_path, dict_usecase['name'], params_name), exist_ok=True)
+
+
 
 #%%
     # Main loop
@@ -71,24 +76,23 @@ if __name__ == '__main__':
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], dict_usecase['dataset_filename'], do_smoothe=False)
         # Main loop
-        for feature_sel_params in list_feature_select_params:
-            params_name = "_".join(params.get_full_name() for params in feature_sel_params)
+        for params_name in params_names:
+            os.makedirs(os.path.join(results_path, dict_usecase['name'], params_name), exist_ok=True)
             results_path_thresh = os.path.join(results_path_dataset, params_name)
-            for expansion in expansion_types:
+            for transformer_params in list_transformer_params:
                 for model_type in model_types:
-                    list_train_params = [train_utils.set_train_params_model(trainparams_basic, feature_set, feature, model_type, expansion)
+                    list_train_params = [train_utils.set_train_params_model(trainparams_basic, feature_set, feature, model_type)
                                          for feature in feature_set.get_output_feature_names()]
+
                     for train_params in list_train_params:
-                        model, result = run_training_model(data, train_params,
-                                                         feature_select_params=feature_sel_params,
-                                                         model_parameters=parameters_full[model_type],
-                                                         expander_parameters=expander_parameters,
+                        train_params.transformers = transformer_params
+                        model, result = run_training_model(data, train_params, model_parameters=parameters_full[model_type],
                                                          prediction_type='ground truth')
                         # Save models
-                        model_dir = f"{train_params.model_name}/{train_params.model_type}_{train_params.expansion[-1]}"
+                        model_dir = f"{train_params.model_name}/{train_params.model_type}_{train_params.str_expansion()}"
                         train_utils.save_model_and_params(model, train_params,
                                                           os.path.join(results_path_thresh, "Models", model_dir))
-                        result.save_pkl(results_path_thresh, f'results_{model_type}_{train_params.str_target_feats()}_{train_params.expansion[-1]}.pkl')
+                        result.save_pkl(results_path_thresh, f'results_{model_type}_{train_params.str_target_feats()}_{train_params.str_expansion()}.pkl')
     print('Experiments finished')
 
 # %%
@@ -98,23 +102,22 @@ if __name__ == '__main__':
         usecase_name = dict_usecase['name']
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
-        for feature_sel_params in list_feature_select_params:
-            params_name = "_".join(params.get_full_name() for params in feature_sel_params)
+        for params_name in params_names:
             result_exp = ResultExport(results_root=os.path.join(results_path, usecase_name, params_name),
                                       plot_enabled=True)
-            for expansion in expansion_types:
+            for transformer_params in list_transformer_params:
                 for model_type in model_types:
                     for feat in feature_set.get_output_feature_names():
                         # Load results
                         result = TrainingResults.load_pkl(result_exp.results_root,
-                                                          f'results_{model_type}_{feat}_{expansion[-1]}.pkl')
+                                                          f'results_{model_type}_{feat}_{transformer_params[1]["Type"]}.pkl') # TODO fix this
                         model_dir = os.path.join(result_exp.results_root,
-                                                 f"Models/{feat}/{model_type}_{expansion[-1]}/{feat}")
+                                                 f'Models/{feat}/{model_type}_{transformer_params[1]["Type"]}/{feat}')
                         model = ExpandedModel.load_pkl(model_dir, "expanded_model.pkl")
                         # Export model properties
                         result_exp.export_model_properties(model)
                         result_exp.export_featsel_metrs(model)
-                        result_exp.export_result(result, f"{model_type}_{expansion[-1]}")
+                        result_exp.export_result(result, f'{model_type}_{transformer_params[1]["Type"]}')
                         # Calculate metrics
                         metr_vals_perf = metr_exp.calc_perf_metrics(result, model.get_num_predictors())
                         metr_vals_white = metr_exp.white_test(result)

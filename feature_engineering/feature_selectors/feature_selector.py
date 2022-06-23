@@ -1,9 +1,6 @@
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.feature_selection import SelectorMixin
-
-from .. import feature_selectors
-from .feature_selection_params import FeatureSelectionParams
 from ..interfaces.pickleinterface import PickleInterface
 
 
@@ -20,39 +17,6 @@ class FeatureSelector(SelectorMixin, BaseEstimator, PickleInterface):
     nz_idx = None
     thresh = 0
     n_features_in_ = 0
-
-    @staticmethod
-    def from_name(name):
-        """
-        Get selector by name
-        @param name: selector name
-        @return FeatureSelector object
-        """
-        dict_selectors = {'F-value': 'FThreshold', 'R-value': 'RThreshold', 'MIC-value': 'MICThreshold',
-                          'Ennemi-value': 'EnnemiThreshold', 'forward_select': 'ForwardSelector',
-                          'MIC-R-value': 'MIC_R_selector', 'Name': 'SelectorByName'}
-        selector_class = getattr(feature_selectors, dict_selectors.get(name, 'IdentitySelector'))
-        return selector_class
-
-    @staticmethod
-    def from_params(params: FeatureSelectionParams):
-        """
-        Get selector by name
-        @param params: feature selection params
-        @return FeatureSelector object
-        """
-        return FeatureSelector.from_name(params.sel_type)(thresh=params.threshold, omit_zero_samples=params.omit_zero_samples)
-
-    @staticmethod
-    def configure_feature_select(expanders, selectors):
-        """
-        Configure feature select for multiple expanders and selectors
-        @param expanders: Expanders (list of FeatureExpansion objects)
-        @param selectors: Selectors (list of FeatureSelector objects)
-        """
-        for expander, selector in zip(expanders, selectors):
-            expander.set_feature_select(selector.get_support())
-            selector.print_metrics()
 
     def __init__(self, thresh=0, omit_zero_samples=False, **kwargs):
         self._set_attrs(thresh=thresh, omit_zero_samples=omit_zero_samples)

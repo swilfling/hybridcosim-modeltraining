@@ -1,18 +1,14 @@
 import logging
 from typing import List
-from functools import reduce
-from operator import concat
-
 from .TrainingUtilities import training_utils as train_utils
 from .predict import predict_with_history
 from .GridSearch import best_estimator
-from ModelTraining.feature_engineering.feature_selectors import FeatureSelector, FeatureSelectionParams
-from ModelTraining.feature_engineering.parameters import TrainingParams
+from ..feature_engineering.parameters import TrainingParams, TrainingParamsExpanded
 from ..Utilities.trainingresults import TrainingResults
 from ..datamodels.datamodels.processing.datascaler import DataScaler
 from ..datamodels.datamodels import Model
+from ..feature_engineering.interfaces import BasicInterface
 from ModelTraining.feature_engineering.expandedmodel import ExpandedModel, TransformerSet
-from ModelTraining.feature_engineering.feature_expanders import FeatureExpansion
 
 
 def run_training_and_test(data, list_training_parameters: List[TrainingParams], prediction_type="History", **kwargs):
@@ -38,18 +34,15 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams], 
     models, results = [], []
     # Get optional arguments
     model_params = kwargs.get('model_parameters', {})
-    expander_parameters = kwargs.get('expander_parameters',{})
-    feature_select_params = kwargs.get('feature_select_params', [FeatureSelectionParams()])
 
     for training_params in list_training_parameters:
-        model, result, = run_training_model(data, training_params, expander_parameters, model_params, feature_select_params, prediction_type)
+        model, result, = run_training_model(data, training_params, model_params, prediction_type)
         models.append(model)
         results.append(result)
     return models, results
 
 
-def run_training_model(data, training_params=TrainingParams(), expander_parameters={}, model_parameters={},
-                       feature_select_params=[FeatureSelectionParams()], prediction_type='History'):
+def run_training_model(data, training_params=TrainingParams(), model_parameters={}, prediction_type='History'):
     """
         Function: run training and test - Train models based on training data.
         Includes:
@@ -64,7 +57,6 @@ def run_training_model(data, training_params=TrainingParams(), expander_paramete
             @param training_params: list of training parameters
             @param prediction_type: Type of prediction - choose 'History' or 'ground truth'
             @param model_parameters: parameters for grid search
-            @param expander_parameters: parameters for polynomial expansion
 
         Returns:
             @return model, prediction result: model, Training results
@@ -80,10 +72,8 @@ def run_training_model(data, training_params=TrainingParams(), expander_paramete
                                   name=training_params.str_target_feats(),
                                   parameters={})
     # Create expanded model wrapper
-    if training_params.expansion is not None:
-        expanders = FeatureExpansion.from_names(training_params.expansion, **expander_parameters)
-        selectors = [FeatureSelector.from_params(params) for params in feature_select_params]
-        transformers = reduce(concat, [[expander, selector] for expander, selector in zip(expanders, selectors)])
+    if isinstance(training_params, TrainingParamsExpanded):
+        transformers = [BasicInterface.from_name(transformer_params['Type'])(**transformer_params['Parameters']) for transformer_params in training_params.transformers]
         model = ExpandedModel(transformers=TransformerSet(transformers), model=model, feature_names=feature_names)
     # Select features + Grid Search
     best_params = best_estimator(model, x_train, y_train, parameters=model_parameters)

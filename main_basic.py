@@ -10,11 +10,10 @@ from ModelTraining.Training.TrainingUtilities import training_utils as train_uti
 from ModelTraining.Training.predict import predict_history_ar
 from ModelTraining.datamodels.datamodels import Model
 from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
-from ModelTraining.feature_engineering.feature_expanders import FeatureExpansion
 from ModelTraining.datamodels.datamodels.processing import DataScaler
 from ModelTraining.Training.GridSearch import best_estimator
 from ModelTraining.Utilities.Plotting import plot_data as plt_utils
-from ModelTraining.feature_engineering.parameters import TrainingParams
+from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded
 from ModelTraining.Utilities import TrainingResults
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
@@ -59,7 +58,7 @@ if __name__ == '__main__':
 
     model_type = "LinearRegression"
 
-    training_params = TrainingParams(model_type=model_type,
+    training_params = TrainingParamsExpanded(model_type=model_type,
                                        model_name="Energy",
                                        lookback_horizon=5,
                                        target_features=target_features,
@@ -69,7 +68,7 @@ if __name__ == '__main__':
                                        dynamic_output_features=feature_set.get_dynamic_output_feature_names(),
                                        training_split=0.8,
                                        normalizer="Normalizer",
-                                       expansion=['IdentityExpander'])
+                                             transformers=[{'Type':'MICThreshold', 'Parameters':{'thresh':0.05}}])
 
 
     # Extract data and reshape
@@ -84,13 +83,12 @@ if __name__ == '__main__':
                                   name=training_params.str_target_feats(), parameters={})
 
     # Create expanded model
-    expanders = FeatureExpansion.from_names(training_params.expansion)
     list_sel_feat_names = ['Tint_1', 'Tint_2', 'Tint_3', 'Tint_5',
                            'Text', 'Text_1', 'Text_3', 'Text_4',
                            'GHI', 'GHI_1', 'GHI_2', 'GHI_4']
     #selector = SelectorByName(feat_names=feature_names, selected_feat_names=list_sel_feat_names)
     selector = MICThreshold(thresh=0.2)
-    transformers = TransformerSet(expanders + [selector])
+    transformers = TransformerSet([selector])
     model = ExpandedModel(transformers=transformers, model=model_basic, feature_names=feature_names)
     # Grid search
     #parameters = {"micthreshold__thresh": [0.1, 0.2, 0.3, 0.5, 0.75]}
@@ -104,7 +102,7 @@ if __name__ == '__main__':
     selector.print_metrics()
     # Save Model
     train_utils.save_model_and_params(model, training_params, os.path.join(result_dir,
-                                                                           f"Models/{training_params.model_name}/{training_params.model_type}_{training_params.expansion[-1]}"))
+                                                                           f"Models/{training_params.model_name}/{training_params.model_type}"))
     # Predict test data
     prediction_length = 7
     print(feature_names)

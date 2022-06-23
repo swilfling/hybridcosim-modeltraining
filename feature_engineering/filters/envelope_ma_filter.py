@@ -17,9 +17,6 @@ class Envelope_MA(Filter):
         super().__init__(**kwargs)
         self._set_attrs(T=T)
 
-    def _fit(self, X, y=None, **fit_params):
-        return None
-
     def _transform_feats(self, X):
         """
         Calculate envelope.

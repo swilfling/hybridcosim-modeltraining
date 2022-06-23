@@ -1,4 +1,3 @@
-from .feature_selection_params import FeatureSelectionParams
 from .feature_selector import FeatureSelector
 from .ennemithreshold import EnnemiThreshold
 from .micthreshold import MICThreshold

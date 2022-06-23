@@ -1,7 +1,7 @@
 import ModelTraining.Preprocessing.add_features as feat_utils
-from ModelTraining.feature_engineering.parameters import TrainingParams
+from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded
 from ModelTraining.Utilities import TrainingResults
-from ModelTraining.feature_engineering.feature_selectors import FeatureSelectionParams, FeatureSelector
+from ModelTraining.feature_engineering.feature_selectors import FeatureSelector
 from ModelTraining.feature_engineering.feature_expanders import FeatureExpansion
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
@@ -11,31 +11,37 @@ from ModelTraining.feature_engineering.expandedmodel import ExpandedModel
 import os
 import argparse
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--usecase_names", type=str, default='CPS-Data,SensorA6,SensorB2,SensorC6,Solarhouse1,Solarhouse2')
-    parser.add_argument("--model_types", type=str, default='RidgeRegression,LassoRegression,RandomForestRegression')
+    parser.add_argument("--model_types", type=str, default='RidgeRegression,LassoRegression,WeightedLS,PLSRegression,RandomForestRegression,RuleFitRegression')
     args = parser.parse_args()
     model_types = model_names = args.model_types.split(",")
     list_usecases = args.usecase_names.split(",")
     data_dir = "../"
     root_dir = "./"
     plot_enabled = False
-
     # basic training params
-    trainparams_basic = TrainingParams.load(os.path.join(root_dir, 'Configuration', 'training_params_normalized.json'))
+    trainparams_basic = TrainingParamsExpanded.load(os.path.join(root_dir, 'Configuration', 'training_params_normalized.json'))
 
     # Model parameters and expansion parameters
     parameters_full = {model_type: load_from_json(os.path.join(root_dir, 'Configuration/GridSearchParameters', f'parameters_{model_type}.json')) for model_type in model_types}
-    expansion_types = [['IdentityExpander','IdentityExpander'],['IdentityExpander','PolynomialExpansion']]
     expander_parameters = load_from_json(os.path.join(root_dir, 'Configuration','expander_params_PolynomialExpansion.json' ))
-    # Feature selection
-    list_feature_select_params = [[FeatureSelectionParams('MIC-value',0.05), FeatureSelectionParams('R-value',0.05)]]
+
+    transformer_params_basic = [{'Type': 'MICThreshold', 'Parameters': {'thresh': 0.05}},
+                                {'Type': 'RThreshold', 'Parameters': {'thresh': 0.05}}]
+
+    transformer_params_poly = [{'Type': 'MICThreshold', 'Parameters': {'thresh': 0.05}},
+                          {'Type': 'PolynomialExpansion', 'Parameters': expander_parameters},
+                          {'Type': 'RThreshold', 'Parameters': {'thresh': 0.05}}]
+    list_transformer_params = [transformer_params_basic, transformer_params_poly]
+    params_names = ['MIC-value_0.05_R-value_0.05']
 
     # Use cases
-    usecase_config_path = os.path.join(root_dir, 'Configuration/UseCaseConfig')
-    dict_usecases = [load_from_json(os.path.join(usecase_config_path, f"{name}.json")) for name in
+    config_path = os.path.join(root_dir, 'Configuration')
+    dict_usecases = [load_from_json(os.path.join(config_path,"UseCaseConfig", f"{name}.json")) for name in
                      list_usecases]
+
 
     # Results output
     timestamp = "Experiment_20220615_120631"
@@ -52,23 +58,22 @@ if __name__ == '__main__':
         usecase_name = dict_usecase['name']
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
-        for feature_sel_params in list_feature_select_params:
-            params_name = "_".join(params.get_full_name() for params in feature_sel_params)
+        for params_name in params_names:
             result_exp = ResultExport(results_root=os.path.join(results_path, usecase_name, params_name),
                                       plot_enabled=True)
-            for expansion in expansion_types:
+            for transformer_params in list_transformer_params:
                 for model_type in model_types:
                     for feat in feature_set.get_output_feature_names():
                         # Load results
                         result = TrainingResults.load_pkl(result_exp.results_root,
-                                                          f'results_{model_type}_{feat}_{expansion[-1]}.pkl')
+                                                          f'results_{model_type}_{feat}_{transformer_params[1]["Type"]}.pkl') # TODO fix this
                         model_dir = os.path.join(result_exp.results_root,
-                                                 f"Models/{feat}/{model_type}_{expansion[-1]}/{feat}")
+                                                 f'Models/{feat}/{model_type}_{transformer_params[1]["Type"]}/{feat}')
                         model = ExpandedModel.load_pkl(model_dir, "expanded_model.pkl")
                         # Export model properties
                         result_exp.export_model_properties(model)
                         result_exp.export_featsel_metrs(model)
-                        result_exp.export_result(result, f"{model_type}_{expansion[-1]}")
+                        result_exp.export_result(result, f'{model_type}_{transformer_params[1]["Type"]}')
                         # Calculate metrics
                         metr_vals_perf = metr_exp.calc_perf_metrics(result, model.get_num_predictors())
                         metr_vals_white = metr_exp.white_test(result)

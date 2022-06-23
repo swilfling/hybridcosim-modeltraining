@@ -1,7 +1,8 @@
 import json
+from . import BasicInterface
 
 
-class JSONInterface:
+class JSONInterface(BasicInterface):
     def __init__(self, **kwargs):
         pass
 
@@ -23,13 +24,6 @@ class JSONInterface:
             if dict_file["Type"] in str(subclass):
                 return subclass(**(dict_file["Parameters"]))
         return cls(**(dict_file["Parameters"]))
-
-    @classmethod
-    def _get_subclasses(cls, list_subclasses=[]):
-        for subclass in cls.__subclasses__():
-            subclass._get_subclasses(list_subclasses)
-            list_subclasses.append(subclass)
-        return list_subclasses
 
     @classmethod
     def load(cls, filename="testbench_params.json"):

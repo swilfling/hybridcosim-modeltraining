@@ -53,39 +53,24 @@ def predict_history_ar(model, index_test, x_test, y_true, training_params, predi
     if training_params.dynamic_output_features == []:
         print("There are no dynamic target features - use the basic prediction.")
         return None
-    num_static_feats = len(training_params.static_input_features)
-    num_dynamic_input_feats = len(training_params.dynamic_input_features)
     num_init_samples = training_params.lookback_horizon + 1
     # Get input features
+    x_test_reshaped = x_test.reshape((x_test.shape[0], -1))
     if feature_names is not None:
-        static_feat_indices = [i for i, feature in enumerate(feature_names) if
-                               feature in training_params.static_input_features]
-        dynamic_feat_indices = list(range(num_static_feats,num_static_feats+num_dynamic_input_feats))
-        input_feats = x_test[:,:, static_feat_indices + dynamic_feat_indices]
+        static_feat_indices = [feature in training_params.static_input_features for feature in feature_names]
+        lagged_feat_names = [f'{feat}_{i}' for i in range(1, training_params.lookback_horizon + 1) for feat in training_params.dynamic_input_features]
+        list_dyn_feat_names = training_params.dynamic_input_features + lagged_feat_names
+        dynamic_feat_indices = [feature in list_dyn_feat_names for feature in feature_names]
+
+        input_feats = x_test_reshaped[:, np.bitwise_or(static_feat_indices, dynamic_feat_indices)]
     else:
-        input_feats = x_test[:, :, :x_test.shape[-1] - y_true.shape[-1]]
+        input_feats = x_test_reshaped[:, :x_test.shape[-1] - y_true.shape[-1]]
     # Use first samples as start values, cut off first values from static feats
     start_values = y_true[:num_init_samples]
-    input_feats = input_feats[num_init_samples:, :, :]
-    prediction_length = len(index_test) - len(start_values) if prediction_length is None else prediction_length
-    input_feats = input_feats[:prediction_length, :, :]
-    result_ac = predict_autorecursive(model, training_params, start_values, input_feats, prediction_length)
+    input_feats = input_feats.reshape(input_feats.shape[0], 1, input_feats.shape[1])[num_init_samples:num_init_samples + prediction_length]
+
+    ac = AutoRecursive(model)
+    start_val_np = np.reshape(start_values, (training_params.lookback_horizon + 1, len(training_params.target_features)))
+    result_ac = ac.predict(start_val_np, prediction_length, input_feats)
     result = np.concatenate((start_values, result_ac))
     return result
-
-
-def predict_autorecursive(model, training_params, start_values, input_features=None, prediction_length=None):
-    """
-    This is the auto-recursive prediction based on history.
-     @param model: trained model - e.g. linear regression model
-     @param start_values: start values for dynamic features - can be list if only 1 feature
-     @param input_features: static feature values for prediction length
-     @return: np array of results
-    """
-    ac = AutoRecursive(model)
-    num_lookback_states = training_params.lookback_horizon + 1
-    start_val_np = np.reshape(start_values, (num_lookback_states, len(training_params.target_features)))
-    if input_features is not None:
-        input_features = input_features.reshape(prediction_length, 1, input_features.shape[2] * input_features.shape[1])
-
-    return ac.predict(start_val_np, prediction_length, input_features)

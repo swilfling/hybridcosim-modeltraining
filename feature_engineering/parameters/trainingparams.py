@@ -18,7 +18,6 @@ class TrainingParams(Parameters):
     training_split: float = 0.7
     flatten_dynamic_input_features: bool = True
     normalizer: str = "IdentityScaler"
-    expansion: List[str] = None
     epochs: int = 0
     dynamic_output_features: List[str] = field(default_factory=list)
 
@@ -27,9 +26,3 @@ class TrainingParams(Parameters):
         String identifier for target features
         """
         return "_".join(self.target_features)
-
-    def str_expansion(self):
-        """
-        String identifier for expansion
-        """
-        return self.expansion[-1] if self.expansion is not None else ""
