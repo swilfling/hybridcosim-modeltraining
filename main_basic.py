@@ -13,11 +13,10 @@ from ModelTraining.feature_engineering.expandedmodel import TransformerSet, Expa
 from ModelTraining.datamodels.datamodels.processing import DataScaler
 from ModelTraining.Training.GridSearch import best_estimator
 from ModelTraining.Utilities.Plotting import plot_data as plt_utils
-from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded
+from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded, TransformerParams
 from ModelTraining.Utilities import TrainingResults
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
-from ModelTraining.feature_engineering.feature_selectors import MICThreshold
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
 from ModelTraining.feature_engineering.filters import ButterworthFilter
 
@@ -68,7 +67,7 @@ if __name__ == '__main__':
                                        dynamic_output_features=feature_set.get_dynamic_output_feature_names(),
                                        training_split=0.8,
                                        normalizer="Normalizer",
-                                             transformers=[{'Type':'MICThreshold', 'Parameters':{'thresh':0.05}}])
+                                             transformer_params=[TransformerParams(type='MICThreshold', params={'thresh': 0.05})])
 
 
     # Extract data and reshape
@@ -82,13 +81,7 @@ if __name__ == '__main__':
                                   x_scaler_class=DataScaler.cls_from_name(training_params.normalizer),
                                   name=training_params.str_target_feats(), parameters={})
 
-    # Create expanded model
-    list_sel_feat_names = ['Tint_1', 'Tint_2', 'Tint_3', 'Tint_5',
-                           'Text', 'Text_1', 'Text_3', 'Text_4',
-                           'GHI', 'GHI_1', 'GHI_2', 'GHI_4']
-    #selector = SelectorByName(feat_names=feature_names, selected_feat_names=list_sel_feat_names)
-    selector = MICThreshold(thresh=0.2)
-    transformers = TransformerSet([selector])
+    transformers = TransformerSet.from_list_params(training_params.transformer_params)
     model = ExpandedModel(transformers=transformers, model=model_basic, feature_names=feature_names)
     # Grid search
     #parameters = {"micthreshold__thresh": [0.1, 0.2, 0.3, 0.5, 0.75]}
@@ -99,7 +92,7 @@ if __name__ == '__main__':
     model.get_estimator().set_params(**best_params)
     # Train model
     model.train(x_train, y_train)
-    selector.print_metrics()
+    transformers.get_transformer_by_index(0).print_metrics()
     # Save Model
     train_utils.save_model_and_params(model, training_params, os.path.join(result_dir,
                                                                            f"Models/{training_params.model_name}/{training_params.model_type}"))

@@ -45,7 +45,7 @@ def set_train_params_model(training_params_basic_config, feature_set, target_fea
     training_params.dynamic_input_features = feature_set.get_dynamic_input_feature_names(target_feature)
     training_params.dynamic_output_features = feature_set.get_dynamic_output_feature_names(target_feature)
     if isinstance(training_params_basic_config, TrainingParamsExpanded) and transformer_params is not None:
-        training_params.transformers = transformer_params
+        training_params.transformer_params = transformer_params
     return training_params
 
 

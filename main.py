@@ -5,7 +5,7 @@ import pathlib
 from sklearn.model_selection import TimeSeriesSplit
 from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.dataimport.data_import import load_from_json
-from ModelTraining.feature_engineering.parameters import TrainingParams
+from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded, TransformerParams
 from ModelTraining.Utilities import TrainingResults
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Utilities.Plotting.plot_data as plt_utils
@@ -13,7 +13,6 @@ from ModelTraining.Training.predict import predict_gt, predict_with_history
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils
 from ModelTraining.dataimport import DataImport
 import ModelTraining.datamodels.datamodels.validation.metrics as metrics
-from ModelTraining.feature_engineering.feature_expanders import FeatureExpansion
 from ModelTraining.datamodels.datamodels import Model
 from ModelTraining.feature_engineering.expandedmodel import ExpandedModel, TransformerSet
 from ModelTraining.datamodels.datamodels.processing import DataScaler
@@ -60,7 +59,6 @@ if __name__ == '__main__':
     models = []
     results = []
 
-    expansion = ["PolynomialExpansion"]
 
     static_feature_names = feature_set.get_static_feature_names()
     static_feature_data = data[static_feature_names]
@@ -70,7 +68,7 @@ if __name__ == '__main__':
     for feature in target_features:
         static_features = feature_set.get_static_feature_names(feature)
         dynamic_features = feature_set.get_dynamic_feature_names(feature)
-        training_parameters = TrainingParams(model_type=model_type,
+        training_parameters = TrainingParamsExpanded(model_type=model_type,
                                              model_name=feature,
                                              lookback_horizon=lookback_horizon,
                                              target_features=[feature],
@@ -79,7 +77,7 @@ if __name__ == '__main__':
                                              dynamic_input_features=dynamic_features,
                                              training_split=train_frac,
                                              normalizer=normalizer,
-                                             expansion=expansion)
+                                             transformer_params=[TransformerParams(type='PolynomialExpansion')])
 
         # Get data and reshape
         index, x, y, _ = train_utils.extract_training_and_test_set(data, training_parameters)
@@ -87,7 +85,7 @@ if __name__ == '__main__':
         model_basic = Model.from_name(training_parameters.model_type,
                                 x_scaler_class=DataScaler.cls_from_name(training_parameters.normalizer),
                                 name=training_parameters.str_target_feats(), parameters={})
-        model = ExpandedModel(model=model_basic, transformers=TransformerSet(FeatureExpansion.from_names(expansion)),
+        model = ExpandedModel(model=model_basic, transformers=TransformerSet.from_list_params(training_parameters.transformer_params),
                               feature_names=training_parameters.static_input_features + training_parameters.dynamic_input_features)
         rmse_best = None
         train_ind_best = []

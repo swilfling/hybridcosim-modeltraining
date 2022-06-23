@@ -1,5 +1,6 @@
 from typing import List
-from ..interfaces import PickleInterface
+from ..interfaces import PickleInterface, BasicInterface
+from ..parameters import TransformerParams
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.base import TransformerMixin
 
@@ -14,6 +15,10 @@ class TransformerSet(TransformerMixin, PickleInterface):
         self.transformer_pipeline = make_pipeline(*transformers, 'passthrough')
         if len(self.transformer_pipeline.steps) > 1 and len(feature_names) > 0:
             self.transformer_pipeline.steps[0][1].feature_names_in_ = feature_names
+
+    @classmethod
+    def from_list_params(cls, list_params: List[TransformerParams] = [], feature_names: List[str] = []):
+        return cls([BasicInterface.from_name(params.type, **params.params) for params in list_params], feature_names)
 
     #################################### Getters and Setters ###########################################################
 

@@ -11,18 +11,17 @@ from ModelTraining.datamodels.datamodels import Model
 from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
 from ModelTraining.datamodels.datamodels.processing import DataScaler
 from ModelTraining.Training.GridSearch import best_estimator, best_pipeline
-from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded
+from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded, TransformerParams
 from ModelTraining.Utilities import TrainingResults
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
-from ModelTraining.feature_engineering.feature_selectors import MICThreshold, SelectorByName
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
 from ModelTraining.feature_engineering.filters import ButterworthFilter
 
 if __name__ == '__main__':
     data_dir_path = "../"
     config_path = os.path.join("./", 'Configuration')
-    usecase_name = 'Beyond_T24_dyn'
+    usecase_name = 'CPS-Data'
     result_dir = f"./results/{usecase_name}"
     os.makedirs(result_dir, exist_ok=True)
     dict_usecase = load_from_json(os.path.join(config_path, 'UseCaseConfig', f"{usecase_name}.json"))
@@ -54,10 +53,15 @@ if __name__ == '__main__':
     feature_set.add_statistical_input_features(statistical_feat_cr.get_additional_feat_names())
     target_features = feature_set.get_output_feature_names()
 
-    model_type = "LinearRegression"
+    model_type = "RidgeRegression"
 
-    training_params = TrainingParamsExpanded(model_type=model_type,
-                                       model_name="Energy",
+    expander_parameters = load_from_json(os.path.join(config_path,'expander_params_PolynomialExpansion.json' ))
+
+    transformer_params = [TransformerParams(type='MICThreshold', params={'thresh': 0.05}),
+                          TransformerParams(type='PolynomialExpansion', params=expander_parameters),
+                          TransformerParams(type='RThreshold', params={'thresh': 0.05})]
+
+    training_params = TrainingParamsExpanded(model_type=model_type, model_name="Energy",
                                        lookback_horizon=10,
                                        target_features=target_features,
                                        prediction_horizon=1,
@@ -66,7 +70,7 @@ if __name__ == '__main__':
                                        dynamic_output_features=feature_set.get_dynamic_output_feature_names(),
                                        training_split=0.8,
                                        normalizer="Normalizer",
-                                             transformers=[{'Type': 'MICThreshold', 'Parameters': {'thresh': 0.05}}])
+                                    transformer_params=transformer_params)
 
 
     # Extract data and reshape
@@ -84,11 +88,10 @@ if __name__ == '__main__':
     #sel = SelectorByName(**load_from_json(os.path.join(config_path, "TransformerParams", "params_SelectorByName.json")))
     #sel.feature_names_in_ = feature_names
 
-    selector = MICThreshold(thresh=0.2)
-    transformers = TransformerSet([selector])
+    transformers = TransformerSet.from_list_params(training_params.transformer_params)
     model = ExpandedModel(transformers=transformers, model=model_basic, feature_names=feature_names)
     # Grid search
-    parameters = {"micthreshold__thresh": [0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.5, 0.75]}
+    parameters = {"rthreshold__thresh": [0.01, 0.02, 0.05, 0.1, 0.2, 0.3]}
     gridsearch_params = load_from_json(os.path.join(config_path,"GridSearchParameters", f'parameters_{model_type}.json'))
     #for name, vals in gridsearch_params.items():
     #    parameters.update({f"ridge__{name}":vals})
@@ -96,12 +99,12 @@ if __name__ == '__main__':
 
     best_params = best_pipeline(model, x_train, y_train, parameters=parameters)
     print(best_params)
-    model.transformers.get_transformer_by_name("micthreshold").set_params(thresh=best_params['micthreshold__thresh'])
+    model.transformers.get_transformer_by_name("rthreshold").set_params(thresh=best_params['rthreshold__thresh'])
     #best_params = best_estimator(model, x_train, y_train, parameters={})
     #model.get_estimator().set_params(**best_params)
     # Train model
     model.train(x_train, y_train)
-    selector.print_metrics()
+    model.transformers.get_transformer_by_name("rthreshold").print_metrics()
     # Save Model
     model_dir = os.path.join(result_dir, f"Models/{training_params.model_name}/{training_params.model_type}")
     train_utils.save_model_and_params(model, training_params, model_dir)

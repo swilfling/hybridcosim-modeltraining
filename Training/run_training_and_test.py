@@ -7,7 +7,6 @@ from ..feature_engineering.parameters import TrainingParams, TrainingParamsExpan
 from ..Utilities.trainingresults import TrainingResults
 from ..datamodels.datamodels.processing.datascaler import DataScaler
 from ..datamodels.datamodels import Model
-from ..feature_engineering.interfaces import BasicInterface
 from ModelTraining.feature_engineering.expandedmodel import ExpandedModel, TransformerSet
 
 
@@ -73,9 +72,8 @@ def run_training_model(data, training_params=TrainingParams(), model_parameters=
                                   parameters={})
     # Create expanded model wrapper
     if isinstance(training_params, TrainingParamsExpanded):
-        transformers = [BasicInterface.from_name(params['Type'], **params.get('Parameters', {}))
-                        for params in training_params.transformers]
-        model = ExpandedModel(transformers=TransformerSet(transformers), model=model, feature_names=feature_names)
+        model = ExpandedModel(transformers=TransformerSet.from_list_params(training_params.transformer_params),
+                              model=model, feature_names=feature_names)
     # Select features + Grid Search
     best_params = best_estimator(model, x_train, y_train, parameters=model_parameters)
     model.get_estimator().set_params(**best_params)

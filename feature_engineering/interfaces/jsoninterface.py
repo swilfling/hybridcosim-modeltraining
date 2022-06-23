@@ -15,15 +15,15 @@ class JSONInterface(BasicInterface):
             fp.write(self.to_json())
 
     def to_json(self):
-        dict_file = {"Type": type(self).__name__, "Parameters": self.__dict__}
+        dict_file = {"Type": self.__class__.__name__, "Parameters": self._get_attrs()}
         return str(json.dumps(dict_file))
 
     @classmethod
     def from_json(cls, dict_file):
-        for subclass in cls._get_subclasses():
-            if dict_file["Type"] in str(subclass):
-                return subclass(**(dict_file["Parameters"]))
-        return cls(**(dict_file["Parameters"]))
+        inst = cls.from_name(dict_file['Type'])
+        if inst is not None:
+            inst._set_attrs(**dict_file['Parameters'])
+        return inst
 
     @classmethod
     def load(cls, filename="testbench_params.json"):

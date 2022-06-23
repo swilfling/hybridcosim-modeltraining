@@ -91,14 +91,14 @@ class ResultExport:
         """
         output_dir = os.path.join(self.results_root, self.featsel_dir)
         os.makedirs(output_dir, exist_ok=True)
-
-        expanders = model.transformers.get_transformers_of_type(FeatureExpansion)
-        selectors = model.transformers.get_transformers_of_type(FeatureSelector)
-        for expander, selector in zip(expanders, selectors):
-            feature_names = expander.get_feature_names_out(model.feature_names)
-            self.export_coeffs(selector.get_coef(), feature_names=selector.get_feature_names_out(feature_names), dir=output_dir,
-                               title=f'{selector.__class__.__name__} - {expander.__class__.__name__}',
-                               ylabel=str(selector.__class__.__name__))
+        transformers = model.transformers.get_list_transfomers()
+        feature_names = model.feature_names
+        for transformer in transformers:
+            if isinstance(transformers, FeatureSelector):
+                self.export_coeffs(transformer.get_coef(), feature_names=transformer.get_feature_names_out(feature_names), dir=output_dir,
+                               title=f'{transformer.__class__.__name__} - {model.transformers.type_transf_full()}',
+                               ylabel=str(transformer.__class__.__name__))
+            feature_names = transformer.get_feature_names_out(feature_names)
 
     def export_model_properties(self, model: ExpandedModel):
         """
