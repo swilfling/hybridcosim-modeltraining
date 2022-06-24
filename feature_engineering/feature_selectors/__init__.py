@@ -1,9 +1,5 @@
 from .feature_selector import FeatureSelector
-from .ennemithreshold import EnnemiThreshold
-from .micthreshold import MICThreshold
-from .rthreshold import RThreshold
-from .fthreshold import FThreshold
 from .identityselector import IdentitySelector
 from .selector_by_name import SelectorByName
 from .forward_selector import ForwardSelector
-from .mic_r_threshold import MIC_R_selector
+from .thresholds import FeatureSelectThreshold, FThreshold, RThreshold, MICThreshold, MIC_R_selector, EnnemiThreshold

@@ -11,15 +11,10 @@ class FeatureSelector(SelectorMixin, BaseEstimator, PickleInterface):
         Options:
             - omit_zero_samples: Omit zero samples from selection
     """
-    coef_ = None
-    nonzero = None
-    omit_zero_samples=False
-    nz_idx = None
-    thresh = 0
     n_features_in_ = 0
 
-    def __init__(self, thresh=0, omit_zero_samples=False, **kwargs):
-        self._set_attrs(thresh=thresh, omit_zero_samples=omit_zero_samples)
+    def __init__(self, **kwargs):
+        pass
 
     def fit(self, X, y=None, **fit_params):
         """
@@ -28,15 +23,7 @@ class FeatureSelector(SelectorMixin, BaseEstimator, PickleInterface):
         @param y: Target feature vector (n_samples)
         """
         X = self.reshape_data(X)
-        self.nonzero = ~np.all(X == 0, axis=0)
-        self.nz_idx = np.where(self.nonzero)
-        self.n_features_in_ = X.shape[-1]
-        if self.omit_zero_samples:
-            coef = self._fit(X[:, self.nonzero], y, **fit_params)
-            self.coef_ = np.zeros(X.shape[-1])
-            self.coef_[self.nz_idx] = coef
-        else:
-            self.coef_ = self._fit(X, y, **fit_params)
+        self._fit(X, y, **fit_params)
         return self
 
     def transform(self, X):
@@ -50,17 +37,10 @@ class FeatureSelector(SelectorMixin, BaseEstimator, PickleInterface):
     def _fit(self, X, y, **fit_params):
         """
         Fit transformer - Override this method!
-        @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
+        @param x: Input feature vector (n_samples, n_features)
         @param y: Target feature vector (n_samples)
-        @return coefficients
         """
-        return None
-
-    def _get_support_mask(self):
-        """
-        Get boolean mask of selected features - override if necessary.
-        """
-        return self.coef_ > self.thresh if not self.omit_zero_samples else (self.coef_ > self.thresh) & self.nonzero
+        pass
 
     def get_num_selected_features(self):
         """
@@ -68,11 +48,17 @@ class FeatureSelector(SelectorMixin, BaseEstimator, PickleInterface):
         """
         return np.sum(self._get_support_mask())
 
+    def _get_support_mask(self):
+        """
+        Get mask for feature selection
+        """
+        return np.ones(self.n_features_in_)
+
     def get_num_features(self):
         """
         Get total number of features - override if necessary.
         """
-        return self.coef_.shape[0]
+        return self._get_support_mask().shape[0]
 
     def get_metrics(self):
         """
@@ -85,12 +71,6 @@ class FeatureSelector(SelectorMixin, BaseEstimator, PickleInterface):
         Print number of selected and total features
         """
         print(f'Selecting features: {self.get_num_selected_features()} of {self.get_num_features()}')
-
-    def get_coef(self):
-        """
-        get coefficients for selected features
-        """
-        return self.coef_[self.get_support()]
 
     def reshape_data(self, X):
         """

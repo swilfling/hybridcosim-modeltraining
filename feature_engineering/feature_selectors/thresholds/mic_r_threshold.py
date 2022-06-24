@@ -1,11 +1,9 @@
 import numpy as np
 
-from .feature_selector import FeatureSelector
-from .rthreshold import RThreshold
-from .micthreshold import MICThreshold
+from . import FeatureSelectThreshold, MICThreshold, RThreshold
 
 
-class MIC_R_selector(FeatureSelector):
+class MIC_R_selector(FeatureSelectThreshold):
     """
     This is work in progress.
     """
@@ -17,7 +15,12 @@ class MIC_R_selector(FeatureSelector):
         self.feature_names = np.array(kwargs.get('feature_names',[]))
         pass
 
-    def fit(self, X, y=None, **fit_params):
+    def _fit(self, X, y=None, **fit_params):
+        """
+        Fit transformer
+        @param x: Input feature vector (n_samples, n_features)
+        @param y: Target feature vector (n_samples)
+        """
         self.mic_thresh.fit(X, y, **fit_params)
         self.r_thresh.fit(X, y, **fit_params)
         self.coef_ = np.array([self.mic_thresh.coef_, self.r_thresh.coef_]).T

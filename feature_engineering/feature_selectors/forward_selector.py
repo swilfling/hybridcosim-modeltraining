@@ -19,7 +19,6 @@ class ForwardSelector(FeatureSelector):
 
         self.sfs.fit(X, y)
         self.coef_ = self.sfs.k_score_
-        return self.coef_
 
     def _get_support_mask(self):
         f_indx = list(self.sfs.k_feature_idx_)
