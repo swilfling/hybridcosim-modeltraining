@@ -2,19 +2,6 @@ import numpy as np
 import pandas as pd
 
 
-class Reshape:
-
-    def reshape_data(self, X: np.ndarray):
-        """
-        Reshape data if 3-dimensional.
-        @param X: data
-        @return: reshaped data
-        """
-        if X.ndim == 3:
-            return X.reshape((X.shape[0], X.shape[1] * X.shape[2]))
-        return X
-
-
 class FeatureNames:
 
     def get_feature_names_out(self, feature_names=None):
@@ -36,70 +23,7 @@ class FeatureNames:
         return feature_names
 
 
-class Transformer:
-    def fit(self, X, y=None, **fit_params):
-        """
-        Fit transformer - Overrides TransformerMixin method.
-        @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
-        @param y: Target feature vector (n_samples)
-        """
-        return self
-
-    def transform(self, X):
-        """
-        Transform samples.
-        @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
-        @return: Output feature vector (n_samples, n_features) or (n_samples, n_selected_features * lookback)
-        """
-        return X
-
-
-class BaseTransform:
-
-    def transform(self, X):
-        """
-        Transform samples.
-        @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
-        @return: Output feature vector (n_samples, n_features) or (n_samples, n_selected_features * lookback)
-        """
-        return X
-
-    def _transform(self, X):
-        """
-        Transformation method - Override this method
-        @param X: Input feature vector (n_samples, n_features) - supports pd dataframe
-        @return: transformed features
-        """
-        return X
-
-
-
-class BaseFit:
-
-    def fit(self, X, y=None, **fit_params):
-        """
-        Fit transformer - Overrides TransformerMixin method.
-        @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
-        @param y: Target feature vector (n_samples)
-        """
-        self._fit(X, y, **fit_params)
-        return self
-
-    def _fit(self, X, y, **fit_params):
-        """
-        Fit transformer - Override this method!
-        @param x: Input feature vector (n_samples, n_features)
-        @param y: Target feature vector (n_samples)
-        """
-        pass
-
-
-class BaseFitTransform(BaseFit, BaseTransform):
-
-    def __init__(self, **kwargs):
-        pass
-
-class MaskFeats:
+class MaskFeats(FeatureNames):
     features_to_transform = None
 
     def __init__(self, features_to_transform=None):
@@ -140,5 +64,34 @@ class MaskFeats:
                 np.array(X_orig)[self.features_to_transform] = X_transf
             return x_transf_new
 
+        else:
+            return X_transf
+
+    def get_feature_names_out(self, feature_names=None):
+        """
+        Get output feature names
+        @param feature_names: input feature names
+        @return: transformed feature names
+        """
+        if feature_names is None:
+            return None
+        feat_names_basic = self.mask_feats(feature_names, inverse=True)
+        feature_names_tr = self._get_feature_names_out(self.mask_feats(feature_names))
+        return self.combine_feats(feature_names_tr, feat_names_basic)
+
+
+class MaskFeatsExpanded(MaskFeats):
+
+    def combine_feats(self, X_transf, X_orig):
+        if self.features_to_transform is not None:
+            # If transformation created new features: concatenate basic and new features
+            if isinstance(X_orig, pd.DataFrame):
+                x_basic = self.mask_feats(X_orig, inverse=True)
+                for i, name in enumerate(self._get_feature_names_out(self.mask_feats(X_orig.columns))):
+                    x_basic[name] = X_transf[..., i]
+                return x_basic
+            else:
+                x_basic = X_orig[np.bitwise_not(self.features_to_transform)]
+                return np.concatenate((x_basic, X_transf), axis=-1)
         else:
             return X_transf

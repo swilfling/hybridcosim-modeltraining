@@ -1,8 +1,8 @@
 from sklearn.base import TransformerMixin, BaseEstimator
-from ..interfaces import PickleInterface, Reshape, FeatureNames, BaseFitTransform, MaskFeats
+from ..interfaces import PickleInterface, Reshape, BaseFitTransform, MaskFeatsExpanded
 
 
-class FeatureExpansion(TransformerMixin, PickleInterface, Reshape, BaseFitTransform, MaskFeats, FeatureNames, BaseEstimator):
+class FeatureExpansion(TransformerMixin, PickleInterface, Reshape, BaseFitTransform, MaskFeatsExpanded, BaseEstimator):
     """
     Feature Expansion
     Base class for feature expansion transformers.
@@ -28,3 +28,4 @@ class FeatureExpansion(TransformerMixin, PickleInterface, Reshape, BaseFitTransf
         # Reshape if necessary
         X_reshaped = self.reshape_data(X)
         return self.combine_feats(self._transform(self.mask_feats(X_reshaped)), X_reshaped)
+

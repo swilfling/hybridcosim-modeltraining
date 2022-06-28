@@ -1,8 +1,8 @@
 from sklearn.base import TransformerMixin
-from ..interfaces import PickleInterface, FeatureNames, BaseFitTransform, MaskFeats
+from ..interfaces import PickleInterface, BaseFitTransform, MaskFeats
 
 
-class Transformer_inplace(TransformerMixin, PickleInterface, FeatureNames, BaseFitTransform, MaskFeats):
+class Transformer_inplace(TransformerMixin, PickleInterface, BaseFitTransform, MaskFeats):
     """
     Transform only selected features - keep other features
     """
@@ -18,16 +18,4 @@ class Transformer_inplace(TransformerMixin, PickleInterface, FeatureNames, BaseF
         """
         x_transf = self._transform(self.mask_feats(X))
         return self.combine_feats(x_transf, X)
-
-    def get_feature_names_out(self, feature_names=None):
-        """
-        Get output feature names
-        @param feature_names: input feature names
-        @return: transformed feature names
-        """
-        if feature_names is None:
-            return None
-        feat_names_basic = self.mask_feats(feature_names, inverse=True)
-        feature_names_tr = self._get_feature_names_out(self.mask_feats(feature_names))
-        return self.combine_feats(feature_names_tr, feat_names_basic)
 
