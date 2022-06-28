@@ -69,11 +69,3 @@ class Filter(Transformer_SelectedFeats):
         Override this method to create filter coeffs.
         """
         raise NotImplementedError
-
-    def get_feature_names_out(self, feature_names=None):
-        """
-        Get feature names - passthrough for pipeline
-        @param feature_names: Input feature names
-        @return: input feature names
-        """
-        return feature_names

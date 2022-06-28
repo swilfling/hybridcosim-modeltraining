@@ -41,9 +41,9 @@ class ExpandedModel(PickleInterface):
         @param X: tensor of shape (n_samples, lookback_horizon + 1, input_features)
         @param y: tensor of shape (n_samples, input_features)
         """
-        if not X.ndim == 3:
-            raise RuntimeError(f'x must be an array of shape (samples, lookback_horizon + 1, input_features)\n'
-                               f'but is {X.shape}')
+        #if not X.ndim == 3:
+        #    raise RuntimeError(f'x must be an array of shape (samples, lookback_horizon + 1, input_features)\n'
+        #                       f'but is {X.shape}')
         X = self.model.reshape_data(X)
         return self.model.scale(X, y)
 
@@ -58,12 +58,12 @@ class ExpandedModel(PickleInterface):
     def predict(self, X):
         """
         Predict - prediction with feature expansion
-        @param X: tensor of shape (n_samples, lookback_horizon + 1, input_features)
-        @return: tensor of shape (n_samples, input_features)
+        @param X: np.array of shape (n_samples, lookback_horizon + 1, input_features)
+        @return: np.array of shape (n_samples, input_features)
         """
-        if not X.ndim == 3:
-            raise RuntimeError(f'x must be an array of shape (samples, lookback_horizon + 1, input_features)\n'
-                               f'but is {X.shape}')
+        #if not X.ndim == 3:
+        #    raise RuntimeError(f'x must be an array of shape (samples, lookback_horizon + 1, input_features)\n'
+        #                       f'but is {X.shape}')
         X = self.model.reshape_data(X)
         X = self.model.x_scaler.transform(X)
         X = self.transformers.transform(X)

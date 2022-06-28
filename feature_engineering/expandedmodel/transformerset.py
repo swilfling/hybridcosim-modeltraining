@@ -57,6 +57,9 @@ class TransformerSet(TransformerMixin, PickleInterface):
         else:
             return self.get_transformers_of_type(parent_type)[-1].__class__.__name__
 
+    def set_transformer_attributes(self, transformer_name="", attrs: dict = {}):
+        self.get_transformer_by_name(transformer_name).set_params(**attrs)
+
     ########################################### Pipeline methods #######################################################
 
     def fit(self, X, y, **fit_params):

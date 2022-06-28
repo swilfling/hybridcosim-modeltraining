@@ -70,6 +70,7 @@ def plot_data(data: pd.DataFrame, plot_path="./", filename='Result', store_to_cs
         plt_utils.save_figure(plot_path, filename)
         if store_to_csv:
             data.to_csv(os.path.join(plot_path, f'{filename}.csv'))
+        plt.show()
 
 
 ############################ Subplots ##################################################################################
