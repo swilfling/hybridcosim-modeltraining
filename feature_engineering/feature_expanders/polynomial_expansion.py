@@ -9,15 +9,16 @@ class PolynomialExpansion(FeatureExpansion):
     https://scikit-learn.org/dev/modules/generated/sklearn.preprocessing.PolynomialFeatures.html
     Implements scikit-learn's TransformerMixin interface.
     """
-    def __init__(self, **kwargs):
-        self.model = PolynomialFeatures(**kwargs)
+    def __init__(self, degree=2, interaction_only=False, include_bias=True, **kwargs):
+        super().__init__(**kwargs)
+        self.model = PolynomialFeatures(degree=degree, interaction_only=interaction_only, include_bias=include_bias)
 
-    def _fit(self, x=None, y=None):
-        self.model.fit(x, y)
+    def _fit(self, X=None, y=None, **fit_params):
+        self.model.fit(X, y)
 
     def _transform(self, x=None):
         return self.model.transform(x)
 
-    def _get_feature_names(self, feature_names=None):
+    def _get_feature_names_out(self, feature_names=None):
         return self.model.get_feature_names_out(feature_names)
 

@@ -17,7 +17,7 @@ class Envelope_MA(Filter):
         super().__init__(**kwargs)
         self._set_attrs(T=T)
 
-    def _transform_feats(self, X):
+    def _transform(self, X):
         """
         Calculate envelope.
         This is taken from https://stackoverflow.com/a/69357933

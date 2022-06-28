@@ -15,5 +15,5 @@ class ButterworthFilter(Filter):
         super().__init__(**kwargs)
         self._set_attrs(T=T, order=order, filter_type=filter_type)
 
-    def _fit_model(self, X, y=None, **fit_params):
+    def calc_coef(self, X, y=None, **fit_params):
         return sig.butter(self.order, 1 / self.T, btype=self.filter_type)

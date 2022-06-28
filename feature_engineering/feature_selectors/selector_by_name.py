@@ -8,6 +8,9 @@ class SelectorByName(FeatureSelector):
     Selector by name:
     Select features by name
     """
+    selected_feat_names = None
+    feature_names_in_ = None
+
     def __init__(self, feat_names=[], selected_feat_names=[], **kwargs):
         super().__init__(**kwargs)
         self.feature_names_in_ = np.array(feat_names)

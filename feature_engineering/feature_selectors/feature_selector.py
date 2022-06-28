@@ -1,10 +1,10 @@
 import numpy as np
 from sklearn.base import BaseEstimator
 from sklearn.feature_selection import SelectorMixin
-from ..interfaces.pickleinterface import PickleInterface
+from ..interfaces import PickleInterface, Reshape, BaseFit
 
 
-class FeatureSelector(SelectorMixin, BaseEstimator, PickleInterface):
+class FeatureSelector(SelectorMixin, BaseFit, BaseEstimator, PickleInterface, Reshape):
     """
         FeatureSelector - implements SelectorMixin interface, can be stored to pickle.
         Basic implementation: threshold
@@ -22,9 +22,9 @@ class FeatureSelector(SelectorMixin, BaseEstimator, PickleInterface):
         @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
         @param y: Target feature vector (n_samples)
         """
-        X = self.reshape_data(X)
-        self._fit(X, y, **fit_params)
-        return self
+        x_to_fit = self.reshape_data(X)
+        self.n_features_in_ = x_to_fit.shape[1]
+        return super().fit(x_to_fit, y, **fit_params)
 
     def transform(self, X):
         """
@@ -32,15 +32,7 @@ class FeatureSelector(SelectorMixin, BaseEstimator, PickleInterface):
         @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
         @return: Output feature vector (n_samples, n_features) or (n_samples, n_selected_features * lookback)
         """
-        return super(FeatureSelector, self).transform(self.reshape_data(X))
-
-    def _fit(self, X, y, **fit_params):
-        """
-        Fit transformer - Override this method!
-        @param x: Input feature vector (n_samples, n_features)
-        @param y: Target feature vector (n_samples)
-        """
-        pass
+        return super().transform(self.reshape_data(X))
 
     def get_num_selected_features(self):
         """
@@ -71,11 +63,3 @@ class FeatureSelector(SelectorMixin, BaseEstimator, PickleInterface):
         Print number of selected and total features
         """
         print(f'Selecting features: {self.get_num_selected_features()} of {self.get_num_features()}')
-
-    def reshape_data(self, X):
-        """
-        Reshape data if 3-dimensional.
-        """
-        if X.ndim == 3:
-            X = X.reshape((X.shape[0], X.shape[1] * X.shape[2]))
-        return X

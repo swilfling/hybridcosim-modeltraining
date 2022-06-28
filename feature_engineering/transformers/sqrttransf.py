@@ -1,8 +1,8 @@
 import numpy as np
-from . import Transformer_SelectedFeats
+from . import Transformer_inplace
 
 
-class SqrtTransform(Transformer_SelectedFeats):
+class SqrtTransform(Transformer_inplace):
     """
     Square root transformation
     """

@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
-from . import Transformer_SelectedFeats
+from . import Transformer_inplace
 from scipy.stats import boxcox
 
 
-class Boxcox(Transformer_SelectedFeats):
+class Boxcox(Transformer_inplace):
     """
     Box-cox transformation - supports only samples > 0
     """
@@ -32,7 +32,7 @@ class Boxcox(Transformer_SelectedFeats):
         else:
             X_tr = np.expand_dims(X,axis=-1) if X.ndim == 1 else X
             for i in range(X.shape[1]):
-                cur_feat = X[:,i]
+                cur_feat = X[:, i]
                 if self.omit_zero_samples:
                     cur_feat[cur_feat != 0] = boxcox(cur_feat[cur_feat != 0])[0]
                 else:

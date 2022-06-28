@@ -1,8 +1,8 @@
-from . import Transformer_SelectedFeats
+from . import Transformer_inplace
 import pandas as pd
 
 
-class Diff(Transformer_SelectedFeats):
+class Diff(Transformer_inplace):
     """
     Differencing transformation
     """

@@ -1,5 +1,5 @@
-from .offset_comp import OffsetComp
-from .nan_comp import NaNComp
+from . import compensators
+from .compensators import NaNComp, OffsetComp
 from .filter import Filter
 from .butterworth_filter import ButterworthFilter
 from .chebyshev_filter import ChebyshevFilter
