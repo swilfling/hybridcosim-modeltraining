@@ -23,6 +23,9 @@ class MetricsVal:
         self.featsel_thresh = featsel_thresh
         self.usecase_name = usecase_name
 
+    def get_identifier(self, excluded_attribute=""):
+        return "_".join(str(v) for k, v in self.__dict__.items() if k != excluded_attribute and k != "val")
+
 
 class MetrValsSet:
     metr_vals: List[MetricsVal] = []
@@ -41,21 +44,24 @@ class MetrValsSet:
     def get_metrs_of_attr(self, attr="metrics_type", val=""):
         return [metr_val for metr_val in self.metr_vals if getattr(metr_val, attr, "") == val or val == ""]
 
+    @staticmethod
+    def get_metrs_of_attr_from_list(metr_vals, attr="metrics_type", val=""):
+        return [metr_val for metr_val in metr_vals if getattr(metr_val, attr, "") == val or val == ""]
+
     ######################################## Create dataframe ##########################################################
 
-    def create_df_metrics(self, metrics_type=""):
+    def create_df_metrics(self, metrics_type="", index_col='model_type'):
         """
         Create dataframe from metrics.
         @param metrics_type: Select metrics of this type. If this param is empty, all metrics are selected.
         @return: dataframe containing metrics
         """
         metr_vals = self.get_metrs_of_attr("metrics_type", metrics_type)
-        model_types = set(metr_val.model_type for metr_val in metr_vals)
+        model_types = set(getattr(metr_val, index_col) for metr_val in metr_vals)
         df_metrs = pd.DataFrame()
         for model_type in model_types:
-            metr_vals_model = [metr_val for metr_val in metr_vals if metr_val.model_type == model_type]
-            metr_data = {f'{v.usecase_name}_{v.featsel_thresh}_{v.expansion_type}_{v.model_name}_{v.metrics_name}_' \
-                         f'_{v.target_feat}_{v.metrics_type}':[v.val] for v in metr_vals_model}
+            metr_vals_model = MetrValsSet.get_metrs_of_attr_from_list(metr_vals, index_col, model_type)
+            metr_data = {v.get_identifier(excluded_attribute=index_col):[v.val] for v in metr_vals_model}
             df_metr_cur = pd.DataFrame(data=metr_data, index=[model_type])
             df_metrs = df_metr_cur if df_metrs.empty else df_metrs.append(df_metr_cur)
         return df_metrs

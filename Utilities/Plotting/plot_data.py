@@ -60,6 +60,8 @@ def plot_data(data: pd.DataFrame, plot_path="./", filename='Result', store_to_cs
     Optional params: ylabel, figsize, fig_title, plot args
     """
     if data is not None:
+        if store_to_csv:
+            data.to_csv(os.path.join(plot_path, f'{filename}.csv'), index_label=kwargs.pop('index_label', 'datetime'))
         fig, ax, = plt_utils.create_figure(kwargs.pop('fig_title', ""), figsize=kwargs.pop('figsize', None))
         plt.xlabel('Time')
         if kwargs.get('ylim', None):
@@ -68,8 +70,7 @@ def plot_data(data: pd.DataFrame, plot_path="./", filename='Result', store_to_cs
             plt.ylabel(kwargs.pop('ylabel'))
         plt_utils.plot_df(ax, data, **kwargs)
         plt_utils.save_figure(plot_path, filename)
-        if store_to_csv:
-            data.to_csv(os.path.join(plot_path, f'{filename}.csv'))
+
         plt.show()
 
 

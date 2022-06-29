@@ -67,8 +67,8 @@ if __name__ == "__main__":
                                                  f'Models/{feat}/{model_type}_{training_params.str_expansion()}/{feat}')
                         model = ExpandedModel.load_pkl(model_dir, "expanded_model.pkl")
                         # Export model properties
-                        result_exp.export_model_properties(model)
-                        result_exp.export_featsel_metrs(model)
+                        result_exp.export_model_properties(model, model.transformers.type_transf_full())
+                        result_exp.export_featsel_metrs(model, model.transformers.type_transf_full())
                         result_exp.export_result(result, f'{model_type}_{training_params.str_expansion()}')
                         # Calculate metrics
                         metr_vals_perf = metr_exp.calc_perf_metrics(result, model.get_num_predictors())

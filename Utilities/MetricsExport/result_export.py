@@ -52,7 +52,7 @@ class ResultExport:
 
     ########################################### Export all results #####################################################
 
-    def export_results_full(self, models: List[ExpandedModel], results: List[TrainingResults], list_selectors: List[List[FeatureSelector]]=[]):
+    def export_results_full(self, models: List[ExpandedModel], results: List[TrainingResults]):
         """
         Export all results.
         @param models: List of models
@@ -68,7 +68,7 @@ class ResultExport:
 
     ############################################## Export functions ####################################################
 
-    def export_coeffs(self, coeffs, feature_names, dir, title, ylabel=""):
+    def export_coeffs(self, coeffs, feature_names, dir, title="", ylabel=""):
         """
         Export coefficient values - optional: barplot
         @param coeffs: array of coefficients
@@ -84,7 +84,7 @@ class ResultExport:
                 plt_utils.barplot(df[col], dir, filename=f'Coefficients_{title}', fig_title=f"Coefficients - {title}",
                                                                    ylabel=ylabel, figsize=(30, 7))
 
-    def export_featsel_metrs(self, model: ExpandedModel):
+    def export_featsel_metrs(self, model: ExpandedModel, title=""):
         """
         Export feature selection metrics - Combination of expanders and selectors
         @param model: ExpandedModel
@@ -96,11 +96,11 @@ class ResultExport:
         for transformer in transformers:
             if isinstance(transformers, FeatureSelector):
                 self.export_coeffs(transformer.get_coef(), feature_names=transformer.get_feature_names_out(feature_names), dir=output_dir,
-                               title=f'{transformer.__class__.__name__} - {model.transformers.type_transf_full()}',
+                               title=f'{transformer.__class__.__name__} - {title}',
                                ylabel=str(transformer.__class__.__name__))
             feature_names = transformer.get_feature_names_out(feature_names)
 
-    def export_model_properties(self, model: ExpandedModel):
+    def export_model_properties(self, model: ExpandedModel, title=""):
         """
         Export model properties - F-score or linear regression coeffs
         @param model: model to export
@@ -108,16 +108,16 @@ class ResultExport:
         property_dir = os.path.join(self.results_root, self.property_dir)
         os.makedirs(property_dir, exist_ok=True)
         model_type = model.model.__class__.__name__
-        title = f'{model_type}_{model.name}_{model.transformers.type_transf_full()}'
+        title_full = f'{model_type}_{model.name}_{title}'
         # Export coefficients
         if model_type in ['RandomForestRegression', 'RidgeRegression', 'LinearRegression']:
             ylabel = 'F-Score' if model_type == 'RandomForestRegression' else 'Coefficients'
-            self.export_coeffs(model.model.get_coef().T, model.get_transformed_feature_names(), property_dir, title, ylabel)
+            self.export_coeffs(model.model.get_coef().T, model.get_transformed_feature_names(), property_dir, title_full, ylabel)
         if model_type == 'SymbolicRegression':
             metr_utils.dict_to_json({'Program': str(model.model.get_program())},
-                                    os.path.join(property_dir, f'Program_{title}.json'))
+                                    os.path.join(property_dir, f'Program_{title_full}.json'))
         if model_type == 'RuleFitRegression':
-            model.model.get_rules().to_csv(os.path.join(property_dir, f'Rules_{title}.csv'), float_format="%.2f",
+            model.model.get_rules().to_csv(os.path.join(property_dir, f'Rules_{title_full}.csv'), float_format="%.2f",
                                      index_label='Rule')
 
     def export_result(self, result: TrainingResults, title=""):
@@ -130,6 +130,6 @@ class ResultExport:
         if self.plot_enabled:
             for feat in result.target_feat_names:
                 plt_utils.plot_data(result.test_result_df(feat), self.get_tseries_dir(), filename=f"Timeseries_{feat}_{title}",
-                                    store_to_csv=False, figsize=(14, 4), fig_title=f"Timeseries - {feat} - {title}")
+                                    store_to_csv=True, figsize=(14, 4), fig_title=f"Timeseries - {feat} - {title}")
                 plt_utils.scatterplot(result.test_pred_vals(feat), result.test_target_vals(feat), self.get_scatter_dir(),
                                       f"Scatter_{feat}_{title}")

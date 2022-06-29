@@ -159,19 +159,19 @@ class MetricsCalc:
         """
         return self.metr_vals.create_df_metrics()
 
-    def store_all_metrics(self, results_path="./", timestamp=""):
+    def store_all_metrics(self, results_path="./", timestamp="", index_col='model_type'):
         """
         Store metrics df to files - get subsets of dataframes to store separately
         @param results_path: result dir - optional argument
         @param timestamp: timestamp of experiment
         """
-        df_metrs = self.metr_vals.create_df_metrics("")
+        df_metrs = self.metr_vals.create_df_metrics("",index_col=index_col)
         df_metrs.to_csv(os.path.join(results_path, f'AllMetrics_full_{timestamp}.csv'),index_label='Model', float_format='%.3f')
 
         # Get subsets
-        df_metrics = self.metr_vals.create_df_metrics('Metrics')
-        df_featsel = self.metr_vals.create_df_metrics('FeatureSelect')
-        df_whitetest = self.metr_vals.create_df_metrics('pvalues')
+        df_metrics = self.metr_vals.create_df_metrics('Metrics', index_col=index_col)
+        df_featsel = self.metr_vals.create_df_metrics('FeatureSelect', index_col=index_col)
+        df_whitetest = self.metr_vals.create_df_metrics('pvalues', index_col=index_col)
 
         # Store results
         for df, filename in zip([df_metrics, df_featsel, df_whitetest], ['Metrics','feature_select','whitetest']):
