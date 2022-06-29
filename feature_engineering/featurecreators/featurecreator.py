@@ -1,14 +1,15 @@
 from ..interfaces import PickleInterface, MaskFeatsExpanded, BaseFitTransform
+from sklearn.base import TransformerMixin
 
 
-class FeatureCreator(PickleInterface, MaskFeatsExpanded, BaseFitTransform):
+class FeatureCreator(PickleInterface, MaskFeatsExpanded, BaseFitTransform, TransformerMixin):
     """
     Basic feature creator
     """
     selected_feats=None
 
     def __init__(self, selected_feats=[], **kwargs):
-        super(FeatureCreator, self).__init__(**kwargs)
+        MaskFeatsExpanded.__init__(**kwargs)
         self.selected_feats = selected_feats
 
     def fit(self, X, y=None, **fit_params):

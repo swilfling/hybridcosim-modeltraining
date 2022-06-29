@@ -1,11 +1,12 @@
 from abc import abstractmethod
 from scipy import signal as sig
 
+from sklearn.base import TransformerMixin, BaseEstimator
 from .compensators import OffsetComp, NaNComp
 from ..interfaces import BaseFitTransform, MaskFeats, PickleInterface
 
 
-class Filter(BaseFitTransform, MaskFeats, PickleInterface):
+class Filter(MaskFeats, BaseFitTransform, PickleInterface, TransformerMixin):
     """
     Signal filter - based on sklearn TransformerMixin. Can be stored to pickle file.
     Options:
@@ -17,16 +18,15 @@ class Filter(BaseFitTransform, MaskFeats, PickleInterface):
     coef_ = [[0], [0]]
 
     def __init__(self, remove_offset=False, keep_nans=False, **kwargs):
-        super().__init__(**kwargs)
+        MaskFeats.__init__(self, **kwargs)
         self.offset_comp = OffsetComp(remove_offset)
         self.nan_comp = NaNComp(keep_nans)
 
     def fit(self, X, y=None, **fit_params):
-        super().fit(self.mask_feats(X))
+        return super().fit(self.mask_feats(X))
 
     def _fit(self, X, y=None, **fit_params):
         self.coef_ = self.calc_coef(X, y, **fit_params)
-        return self
 
     def transform(self, X):
         """

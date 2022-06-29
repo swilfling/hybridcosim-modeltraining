@@ -4,7 +4,7 @@
     "dataset_dir":"Data/Beyond/T24/",
     "dataset_filename":"T24_full",
     "stat_feats": ["Text", "GHI"],
-    "to_smoothe": ["Text","Tint","GHI"],
+    "to_smoothe": ["Text","GHI"],
     "stat_vals": [],
     "stat_ws": 24
 }
