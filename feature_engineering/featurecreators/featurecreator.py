@@ -9,7 +9,7 @@ class FeatureCreator(PickleInterface, MaskFeatsExpanded, BaseFitTransform, Trans
     selected_feats=None
 
     def __init__(self, selected_feats=[], **kwargs):
-        MaskFeatsExpanded.__init__(**kwargs)
+        MaskFeatsExpanded.__init__(self, **kwargs)
         self.selected_feats = selected_feats
 
     def fit(self, X, y=None, **fit_params):

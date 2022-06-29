@@ -9,7 +9,7 @@ class FeatureExpansion(TransformerMixin, PickleInterface, Reshape, BaseFitTransf
     Implements scikit-learn's TransformerMixin interface, allows storing and loading from pickle
     """
     def __init__(self, **kwargs):
-        MaskFeatsExpanded.__init__(**kwargs)
+        MaskFeatsExpanded.__init__(self, **kwargs)
 
     def fit(self, X, y=None, **fit_params):
         """

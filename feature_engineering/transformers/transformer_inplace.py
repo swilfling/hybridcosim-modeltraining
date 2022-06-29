@@ -7,7 +7,7 @@ class Transformer_inplace(TransformerMixin, PickleInterface, BaseFitTransform, M
     Transform only selected features - keep other features
     """
     def __init__(self, **kwargs):
-        MaskFeats.__init__(**kwargs)
+        MaskFeats.__init__(self, **kwargs)
 
     def fit(self, X, y=None, **fit_params):
         self._fit(self.mask_feats(X), y, **fit_params)
