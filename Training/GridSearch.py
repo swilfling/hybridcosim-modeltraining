@@ -4,7 +4,7 @@ from ..feature_engineering.expandedmodel import ExpandedModel
 from ..datamodels.datamodels import Model
 
 
-def best_estimator(model: Model, x_train: np.ndarray, y_train: np.ndarray, parameters={}):
+def best_estimator(model: Model, x_train: np.ndarray, y_train: np.ndarray, parameters={}, cv_folds=5):
     """
     Grid search for best estimator
     @param model: object of class Model or ExpandedModel
@@ -14,7 +14,7 @@ def best_estimator(model: Model, x_train: np.ndarray, y_train: np.ndarray, param
     @return: Best parameters - dict
     """
     # Transform x train
-    search = GridSearchCV(model.get_estimator(), parameters, scoring=['r2','neg_mean_squared_error','neg_mean_absolute_error'],refit='r2', verbose=4)
+    search = GridSearchCV(model.get_estimator(), parameters, cv=cv_folds, scoring=['r2','neg_mean_squared_error','neg_mean_absolute_error'],refit='r2', verbose=4)
     x_train = model.reshape_data(x_train)
     x_train, y_train = model.scale(x_train, y_train)
     if isinstance(model, ExpandedModel):
@@ -28,7 +28,7 @@ def best_estimator(model: Model, x_train: np.ndarray, y_train: np.ndarray, param
     return search.best_params_
 
 
-def best_pipeline(model: ExpandedModel, x_train: np.ndarray, y_train: np.ndarray, parameters={}):
+def best_pipeline(model: ExpandedModel, x_train: np.ndarray, y_train: np.ndarray, parameters={}, cv_folds=5):
     """
     Grid search for best pipeline
     @param model: object of class Model or ExpandedModel
@@ -37,7 +37,7 @@ def best_pipeline(model: ExpandedModel, x_train: np.ndarray, y_train: np.ndarray
     @parameters: Grid search parameters
     @return: Best parameters - dict
     """
-    search = GridSearchCV(model.get_full_pipeline(), parameters, scoring=['r2','neg_mean_squared_error','neg_mean_absolute_error'],refit='r2', verbose=4)
+    search = GridSearchCV(model.get_full_pipeline(), parameters, cv=cv_folds, scoring=['r2','neg_mean_squared_error','neg_mean_absolute_error'],refit='r2', verbose=4)
     # Transform x train
     x_train, y_train = model.preprocess(x_train, y_train)
     search.fit(x_train, y_train)

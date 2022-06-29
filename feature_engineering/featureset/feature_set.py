@@ -75,7 +75,7 @@ class FeatureSet:
     def get_dynamic_output_feature_names(self, model_name=None):
         return self.get_feat_names(self.get_selected_feats_w_attrs(model_name, attrs=['output', 'dynamic']))
 
-    def get_static_input_feature_names(self, model_name=""):
+    def get_static_input_feature_names(self, model_name=None):
         return self.get_feat_names(self.get_selected_feats_w_attrs(model_name, attrs=['input', 'static']))
 
     def get_feature_by_name(self, name):
