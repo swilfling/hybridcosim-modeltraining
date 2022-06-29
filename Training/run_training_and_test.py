@@ -4,7 +4,7 @@ from .TrainingUtilities import training_utils as train_utils
 from .predict import predict_with_history
 from .GridSearch import best_estimator
 from ..feature_engineering.parameters import TrainingParams, TrainingParamsExpanded
-from ..Utilities.trainingresults import TrainingResults
+from ..Utilities.trainingdata import TrainingData
 from ..datamodels.datamodels.processing.datascaler import DataScaler
 from ..datamodels.datamodels import Model
 from ModelTraining.feature_engineering.expandedmodel import ExpandedModel, TransformerSet
@@ -82,11 +82,11 @@ def run_training_model(data, training_params=TrainingParams(), model_parameters=
     # Predict test data
     y_pred = predict_with_history(model, index_test, x_test, y_test, training_params) \
         if prediction_type == 'History' else model.predict(x_test)
-    result = TrainingResults(train_index=index_train,
-                             train_target=y_train,
-                             test_index=index_test,
-                             test_target=y_test,
-                             test_prediction=y_pred,
-                             test_input=x_test,
-                             target_feat_names=training_params.target_features)
+    result = TrainingData(train_index=index_train,
+                          train_target=y_train,
+                          test_index=index_test,
+                          test_target=y_test,
+                          test_prediction=y_pred,
+                          test_input=x_test,
+                          target_feat_names=training_params.target_features)
     return model, result

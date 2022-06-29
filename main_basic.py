@@ -11,10 +11,10 @@ from ModelTraining.Training.predict import predict_history_ar
 from ModelTraining.datamodels.datamodels import Model
 from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
 from ModelTraining.datamodels.datamodels.processing import DataScaler
-from ModelTraining.Training.GridSearch import best_estimator
+from ModelTraining.Training.GridSearch import best_estimator, best_pipeline
 from ModelTraining.Utilities.Plotting import plot_data as plt_utils
 from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded, TransformerParams
-from ModelTraining.Utilities import TrainingResults
+from ModelTraining.Utilities import TrainingData
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
@@ -23,7 +23,7 @@ from ModelTraining.feature_engineering.filters import ButterworthFilter
 if __name__ == '__main__':
     data_dir_path = "../"
     config_path = os.path.join("./", 'Configuration')
-    usecase_name = 'Beyond_T24_arx'
+    usecase_name = 'Beyond_T24_dyn'
     result_dir = f"./results/{usecase_name}"
     os.makedirs(result_dir, exist_ok=True)
     dict_usecase = load_from_json(os.path.join(config_path,'UseCaseConfig', f"{usecase_name}.json"))
@@ -62,18 +62,28 @@ if __name__ == '__main__':
                                        lookback_horizon=5,
                                        target_features=target_features,
                                        prediction_horizon=1,
-                                       static_input_features=feature_set.get_static_feature_names(),
+                                       static_input_features=feature_set.get_static_input_feature_names(),
                                        dynamic_input_features=feature_set.get_dynamic_input_feature_names(),
                                        dynamic_output_features=feature_set.get_dynamic_output_feature_names(),
                                        training_split=0.8,
                                        normalizer="Normalizer",
-                                             transformer_params=[TransformerParams(type='MICThreshold', params={'thresh': 0.05})])
+                                             transformer_params=[
+                                                 TransformerParams('DynamicFeatures', {'lookback_horizon': 5,
+                                                                                       'flatten_dynamic_feats': True,
+                                                                                       'features_to_transform':[c in feature_set.get_dynamic_input_feature_names() for c in feature_set.get_input_feature_names()]}),
+                                                 TransformerParams('MICThreshold', {'thresh': 0.05})])
 
 
     # Extract data and reshape
-    index, x, y, feature_names = ModelTraining.Training.TrainingUtilities.training_utils.extract_training_and_test_set(data, training_params)
+    #index, x, y, feature_names = ModelTraining.Training.TrainingUtilities.training_utils.extract_training_and_test_set(data, training_params)
+    index = data.index
+    x = data[training_params.static_input_features + training_params.dynamic_input_features]
+    y = data[training_params.target_features]
+    feature_names = training_params.static_input_features + training_params.dynamic_input_features
+
     index_train, x_train, y_train, index_test, x_test, y_test = ModelTraining.Training.TrainingUtilities.training_utils.split_into_training_and_test_set(
         index, x, y, training_params.training_split)
+
 
     # Create model
     logging.info(f"Training model with input of shape: {x_train.shape} and targets of shape {y_train.shape}")
@@ -84,33 +94,39 @@ if __name__ == '__main__':
     transformers = TransformerSet.from_list_params(training_params.transformer_params)
     model = ExpandedModel(transformers=transformers, model=model_basic, feature_names=feature_names)
     # Grid search
-    #parameters = {"micthreshold__thresh": [0.1, 0.2, 0.3, 0.5, 0.75]}
-    #best_params = best_pipeline(model, x_train, y_train, parameters=parameters)
+    parameters = {"micthreshold__thresh": [0.01, 0.02, 0.05, 0.1],
+                  "dynamicfeatures__lookback_horizon": [5,10]}
+    best_params = best_pipeline(model, x_train, y_train, parameters=parameters)
     #print(best_params)
-    #model.transformers.get_transformer_by_name("micthreshold").set_params(thresh=best_params['micthreshold__thresh'])
-    best_params = best_estimator(model, x_train, y_train, parameters={})
-    model.get_estimator().set_params(**best_params)
+    for k, val in best_params.items():
+        model.transformers.set_transformer_attributes(k.split("__")[0], {k.split("__")[1]: val})
+    #best_params = best_estimator(model, x_train, y_train, parameters={})
+    #model.get_estimator().set_params(**best_params)
     # Train model
     model.train(x_train, y_train)
-    transformers.get_transformer_by_index(0).print_metrics()
+    transformers.get_transformer_by_index(1).print_metrics()
     # Save Model
-    train_utils.save_model_and_params(model, training_params, os.path.join(result_dir,
-                                                                           f"Models/{training_params.model_name}/{training_params.model_type}"))
+    output_dir = os.path.join(result_dir, f"Models/{training_params.model_name}/{training_params.model_type}")
+    train_utils.save_model_and_params(model, training_params, output_dir)
     # Predict test data
     prediction_length = 7
-    print(feature_names)
-    y_forecast = predict_history_ar(model, index_test, x_test, y_test, training_params, prediction_length=prediction_length, feature_names=feature_names)
-    result_forecast = TrainingResults(test_target=y_test[:prediction_length + training_params.lookback_horizon + 1],
-                                      test_prediction=y_forecast,
-                                      test_index=index_test[:prediction_length + training_params.lookback_horizon + 1],
-                                      test_input=x_test[:prediction_length + training_params.lookback_horizon + 1],
-                                      target_feat_names=target_features)
-    plt_utils.plot_data(result_forecast.test_result_df(), result_dir, "result_forecast")
+    #y_forecast = predict_history_ar(model, index_test, x_test, y_test, training_params, prediction_length=prediction_length, feature_names=feature_names)
+   # result_forecast = TrainingResults(test_target=y_test[:prediction_length + training_params.lookback_horizon + 1],
+   #                                   test_prediction=y_forecast,
+   #                                   test_index=index_test[:prediction_length + training_params.lookback_horizon + 1],
+   #                                   test_input=x_test[:prediction_length + training_params.lookback_horizon + 1],
+   #                                   target_feat_names=target_features)
+   # plt_utils.plot_data(result_forecast.test_result_df(), result_dir, "result_forecast")
 
     # Calculate and export metrics
     test_prediction = model.predict(x_test)
-    result_data = TrainingResults(train_index=index_train.to_numpy(), train_target=y_train, test_index=index_test.to_numpy(),
-                                  test_target=y_test, test_prediction=test_prediction, test_input=x_test, target_feat_names=target_features)
+    result_data = TrainingData(train_index=index_train.to_numpy(),
+                               train_target=y_train.to_numpy(),
+                               test_index=index_test.to_numpy()[training_params.lookback_horizon:],
+                               test_target=y_test.to_numpy()[training_params.lookback_horizon:],
+                               test_prediction=test_prediction[training_params.lookback_horizon:],
+                               test_input=x_test.to_numpy()[training_params.lookback_horizon:],
+                               target_feat_names=target_features)
     result_data.save_pkl(result_dir, "result_data.pkl")
     # Calculate metrics
     metr_exp = MetricsCalc()

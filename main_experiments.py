@@ -1,7 +1,7 @@
 #%%
 import ModelTraining.Preprocessing.add_features as feat_utils
 from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded, TransformerParams
-from ModelTraining.Utilities import TrainingResults
+from ModelTraining.Utilities import TrainingData
 from ModelTraining.feature_engineering.feature_selectors import FeatureSelector
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Training.run_training_and_test import run_training_model
@@ -97,24 +97,20 @@ if __name__ == '__main__':
                 for model_type in model_types:
                     for feat in feature_set.get_output_feature_names():
                         # Load results
-                        result = TrainingResults.load_pkl(result_exp.results_root,
+                        result = TrainingData.load_pkl(result_exp.results_root,
                                                           f'results_{model_type}_{feat}_{training_params.str_expansion()}.pkl') # TODO fix this
                         model_dir = os.path.join(result_exp.results_root,
                                                  f'Models/{feat}/{model_type}_{training_params.str_expansion()}/{feat}')
                         model = ExpandedModel.load_pkl(model_dir, "expanded_model.pkl")
                         # Export model properties
-                        result_exp.export_model_properties(model, model.transformers.type_transf_full())
-                        result_exp.export_featsel_metrs(model, model.transformers.type_transf_full())
-                        result_exp.export_result(result, f'{model_type}_{training_params.str_expansion()}')
+                        result_exp.export_result_full(model, result, model.transformers.type_transf_full())
                         # Calculate metrics
-                        metr_vals_perf = metr_exp.calc_perf_metrics(result, model.get_num_predictors())
-                        metr_vals_white = metr_exp.white_test(result)
-                        metr_vals_featsel = metr_exp.analyze_featsel(model.transformers.get_transformers_of_type(FeatureSelector))
-                        metr_vals = metr_vals_perf + metr_vals_white + metr_vals_featsel
+                        selectors = model.transformers.get_transformers_of_type(FeatureSelector)
+                        metr_vals = metr_exp.calc_all_metrics(result, selectors, model.get_num_predictors())
                         # Set metrics identifiers
-                        for metr_val in metr_vals_perf:
+                        for metr_val in metr_vals:
                             metr_val.set_metr_properties(model_type, model.name, model.transformers.type_last_transf(FeatureExpansion),
                                                          params_name, usecase_name)
-                        metr_exp.add_metr_vals(metr_vals_perf)
+                        metr_exp.add_metr_vals(metr_vals)
     metr_exp.store_all_metrics(results_path=metrics_path, timestamp=timestamp)
     print('Result analysis finished')

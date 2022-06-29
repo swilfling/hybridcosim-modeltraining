@@ -6,7 +6,7 @@ from sklearn.model_selection import TimeSeriesSplit
 from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.dataimport.data_import import load_from_json
 from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded, TransformerParams
-from ModelTraining.Utilities import TrainingResults
+from ModelTraining.Utilities import TrainingData
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Utilities.Plotting.plot_data as plt_utils
 from ModelTraining.Training.predict import predict_gt, predict_with_history
@@ -96,8 +96,8 @@ if __name__ == '__main__':
                 x_train_k, x_test_k = x[train_ind, :], x[test_ind, :]
                 y_train_k, y_test_k = y[train_ind], y[test_ind]
                 model.train(x_train_k, y_train_k)
-                result_k = TrainingResults(train_index=train_ind, train_target=y_train_k,
-                                           test_index=test_ind, test_target=y_test_k)
+                result_k = TrainingData(train_index=train_ind, train_target=y_train_k,
+                                        test_index=test_ind, test_target=y_test_k)
                 result_prediction_k = predict_with_history(model, test_ind, x_test_k, y_test_k, training_parameters)
                 result_k.test_prediction = np.expand_dims(result_prediction_k[f"predicted_{feature}"], axis=-1)
                 measures = metrics.all_metrics(y_true=result_k.test_target, y_pred=result_k.test_prediction)
@@ -125,9 +125,9 @@ if __name__ == '__main__':
         models.append(model)
 
         result_prediction = predict_with_history(model, index_test, x_test, y_test, training_parameters)
-        result = TrainingResults(train_index=index_train, train_target=y_train,
-                                 test_index=index_test, test_target=y_test,
-                                 test_prediction=result_prediction, target_feat_names=target_features)
+        result = TrainingData(train_index=index_train, train_target=y_train,
+                              test_index=index_test, test_target=y_test,
+                              test_prediction=result_prediction, target_feat_names=target_features)
         title = f"{training_parameters.model_type} - {training_parameters.model_name}"
 
         plot_dir = pathlib.Path(os.path.join(training_results_path, plot_dir_name))

@@ -5,7 +5,7 @@ import pandas as pd
 from ModelTraining.feature_engineering.feature_selectors import FeatureSelector
 from ModelTraining.feature_engineering.feature_expanders import FeatureExpansion
 from . import metr_utils
-from ..trainingresults import TrainingResults
+from ..trainingdata import TrainingData
 from ..Plotting import plot_data as plt_utils
 from ModelTraining.feature_engineering.expandedmodel import ExpandedModel
 
@@ -52,19 +52,18 @@ class ResultExport:
 
     ########################################### Export all results #####################################################
 
-    def export_results_full(self, models: List[ExpandedModel], results: List[TrainingResults]):
+    def export_result_full(self, model: ExpandedModel, result: TrainingData, title=""):
         """
         Export all results.
-        @param models: List of models
-        @param results: List of results - corresponding to models
-        @param list_selectors: List of selector sets
+        @param model: Model
+        @param result: TrainingData
+        @param title: title for output files
         """
-        for model, result in zip(models, results):
-            model_name = f'{model.name}_{model.transformers.type_last_transf()}'
-            model_name_full = f'{model.model.__class__.__name__}_{model_name}'
-            self.export_featsel_metrs(model)
-            self.export_model_properties(model)
-            self.export_result(result, model_name_full)
+        model_name = f'{model.name}_{model.transformers.type_last_transf()}'
+        model_name_full = f'{model.model.__class__.__name__}_{model_name}'
+        self.export_featsel_metrs(model, title)
+        self.export_model_properties(model, title)
+        self.export_result(result, f'{model_name_full}_{title}')
 
     ############################################## Export functions ####################################################
 
@@ -120,7 +119,7 @@ class ResultExport:
             model.model.get_rules().to_csv(os.path.join(property_dir, f'Rules_{title_full}.csv'), float_format="%.2f",
                                      index_label='Rule')
 
-    def export_result(self, result: TrainingResults, title=""):
+    def export_result(self, result: TrainingData, title=""):
         """
         Export result to csv - optional plotting
         @param result: TrainingResults structure

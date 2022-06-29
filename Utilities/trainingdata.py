@@ -6,12 +6,13 @@ import pandas as pd
 from typing import List
 
 @dataclass
-class TrainingResults(PickleInterface):
+class TrainingData(PickleInterface):
     """
     This class contains the results for training and test set.
     """
     train_index: np.ndarray = None
     train_target: np.ndarray = None
+    train_input: np.ndarray = None
     train_prediction: np.ndarray = None
     test_index: np.ndarray = None
     test_target: np.ndarray = None

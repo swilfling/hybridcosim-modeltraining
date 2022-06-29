@@ -18,13 +18,13 @@ import pandas as pd
 import os
 from matplotlib import pyplot as plt
 from . import utils as plt_utils
-from ..trainingresults import TrainingResults
+from ..trainingdata import TrainingData
 
 
 ############################# Single plot ##############################################################################
 
 
-def plot_training_results(result: TrainingResults, path="./", filename="Result", fig_title: str="Result", fmt="png"):
+def plot_training_results(result: TrainingData, path="./", filename="Result", fig_title: str= "Result", fmt="png"):
     """
     Plot training results
     @param result: TrainingResults structure

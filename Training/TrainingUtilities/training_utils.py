@@ -7,11 +7,12 @@ import copy
 from sklearn.model_selection import train_test_split
 
 from ...Utilities import feature_combination as fc
-from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded
-from ModelTraining.feature_engineering.expandedmodel import ExpandedModel
-from ModelTraining.feature_engineering.feature_expanders import PolynomialExpansion
+from ...feature_engineering.parameters import TrainingParams, TrainingParamsExpanded
+from ...feature_engineering.expandedmodel import ExpandedModel
+from ...feature_engineering.feature_expanders import PolynomialExpansion
 from ...datamodels.datamodels.processing.shape import split_into_target_segments
 from ...datamodels.datamodels import Model
+from ...Utilities.trainingdata import TrainingData
 
 
 ############################# Model saving and plotting ##############################
@@ -79,6 +80,21 @@ def split_into_training_and_test_set(index, x, y, training_split=0.8, shuffle=Fa
     index_train, index_test, x_train, x_test, y_train, y_test = train_test_split(index, x, y, train_size=training_split, shuffle=shuffle)
     return index_train, x_train, y_train, index_test, x_test, y_test
 
+
+def create_train_data(index, x, y, training_split=0.8, shuffle=False):
+    """
+    Split data into training and test set
+    @param index: index (n_samples)
+    @param x: input data (n_samples, lookback + 1, n_features)
+    @param y: target values (n_samples, n_target_features)
+    @training_split: fraction of data to use in training set
+    @param shuffle: use random sampling
+    @return: separated data
+    """
+    index_train, index_test, x_train, x_test, y_train, y_test = train_test_split(index, x, y, train_size=training_split,
+                                                                                 shuffle=shuffle)
+    return TrainingData(train_index=index_train, test_index=index_test, train_target=y_train, test_target=y_test,
+                        train_input=x_train, test_input=x_test)
 
 def extract_training_and_test_set(data: pd.DataFrame, training_params: TrainingParams):
     """
