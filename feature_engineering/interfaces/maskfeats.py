@@ -36,8 +36,8 @@ class MaskFeats(FeatureNames):
         @param inverse: invert features_to_transform
         @return: selected features
         """
-        mask = np.bitwise_not(self.features_to_transform) if inverse else self.features_to_transform
         if self.features_to_transform is not None:
+            mask = np.bitwise_not(self.features_to_transform) if inverse else self.features_to_transform
             if isinstance(X, pd.DataFrame):
                 return X[X.columns[mask]]
             elif isinstance(X, np.ndarray):

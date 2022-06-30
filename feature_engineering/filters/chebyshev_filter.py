@@ -12,8 +12,9 @@ class ChebyshevFilter(Filter):
     ripple = 0.1
     filter_type = 'lowpass'
 
-    def __init__(self, T=10, order=2, ripple=0.1, filter_type='lowpass', **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, T=10, order=2, ripple=0.1, filter_type='lowpass', remove_offset=False, keep_nans=True,
+                 features_to_transform=None, **kwargs):
+        super().__init__(features_to_transform=features_to_transform, remove_offset=remove_offset, keep_nans=keep_nans)
         self._set_attrs(T=T, order=order, ripple=ripple, filter_type=filter_type)
 
     def calc_coef(self, X, y=None, **fit_params):
