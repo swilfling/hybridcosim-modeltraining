@@ -73,8 +73,4 @@ class BaseFit:
 
 
 class BaseFitTransform(BaseFit, BaseTransform):
-
-    def __init__(self, **kwargs):
-        pass
-
-
+    pass

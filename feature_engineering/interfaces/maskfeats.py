@@ -44,7 +44,8 @@ class MaskFeats(FeatureNames):
                 return X[..., self.features_to_transform]
             else:
                 return np.array(X)[self.features_to_transform]
-        return X
+        else:
+            return None if inverse else X
 
     def combine_feats(self, X_transf, X_orig):
         """
@@ -76,7 +77,8 @@ class MaskFeats(FeatureNames):
         if feature_names is None:
             return None
         feat_names_basic = self.mask_feats(feature_names, inverse=True)
-        feature_names_tr = self._get_feature_names_out(self.mask_feats(feature_names))
+        feat_names_to_transform = self.mask_feats(feature_names)
+        feature_names_tr = self._get_feature_names_out(feat_names_to_transform)
         return self.combine_feats(feature_names_tr, feat_names_basic)
 
 
