@@ -11,7 +11,7 @@ from ModelTraining.feature_engineering.feature_selectors import FeatureSelector
 
 
 class MetricsCalc:
-    metr_names = {'Metrics': ['R2', 'CV-RMS', 'MAPE'],
+    metr_names = {'Metrics': ['R2_SKLEARN', 'CV-RMS', 'MAPE'],
                   'FeatureSelect': ['selected_features', 'all_features'],
                   'pvalues': ['pvalue_lm']}
     metr_vals: MetrValsSet = MetrValsSet()
