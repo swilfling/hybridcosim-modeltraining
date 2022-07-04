@@ -24,3 +24,4 @@ keras~=2.7.0
 ennemi
 minepy
 regscorepy
+imblearn

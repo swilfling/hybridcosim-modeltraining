@@ -1,49 +1,7 @@
 from . import FeatureCreator
-from ..interfaces import BaseFitTransform
 import numpy as np
-import pandas as pd
-from ModelTraining.datamodels.datamodels.processing.shape import split_into_target_segments
-from sklearn.base import BaseEstimator, TransformerMixin
-
-
-class SampleCut(BaseEstimator, TransformerMixin, BaseFitTransform):
-    num_samples = 0
-    internal_samples_ = None
-
-    def __init__(self, num_samples=0, **kwargs):
-        self.num_samples = num_samples
-
-    def transform(self, X):
-        self.internal_samples_ = X[:self.num_samples]
-        return X[self.num_samples:]
-    
-    def inverse_transform(self, X):
-        #return X[self.num_samples:]
-        return np.concatenate((self.internal_samples_, X))
-
-
-class SampleReInit(BaseEstimator, TransformerMixin, BaseFitTransform):
-    num_samples = 0
-    init_val = 0
-    input_shape_= None
-
-    def __init__(self, num_samples=0, init_val=0, **kwargs):
-        self.num_samples = num_samples
-        self.init_val = init_val
-
-    def _fit(self, X, y, **fit_params):
-        self.input_shape_ = X.shape
-
-    def transform(self, X):
-        X[self.num_samples:] = self.init_val
-        return X
-
-    def inverse_transform(self, X):
-        # return X[self.num_samples:]
-        return X
-
-    def create_lookback_samples(self):
-        return np.ones((self.num_samples, *self.input_shape_[1:])) * self.init_val if self.input_shape_ is not None else None
+from ...datamodels.datamodels.processing.shape import split_into_target_segments
+from sklearn.base import BaseEstimator
 
 
 class DynamicFeatures(FeatureCreator, BaseEstimator):
@@ -55,12 +13,13 @@ class DynamicFeatures(FeatureCreator, BaseEstimator):
     """
     lookback_horizon: int = 0
     flatten_dynamic_feats = False
-    return_3d_arrray = False
+    return_3d_array = False
 
-    def __init__(self, lookback_horizon=5, flatten_dynamic_feats=False, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, features_to_transform=None, lookback_horizon=5, flatten_dynamic_feats=False, return_3d_array=False, **kwargs):
+        super().__init__(features_to_transform=features_to_transform)
         self.lookback_horizon = lookback_horizon
         self.flatten_dynamic_feats = flatten_dynamic_feats
+        self.return_3d_array = return_3d_array
 
     def _transform(self, X):
         """
@@ -69,6 +28,7 @@ class DynamicFeatures(FeatureCreator, BaseEstimator):
         @return: transformed features (n_samples, lookback + 1, n_features) or (n_samples, n_features)
         """
         X_transf, _ = split_into_target_segments(X, None, lookback_horizon=self.lookback_horizon, prediction_horizon=0)
+        X_transf = np.concatenate((np.zeros((self.lookback_horizon, *X_transf.shape[1:])),X_transf))
         if self.flatten_dynamic_feats:
             X_transf = X_transf.reshape(X_transf.shape[0], -1)
         return X_transf
@@ -80,11 +40,8 @@ class DynamicFeatures(FeatureCreator, BaseEstimator):
         @param X_orig: original feature vector
         @return: full array
         """
-        x_orig_init = X_orig.copy()
-        if (isinstance(X_orig, np.ndarray) and X_orig.ndim > 1) or isinstance(X_orig, pd.DataFrame):
-            x_orig_init = SampleCut(self.lookback_horizon).transform(x_orig_init)
-        feats = super(DynamicFeatures, self).combine_feats(X_transf, x_orig_init)
-        if self.return_3d_arrray:
+        feats = super(DynamicFeatures, self).combine_feats(X_transf, X_orig)
+        if self.return_3d_array:
             if isinstance(feats, np.ndarray):
                 if feats.ndim == 2:
                     feats = feats.reshape(feats.shape[0], 1, feats.shape[1])
@@ -95,3 +52,4 @@ class DynamicFeatures(FeatureCreator, BaseEstimator):
 
     def _get_feature_names_out(self, feature_names=None):
         return self.get_additional_feat_names(feature_names) + list(feature_names)
+
