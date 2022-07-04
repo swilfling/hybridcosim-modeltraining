@@ -13,8 +13,8 @@ from ModelTraining.feature_engineering.parameters import TrainingParams, Trainin
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc, MetricsVal
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
-from ModelTraining.feature_engineering.filters import ButterworthFilter
 from sklearn.model_selection import GridSearchCV
+from ModelTraining.feature_engineering.combinedtransformers import DynamicFeaturesSampleCut
 
 if __name__ == '__main__':
     data_dir_path = "../"
@@ -31,11 +31,14 @@ if __name__ == '__main__':
                    'RuleFitRegression': 'rulefit', 'XGBoost': 'xgboost'}
 
     transformer_type = 'RThreshold'
-    transformer_params = [TransformerParams(type=transformer_type, params={'thresh': 0.05})]
+    transformer_params = [TransformerParams(type='ButterworthFilter', params={'order':3, 'T':5, 'remove_offset':True}),
+        TransformerParams(type=transformer_type, params={'thresh': 0.05})]
     transformer_name = transformer_type.lower()
-    thresh_params = {f"{transformer_name}__thresh": [0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]}
+    thresh_params = {f"{transformer_name}__thresh": [0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3],
+                     f"butterworthfilter__order":[2,3,5],
+                     f"butterworthfilter__T":[5,10,20]}
     gridsearch_scoring = ['r2', 'neg_mean_squared_error', 'neg_mean_absolute_error']
-    gridsearch_params = {model_type:load_from_json( os.path.join(config_path, "GridSearchParameters", f'parameters_{model_type}.json')) for model_type in model_types}
+    gridsearch_params = {model_type:load_from_json(os.path.join(config_path, "GridSearchParameters", f'parameters_{model_type}.json')) for model_type in model_types}
 
     training_params = TrainingParamsExpanded(model_name="Tint",
                                              training_split=0.8,
@@ -56,21 +59,13 @@ if __name__ == '__main__':
     data = data_import.import_data(data_filename)
     # Configure training params
     feature_set = FeatureSet(os.path.join("./", dict_usecase['fmu_interface']))
-    training_params = train_utils.set_train_params_model(training_params, feature_set, "Tint", model_type,transformer_params)
+    training_params = train_utils.set_train_params_model(training_params, feature_set, feature_set.get_output_feature_names()[0], model_type,transformer_params)
     # Preporocessing
-    data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], filename=dict_usecase['dataset_filename'], do_smoothe=False)
-    # Smoothing - filter
-    preproc_steps = []
-    if smoothe_data:
-        preproc_steps.insert(0, ButterworthFilter(order=3, T=5, keep_nans=False, remove_offset=True,
-                               features_to_transform=[feature in dict_usecase['to_smoothe'] for feature in data.columns]))
-
-    preproc = make_pipeline(*preproc_steps, 'passthrough')
-    import pandas as pd
-    data = pd.DataFrame(columns=data.columns, index=data.index, data=preproc.fit_transform(data))
-
+    data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], filename=dict_usecase['dataset_filename'], do_smoothe=True)
 
     ####################################### Main loop #################################################################
+    training_data = data[training_params.static_input_features + training_params.dynamic_input_features]
+    target_data = data[training_params.target_features]
 
     metr_exp = MetricsCalc()
     for model_type in model_types:
@@ -79,9 +74,17 @@ if __name__ == '__main__':
             training_params.lookback_horizon = lookback_horizon
             result_dir_model = os.path.join(result_dir, f"{model_type}_{lookback_horizon}")
             os.makedirs(result_dir_model)
-
             # Extract data and reshape
-            index, x, y, feature_names = train_utils.extract_training_and_test_set(data, training_params)
+            if len(training_params.dynamic_input_features) > 0:
+                dynfeats = DynamicFeaturesSampleCut(features_to_transform=[feat in training_params.dynamic_input_features for feat in training_data.columns],
+                                                 lookback_horizon=training_params.lookback_horizon,
+                                                 flatten_dynamic_feats=True)
+                x, y = dynfeats.fit_resample(training_data.to_numpy(), target_data.to_numpy())
+                index = data.index[dynfeats.lookback_horizon:]
+                feature_names = dynfeats.get_feature_names_out(training_params.static_input_features + training_params.dynamic_input_features)
+            else:
+                x, y, index, feature_names = training_data.to_numpy(), target_data.to_numpy(), training_data.index, training_data.columns
+            # structure
             train_data = train_utils.create_train_data(index, x, y, training_params.training_split)
             x_train, y_train = train_data.train_input, train_data.train_target
             train_data.target_feat_names = training_params.target_features
@@ -92,6 +95,7 @@ if __name__ == '__main__':
                                           x_scaler_class=DataScaler.cls_from_name(training_params.normalizer),
                                           name=training_params.str_target_feats(), parameters={})
             transformers = TransformerSet.from_list_params(training_params.transformer_params)
+            transformers.get_transformer_by_name('butterworthfilter').features_to_transform=[True] * len(feature_names)
             model = ExpandedModel(transformers=transformers, model=model_basic, feature_names=feature_names)
             # Grid search
             parameters = thresh_params.copy()
@@ -134,7 +138,7 @@ if __name__ == '__main__':
                 filename = os.path.join(result_dir_model, f"{type}_{experiment_name}.csv")
                 metr_exp.store_metr_df(metr_exp.get_metr_df(type), filename)
             # Export results
-            ResultExport(results_root=result_dir_model, plot_enabled=True).export_result_full(model,train_data, str(lookback_horizon))
+            ResultExport(results_root=result_dir_model, plot_enabled=True).export_result_full(model, train_data, str(lookback_horizon))
         # Store all metrics
         metr_exp.store_all_metrics(result_dir, index_col='expansion_type')
         print('Experiment finished')

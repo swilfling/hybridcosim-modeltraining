@@ -52,7 +52,7 @@ if __name__ == '__main__':
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
-        data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], dict_usecase['dataset_filename'], do_smoothe=True)
+        data = dp_utils.preprocess_data(data, dict_usecase['dataset_filename'])
 
         feats_for_density = [feature.name for feature in feature_set.get_input_feats() if
                              not feature.cyclic and not feature.statistical]
@@ -112,7 +112,7 @@ if __name__ == '__main__':
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
-        data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], dict_usecase['dataset_filename'], do_smoothe=True)
+        data = dp_utils.preprocess_data(data, dict_usecase['dataset_filename'])
 
         feats_for_density = [feature.name for feature in feature_set.get_input_feats() if
                              not feature.cyclic and not feature.statistical]
@@ -175,7 +175,7 @@ if __name__ == '__main__':
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
-        data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], dict_usecase['dataset_filename'], do_smoothe=False)
+        data = dp_utils.preprocess_data(data, dict_usecase['dataset_filename'])
 
         feats_for_density = [feature.name for feature in feature_set.get_input_feats() if
                              not feature.cyclic and not feature.statistical]

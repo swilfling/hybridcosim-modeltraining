@@ -1,8 +1,6 @@
 import numpy as np
 import pandas as pd
-from typing import List
-from ..feature_engineering.filters import ButterworthFilter, ChebyshevFilter, Envelope_MA
-
+from ..feature_engineering.filters import ChebyshevFilter, Envelope_MA
 
 def inverse_transf(data, label):
     data[f'{label}_inv'] = 1.0 / data[label]
@@ -25,7 +23,7 @@ def holiday_weekend(data, holiday_label='holiday', weekday_label='weekday'):
     return data
 
 
-def preprocess_data(data: pd.DataFrame, features_to_smoothe: List[str], filename="", do_smoothe=False, keep_nans=False):
+def preprocess_data(data: pd.DataFrame, filename=""):
     """
         This is the main preprocessing function.
         @param data: Data
@@ -67,14 +65,5 @@ def preprocess_data(data: pd.DataFrame, features_to_smoothe: List[str], filename
 
     data = data.dropna(axis=0)
     data = data.astype('float')
-
-
-    if do_smoothe:
-        filter = ButterworthFilter(order=2, T=10, keep_nans=keep_nans, remove_offset=True,
-                                   features_to_transform=features_to_smoothe)
-        data = filter.fit_transform(data)
-
-    data = data.astype('float')
-    data = data.dropna(axis=0)
     return data
 

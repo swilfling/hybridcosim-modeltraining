@@ -35,7 +35,7 @@ if __name__ == '__main__':
     smoothe_data = False
     plot_enabled = True
 
-    data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], filename=dict_usecase['dataset_filename'], do_smoothe=smoothe_data)
+    data = dp_utils.preprocess_data(data, filename=dict_usecase['dataset_filename'])
 
     # Cyclic, categorical and statistical features
     cyclic_feat_cr = CyclicFeatures(dict_usecase.get('cyclical_feats', []))

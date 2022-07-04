@@ -65,7 +65,7 @@ if __name__ == '__main__':
         data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
-        data = dp_utils.preprocess_data(data, dict_usecase['to_smoothe'], dict_usecase['dataset_filename'], do_smoothe=False)
+        data = dp_utils.preprocess_data(data, dict_usecase['dataset_filename'])
         # Main loop
         for params_name in params_names:
             os.makedirs(os.path.join(results_path, dict_usecase['name'], params_name), exist_ok=True)
