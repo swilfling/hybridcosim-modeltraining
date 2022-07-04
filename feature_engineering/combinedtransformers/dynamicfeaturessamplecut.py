@@ -2,7 +2,7 @@ from imblearn.base import SamplerMixin
 from sklearn.base import BaseEstimator
 
 from ..featurecreators import DynamicFeatures
-from ..resamplers import SampleCut
+from ..resamplers import SampleCut_imblearn
 
 
 class DynamicFeaturesSampleCut(SamplerMixin, BaseEstimator):
@@ -31,7 +31,7 @@ class DynamicFeaturesSampleCut(SamplerMixin, BaseEstimator):
                                           flatten_dynamic_feats=self.flatten_dynamic_feats,
                                           return_3d_array=self.return_3d_array,
                                           features_to_transform=self.features_to_transform)
-        self.sample_cut_ = SampleCut(self.lookback_horizon)
+        self.sample_cut_ = SampleCut_imblearn(self.lookback_horizon)
         return self
 
     def resample(self, X, y):
