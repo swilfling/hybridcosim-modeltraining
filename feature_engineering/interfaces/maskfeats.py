@@ -37,13 +37,13 @@ class MaskFeats(FeatureNames):
         @return: selected features
         """
         if self.features_to_transform is not None:
-            mask = np.bitwise_not(self.features_to_transform) if inverse else self.features_to_transform
+            mask = np.bitwise_not(self.features_to_transform) if inverse else np.array(self.features_to_transform)
             if isinstance(X, pd.DataFrame):
                 return X[X.columns[mask]]
             elif isinstance(X, np.ndarray):
-                return X[..., self.features_to_transform]
+                return X[..., mask]
             else:
-                return np.array(X)[self.features_to_transform]
+                return np.array(X)[mask]
         else:
             return None if inverse else X
 
@@ -76,10 +76,9 @@ class MaskFeats(FeatureNames):
         """
         if feature_names is None:
             return None
-        feat_names_basic = self.mask_feats(feature_names, inverse=True)
         feat_names_to_transform = self.mask_feats(feature_names)
         feature_names_tr = self._get_feature_names_out(feat_names_to_transform)
-        return self.combine_feats(feature_names_tr, feat_names_basic)
+        return self.combine_feats(np.array(feature_names_tr), feature_names)
 
 
 class MaskFeatsExpanded(MaskFeats):
@@ -93,7 +92,19 @@ class MaskFeatsExpanded(MaskFeats):
                     x_basic[name] = X_transf[..., i]
                 return x_basic
             else:
-                x_basic = X_orig[np.bitwise_not(self.features_to_transform)]
+                x_basic = self.mask_feats(X_orig, inverse=True)
                 return np.concatenate((x_basic, X_transf), axis=-1)
         else:
             return X_transf
+
+    def get_feature_names_out(self, feature_names=None):
+        """
+        Get output feature names
+        @param feature_names: input feature names
+        @return: transformed feature names
+        """
+        if feature_names is None:
+            return None
+        feat_names_to_transform = self.mask_feats(feature_names)
+        feature_names_tr = self._get_feature_names_out(feat_names_to_transform)
+        return self.combine_feats(np.array(feature_names_tr), feature_names)
