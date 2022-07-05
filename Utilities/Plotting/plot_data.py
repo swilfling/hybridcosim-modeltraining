@@ -160,10 +160,17 @@ def barplot(data: pd.Series, path='./', filename='Barplot', **kwargs):
     fig_title = kwargs.pop('fig_title', "")
     fig, ax = plt_utils.create_figure(fig_title, figsize=kwargs.pop('figsize', None))
     plt.tight_layout(rect=[0.05, 0.3, 1.0, 1.0])
-    index = np.arange(len(data.index))
-    plt.bar(index, data.values)
+    if isinstance(data, np.ndarray) or isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
+        index = np.arange(data.shape[0])
+    else:
+        index = np.arange(len(data))
+    if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
+        plt.bar(index, data.values)
+    else:
+        plt.bar(index, data)
     if kwargs.get('ylabel', None):
         plt.ylabel(kwargs.pop('ylabel'))
-    ax.set_xticks(index, labels=data.index, rotation=90)
+    if isinstance(data, pd.DataFrame) or isinstance(data, pd.Series):
+        ax.set_xticks(index, labels=data.index, rotation=90)
     plt_utils.save_figure(path, filename, store_tikz=store_tikz)
     plt.show()

@@ -9,16 +9,22 @@ class SplineInterpolator(FeatureExpansion):
      see https://scikit-learn.org/dev/modules/generated/sklearn.preprocessing.SplineTransformer.html
     Implements scikit-learn's TransformerMixin interface.
     """
-    def __init__(self, n_knots=5, degree=3, **kwargs):
-        super().__init__(**kwargs)
-        self.model = SplineTransformer(n_knots=n_knots, degree=degree)
+    n_knots = 5
+    degree = 3
+    model_ = None
+
+    def __init__(self, n_knots=5, degree=3, features_to_transform=None, **kwargs):
+        super().__init__(features_to_transform=features_to_transform)
+        self.n_knots = n_knots
+        self.degree = degree
 
     def _get_feature_names_out(self, feature_names=None):
-        return self.model.get_feature_names_out(feature_names)
+        return self.model_.get_feature_names_out(feature_names)
 
     def _fit(self, X=None, y=None, **fit_params):
-        self.model.fit(X, y)
+        self.model_ = SplineTransformer(n_knots=self.n_knots, degree=self.degree)
+        self.model_.fit(X, y)
 
     def _transform(self, x=None):
-        return self.model.transform(x)
+        return self.model_.transform(x)
 
