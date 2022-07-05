@@ -64,7 +64,9 @@ class MetricsCalc:
         """
         list_metr_vals = []
         for feat in result.target_feat_names:
-            white_pvals = white_test(result.test_input, result.test_target_vals(feat) - result.test_pred_vals(feat))
+            residual = result.test_target_vals(feat) - result.test_pred_vals(feat)
+            residual = residual.to_numpy() if isinstance(residual, (pd.Series, pd.DataFrame)) else residual
+            white_pvals = white_test(result.test_input, residual)
             for k, v in white_pvals.items():
                 if k in self.metr_names['pvalues']:
                     list_metr_vals.append(MetricsVal(metrics_type='pvalues', metrics_name=k, val=v, target_feat=feat))
