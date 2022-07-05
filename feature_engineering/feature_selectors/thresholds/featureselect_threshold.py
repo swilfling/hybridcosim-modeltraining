@@ -1,5 +1,6 @@
 from .. import FeatureSelector
 import numpy as np
+import pandas as pd
 
 
 class FeatureSelectThreshold(FeatureSelector):
@@ -10,9 +11,8 @@ class FeatureSelectThreshold(FeatureSelector):
             - Omit zero samples from calculation if necessary
     """
     coef_ = None
-    nonzero = None
+    nonzero_ = None
     omit_zero_samples = False
-    nz_idx = None
     thresh = 0
 
     def __init__(self, thresh=0, omit_zero_samples=False,  **kwargs):
@@ -26,13 +26,13 @@ class FeatureSelectThreshold(FeatureSelector):
         @param x: Input feature vector (n_samples, n_features)
         @param y: Target feature vector (n_samples)
         """
-        self.nonzero = ~np.all(X == 0, axis=0)
-        self.nz_idx = np.where(self.nonzero)
+        self.nonzero_ = ~np.all(X == 0, axis=0)
         self.n_features_in_ = X.shape[-1]
         if self.omit_zero_samples:
-            coef = self.calc_coef(X[:, self.nonzero], y, **fit_params)
+            X_nz = X[X.columns[self.nonzero_]] if isinstance(X, pd.DataFrame) else X[..., self.nonzero_]
+            coef = self.calc_coef(X_nz, y, **fit_params)
             self.coef_ = np.zeros(X.shape[-1])
-            self.coef_[self.nz_idx] = coef
+            self.coef_[self.nonzero_] = coef
         else:
             self.coef_ = self.calc_coef(X, y, **fit_params)
 
@@ -59,4 +59,4 @@ class FeatureSelectThreshold(FeatureSelector):
         @return: boolean array
         """
         if self.coef_ is not None:
-            return self.coef_ > self.thresh if not self.omit_zero_samples else (self.coef_ > self.thresh) & self.nonzero
+            return self.coef_ > self.thresh if not self.omit_zero_samples else (self.coef_ > self.thresh) & self.nonzero_
