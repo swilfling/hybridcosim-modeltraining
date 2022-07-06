@@ -1,5 +1,6 @@
-from abc import abstractmethod
 from scipy import signal as sig
+import pandas as pd
+import numpy as np
 
 from sklearn.base import TransformerMixin, BaseEstimator
 from .compensators import OffsetComp, NaNComp
@@ -43,6 +44,10 @@ class Filter(MaskFeats, BaseFitTransform, PickleInterface, TransformerMixin, Bas
         X_to_filter = self.nan_comp_.fit_transform(self.offset_comp_.fit_transform(X_masked))
         # Transform features
         x_filt = self._transform(X_to_filter)
+        if isinstance(X_to_filter, pd.DataFrame):
+            x_filt = pd.DataFrame(index=X_to_filter.index, columns=X_to_filter.columns, data=x_filt)
+        if isinstance(X_to_filter, pd.Series):
+            x_filt = pd.Series(index=X_to_filter.index, data=np.ravel(x_filt))
         # Apply NaNs and offset
         x_filt = self.offset_comp_.inverse_transform(self.nan_comp_.inverse_transform(x_filt))
         return self.combine_feats(x_filt, X)
@@ -61,9 +66,8 @@ class Filter(MaskFeats, BaseFitTransform, PickleInterface, TransformerMixin, Bas
         """
         return self.coef_
 
-    @abstractmethod
     def calc_coef(self, X, y=None, **fit_params):
         """
         Override this method to create filter coeffs.
         """
-        raise NotImplementedError
+        return None

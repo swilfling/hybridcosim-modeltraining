@@ -17,13 +17,15 @@ class CyclicFeatures(FeatureCreator):
     Create cyclic encoding for features.
     Currently supported: daytime, weekday, month, day
     """
-    all_time_vals = {"hour":CyclicFeatureInfo("hour", 24),
+    _all_time_vals = {"hour":CyclicFeatureInfo("hour", 24),
                      "weekday":CyclicFeatureInfo("weekday", 7),
                      "month":CyclicFeatureInfo("month", 12),
                      "day":CyclicFeatureInfo("day", 30)}
+    selected_feats = ['hour', 'weekday']
 
     def __init__(self, selected_feats=["hour", "weekday"], **kwargs):
-        super().__init__(selected_feats=selected_feats, **kwargs)
+        super().__init__(**kwargs)
+        self.selected_feats = selected_feats
         pass
 
     def transform(self, X: pd.DataFrame):
@@ -35,7 +37,7 @@ class CyclicFeatures(FeatureCreator):
         X_t = X.copy()
         # Add labels to data
         for label in self.selected_feats:
-            cycl_info = self.all_time_vals[label]
+            cycl_info = self._all_time_vals[label]
             X[label] = getattr(X.index, cycl_info.name, [])
             X_t[f'{label}_sin'], X_t[f'{label}_cos'] = self.calc_sin_cos(X[label], cycl_info.T)
         return X_t

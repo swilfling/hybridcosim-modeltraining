@@ -9,12 +9,14 @@ class CategoricalFeatures(FeatureCreator):
     Categorical Encoding - One-hot encoding
     Currently supported: weekday and hour
     """
+    selected_feats = None
     _onehot_vals = {"weekday": ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
                    "hour": [f"hour_{i}" for i in range(24)],
                    "month": [f"month_{i}" for i in range(12)]}
 
     def __init__(self, selected_feats=['weekday', 'hour'], **kwargs):
-        super().__init__(selected_feats=selected_feats, **kwargs)
+        super().__init__(**kwargs)
+        self.selected_feats = selected_feats
 
     def transform(self, X):
         """

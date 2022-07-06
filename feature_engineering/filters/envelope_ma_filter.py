@@ -24,7 +24,7 @@ class Envelope_MA(Filter):
         @param x: Input feature vector (n_samples, n_features)
         @param y: Target feature vector (n_samples)
         """
-        X_df = pd.DataFrame(X)
+        X_df = pd.DataFrame(X) if not isinstance(X, (pd.DataFrame, pd.Series)) else X
         self.envelope_h_ = X_df.rolling(window=self.T).max().shift(int(-self.T / 2))
         self.envelope_l_ = X_df.rolling(window=self.T).min().shift(int(-self.T / 2))
         self.envelope_avg_ = np.mean(np.dstack((self.envelope_l_, self.envelope_h_)),axis=-1)
