@@ -13,8 +13,8 @@ class Envelope_MA(Filter):
     envelope_l_ = None
     envelope_avg_ = None
 
-    def __init__(self, T=10, remove_offset=False, keep_nans=False,  features_to_transform=None, **kwargs):
-        super().__init__(remove_offset=remove_offset, keep_nans=keep_nans, features_to_transform=features_to_transform)
+    def __init__(self, T=10, remove_offset=False, keep_nans=False, **kwargs):
+        super().__init__(remove_offset=remove_offset, keep_nans=keep_nans)
         self._set_attrs(T=T)
 
     def _transform(self, X):

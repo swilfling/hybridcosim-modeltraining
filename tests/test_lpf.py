@@ -1,5 +1,6 @@
 from ModelTraining.dataimport import DataImport
 from ModelTraining.feature_engineering.filters import ButterworthFilter, Filter
+from ModelTraining.feature_engineering.compositetransformers import Transformer_MaskFeats
 from sklearn.compose import ColumnTransformer
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -27,7 +28,7 @@ if __name__ == "__main__":
 
     data = DataImport.load("../Configuration/DataImport/Resampled15min.json").import_data(
         "../../Data/AEE/Resampled15min")
-    filter_4 = ButterworthFilter(features_to_transform=[True, False, False, False], T=20)
+    filter_4 = Transformer_MaskFeats(features_to_transform=[True, False, False, False], transformer_type='ButterworthFilter', transformer_params={'T':20})
     filter_4.fit(data[['TSolarVL', 'TSolarRL', 'VDSolar', 'SGlobal']])
     data_tr = filter_4.transform(data[['TSolarVL', 'TSolarRL', 'VDSolar', 'SGlobal']])
 
@@ -40,7 +41,7 @@ if __name__ == "__main__":
 
     data = data[['TSolarVL', 'TSolarRL', 'VDSolar', 'SGlobal']]
     features_to_smoothe = ['TSolarVL']
-    filter_mask = ButterworthFilter(features_to_transform=[True, False, False, False], T=20)
+    filter_mask = Transformer_MaskFeats(features_to_transform=[True, False, False, False], transformer_type='ButterworthFilter', transformer_params={'T':20})
     transf = ColumnTransformer([("filter", ButterworthFilter(T=20), [feat in features_to_smoothe for feat in data.columns])],
                                remainder='passthrough').fit(data)
     data_tr_1 = pd.DataFrame(index=data.index, columns=data.columns, data=transf.transform(data))

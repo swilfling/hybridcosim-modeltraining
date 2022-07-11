@@ -1,2 +1,3 @@
 from .dynamicfeaturessamplecut import DynamicFeaturesSampleCut
-from .transformer_inplace import Transformer_inplace
+from .transformer_wrapper import TransformerWrapper
+from .transformer_maskfeats import Transformer_MaskFeats

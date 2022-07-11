@@ -13,8 +13,7 @@ class SplineInterpolator(FeatureExpansion):
     degree = 3
     model_ = None
 
-    def __init__(self, n_knots=5, degree=3, features_to_transform=None, **kwargs):
-        super().__init__(features_to_transform=features_to_transform)
+    def __init__(self, n_knots=5, degree=3, **kwargs):
         self.n_knots = n_knots
         self.degree = degree
 

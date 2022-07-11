@@ -1,10 +1,10 @@
 import numpy as np
 from sklearn.base import BaseEstimator, TransformerMixin
 
-from ModelTraining.feature_engineering.interfaces import BaseFitTransform
+from ..interfaces import BaseFitTransform, FeatureNames
 
 
-class SampleReInit(BaseEstimator, TransformerMixin, BaseFitTransform):
+class SampleReInit(BaseEstimator, TransformerMixin, BaseFitTransform, FeatureNames):
     num_samples = 0
     init_val = 0
     input_shape_= None

@@ -11,8 +11,8 @@ class ButterworthFilter(Filter):
     order = 2
     filter_type = 'lowpass'
 
-    def __init__(self, remove_offset=False, keep_nans=False, T=10, order=2, filter_type='lowpass', features_to_transform=None, **kwargs):
-        super().__init__(features_to_transform=features_to_transform, remove_offset=remove_offset, keep_nans=keep_nans)
+    def __init__(self, remove_offset=False, keep_nans=False, T=10, order=2, filter_type='lowpass', **kwargs):
+        super().__init__(remove_offset=remove_offset, keep_nans=keep_nans)
         self._set_attrs(T=T, order=order, filter_type=filter_type)
 
     def calc_coef(self, X, y=None, **fit_params):

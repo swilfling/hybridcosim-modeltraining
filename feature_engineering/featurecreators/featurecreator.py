@@ -1,8 +1,8 @@
-from ..interfaces import PickleInterface, MaskFeatsExpanded, BaseFitTransform
+from ..interfaces import PickleInterface, MaskFeats_Expanded, BaseFitTransform
 from sklearn.base import TransformerMixin
 
 
-class FeatureCreator(MaskFeatsExpanded,PickleInterface, BaseFitTransform, TransformerMixin):
+class FeatureCreator(MaskFeats_Expanded,PickleInterface, BaseFitTransform, TransformerMixin):
     """
     Basic feature creator
     """

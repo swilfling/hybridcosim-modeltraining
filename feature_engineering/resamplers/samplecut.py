@@ -1,9 +1,9 @@
 from imblearn.base import SamplerMixin, BaseSampler
 from sklearn.base import BaseEstimator
-from ..interfaces import BaseFitTransform
+from ..interfaces import BaseFitTransform, FeatureNames
 
 
-class SampleCut_imblearn(BaseSampler):
+class SampleCut_imblearn(BaseSampler, FeatureNames):
     num_samples = 0
     _sampling_type = 'bypass'
 
@@ -24,7 +24,7 @@ class SampleCut_imblearn(BaseSampler):
             return X[self.num_samples:], None
 
 
-class SampleCut(BaseEstimator, BaseFitTransform):
+class SampleCut(BaseEstimator, BaseFitTransform, FeatureNames):
     num_samples = 0
 
     def __init__(self, num_samples=0, **kwargs):

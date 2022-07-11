@@ -4,10 +4,10 @@ import numpy as np
 
 from sklearn.base import TransformerMixin, BaseEstimator
 from .compensators import OffsetComp, NaNComp
-from ..interfaces import BaseFitTransform, MaskFeats, PickleInterface
+from ..interfaces import BaseFitTransform, PickleInterface, FeatureNames
 
 
-class Filter(MaskFeats, BaseFitTransform, PickleInterface, TransformerMixin, BaseEstimator):
+class Filter(BaseFitTransform, PickleInterface, TransformerMixin, BaseEstimator, FeatureNames):
     """
     Signal filter - based on sklearn TransformerMixin. Can be stored to pickle file.
     Options:
@@ -20,15 +20,14 @@ class Filter(MaskFeats, BaseFitTransform, PickleInterface, TransformerMixin, Bas
     remove_offset = False
     keep_nans = False
 
-    def __init__(self, remove_offset=False, keep_nans=False, features_to_transform=None, **kwargs):
-        MaskFeats.__init__(self, features_to_transform=features_to_transform)
+    def __init__(self, remove_offset=False, keep_nans=False, **kwargs):
         self.remove_offset = remove_offset
         self.keep_nans = keep_nans
 
     def fit(self, X, y=None, **fit_params):
         self.offset_comp_ = OffsetComp(self.remove_offset)
         self.nan_comp_ = NaNComp(self.keep_nans)
-        X_to_filter = self.nan_comp_.fit_transform(self.offset_comp_.fit_transform(self.mask_feats(X)))
+        X_to_filter = self.nan_comp_.fit_transform(self.offset_comp_.fit_transform(X))
         return super().fit(X_to_filter)
 
     def _fit(self, X, y=None, **fit_params):
@@ -39,9 +38,8 @@ class Filter(MaskFeats, BaseFitTransform, PickleInterface, TransformerMixin, Bas
         Filter signal
         @param x: Input feature vector (n_samples, n_features)
         """
-        X_masked = self.mask_feats(X)
         # Remove offset and NaNs
-        X_to_filter = self.nan_comp_.fit_transform(self.offset_comp_.fit_transform(X_masked))
+        X_to_filter = self.nan_comp_.fit_transform(self.offset_comp_.fit_transform(X))
         # Transform features
         x_filt = self._transform(X_to_filter)
         if isinstance(X_to_filter, pd.DataFrame):
@@ -49,8 +47,7 @@ class Filter(MaskFeats, BaseFitTransform, PickleInterface, TransformerMixin, Bas
         if isinstance(X_to_filter, pd.Series):
             x_filt = pd.Series(index=X_to_filter.index, data=np.ravel(x_filt))
         # Apply NaNs and offset
-        x_filt = self.offset_comp_.inverse_transform(self.nan_comp_.inverse_transform(x_filt))
-        return self.combine_feats(x_filt, X)
+        return self.offset_comp_.inverse_transform(self.nan_comp_.inverse_transform(x_filt))
 
     def _transform(self, X):
         """

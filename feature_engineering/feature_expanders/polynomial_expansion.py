@@ -14,8 +14,7 @@ class PolynomialExpansion(FeatureExpansion):
     include_bias=True
     model_ = None
 
-    def __init__(self, features_to_transform=None, degree=2, interaction_only=False, include_bias=True, **kwargs):
-        super().__init__(features_to_transform=features_to_transform)
+    def __init__(self, degree=2, interaction_only=False, include_bias=True, **kwargs):
         self.degree = degree
         self.interaction_only = interaction_only
         self.include_bias = include_bias

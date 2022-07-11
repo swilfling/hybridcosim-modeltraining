@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from . import BasicInterface
 
 
 class FeatureNames:
@@ -23,7 +24,7 @@ class FeatureNames:
         return feature_names
 
 
-class MaskFeats(FeatureNames):
+class MaskFeats(FeatureNames, BasicInterface):
     features_to_transform = None
 
     def __init__(self, features_to_transform=None):
@@ -48,6 +49,12 @@ class MaskFeats(FeatureNames):
             return None if inverse else X
 
     def combine_feats(self, X_transf, X_orig):
+        return X_transf
+
+
+class MaskFeats_Inplace(MaskFeats):
+
+    def combine_feats(self, X_transf, X_orig):
         """
         Combine transformed and original features
         @param X_transf: array of transformed feats
@@ -68,20 +75,29 @@ class MaskFeats(FeatureNames):
         else:
             return X_transf
 
-    def get_feature_names_out(self, feature_names=None):
+
+class MaskFeats_Addition(MaskFeats):
+
+    def combine_feats(self, X_transf, X_orig):
         """
-        Get output feature names
-        @param feature_names: input feature names
-        @return: transformed feature names
+        Combine transformed and original features
+        @param X_transf: array of transformed feats
+        @param X_orig: original feature vector
+        @return: full array
         """
-        if feature_names is None:
-            return None
-        feat_names_to_transform = self.mask_feats(feature_names)
-        feature_names_tr = self._get_feature_names_out(feat_names_to_transform)
-        return self.combine_feats(np.array(feature_names_tr), feature_names)
+        if self.features_to_transform is not None:
+            # If transformation did not create new features, replace original by transformed values
+            x_transf_new = X_orig.copy()
+            if isinstance(X_orig, pd.DataFrame):
+                x_transf_new[self._get_feature_names_out(self.mask_feats(X_orig.columns))] = X_transf
+            else:
+                x_transf_new = np.concatenate((np.array(X_orig), np.array(X_transf)))
+            return x_transf_new
+        else:
+            return X_transf
 
 
-class MaskFeatsExpanded(MaskFeats):
+class MaskFeats_Expanded(MaskFeats):
 
     def combine_feats(self, X_transf, X_orig):
         if self.features_to_transform is not None:
@@ -96,15 +112,3 @@ class MaskFeatsExpanded(MaskFeats):
                 return np.concatenate((x_basic, X_transf), axis=-1)
         else:
             return X_transf
-
-    def get_feature_names_out(self, feature_names=None):
-        """
-        Get output feature names
-        @param feature_names: input feature names
-        @return: transformed feature names
-        """
-        if feature_names is None:
-            return None
-        feat_names_to_transform = self.mask_feats(feature_names)
-        feature_names_tr = self._get_feature_names_out(feat_names_to_transform)
-        return self.combine_feats(np.array(feature_names_tr), feature_names)
