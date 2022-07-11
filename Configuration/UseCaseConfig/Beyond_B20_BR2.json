@@ -1,0 +1,19 @@
+{
+    "name":"Beyond_B20_BR2",
+    "fmu_interface":"Configuration/FMUInterface/Beyond/B20/FMUInterface_B20_BR2.csv",
+    "dataset_dir":"Data/Beyond/B20/",
+    "dataset_filename":"Beyond_B20_full",
+    "stat_feats": ["TAmbient", "SGlobalH", "B20Gas"],
+    "to_smoothe": ["SGlobalH", "vWind", "humidity", "TAmbient", "B20Gas"],
+    "stat_vals": ["tmean", "tstd", "tmin","tmax"],
+    "stat_ws": 168,
+    "onehot_feats": [
+        "hour",
+        "weekday",
+        "month"
+    ],
+    "cyclical_feats":[
+        "hour",
+        "weekday"
+    ]
+}

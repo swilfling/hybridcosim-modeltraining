@@ -8,7 +8,7 @@ class FeatureCreator(MaskFeats_Expanded,PickleInterface, BaseFitTransform, Trans
     """
 
     def __init__(self, features_to_transform=None, **kwargs):
-        super().__init__(features_to_transform=features_to_transform, **kwargs)
+        MaskFeats_Expanded.__init__(self, features_to_transform=features_to_transform)
 
     def fit(self, X, y=None, **fit_params):
         """

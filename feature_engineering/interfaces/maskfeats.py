@@ -51,8 +51,23 @@ class MaskFeats(FeatureNames, BasicInterface):
     def combine_feats(self, X_transf, X_orig):
         return X_transf
 
+    def get_feature_names_out(self, feature_names=None):
+        """
+        Get output feature names
+        @param feature_names: input feature names
+        @return: transformed feature names
+        """
+        if feature_names is None:
+            return None
+        feat_names_to_transform = self.mask_feats(feature_names)
+        feature_names_tr = self._get_feature_names_out(feat_names_to_transform)
+        return self.combine_feats(np.array(feature_names_tr), feature_names)
+
 
 class MaskFeats_Inplace(MaskFeats):
+
+    def __init__(self, features_to_transform=None):
+        super().__init__(features_to_transform=features_to_transform)
 
     def combine_feats(self, X_transf, X_orig):
         """
@@ -69,7 +84,8 @@ class MaskFeats_Inplace(MaskFeats):
             elif isinstance(X_orig, np.ndarray):
                 x_transf_new[..., self.features_to_transform] = X_transf
             else:
-                np.array(X_orig)[self.features_to_transform] = X_transf
+                x_transf_new = np.array(x_transf_new)
+                x_transf_new[self.features_to_transform] = X_transf
             return x_transf_new
 
         else:
@@ -77,6 +93,9 @@ class MaskFeats_Inplace(MaskFeats):
 
 
 class MaskFeats_Addition(MaskFeats):
+
+    def __init__(self, features_to_transform=None):
+        super().__init__(features_to_transform=features_to_transform)
 
     def combine_feats(self, X_transf, X_orig):
         """
@@ -89,7 +108,7 @@ class MaskFeats_Addition(MaskFeats):
             # If transformation did not create new features, replace original by transformed values
             x_transf_new = X_orig.copy()
             if isinstance(X_orig, pd.DataFrame):
-                x_transf_new[self._get_feature_names_out(self.mask_feats(X_orig.columns))] = X_transf
+                x_transf_new[self._get_feature_names_out(X_orig.columns[self.features_to_transform])] = X_transf
             else:
                 x_transf_new = np.concatenate((np.array(X_orig), np.array(X_transf)))
             return x_transf_new
@@ -98,6 +117,9 @@ class MaskFeats_Addition(MaskFeats):
 
 
 class MaskFeats_Expanded(MaskFeats):
+
+    def __init__(self, features_to_transform=None):
+        super().__init__(features_to_transform=features_to_transform)
 
     def combine_feats(self, X_transf, X_orig):
         if self.features_to_transform is not None:
