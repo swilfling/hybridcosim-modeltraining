@@ -34,9 +34,9 @@ def add_features_to_data(data: pd.DataFrame, dict_usecase: dict):
     @return: extended data set
     """
     cyclic_feat_cr = CyclicFeatures(dict_usecase.get('cyclical_feats', []))
-    categorical_feat_cr = CategoricalFeatures(dict_usecase.get('onehot_feats', []))
-    statistical_feat_cr = StatisticalFeatures(dict_usecase.get('stat_feats', []),
-                                              dict_usecase.get('stat_vals', []),
-                                              dict_usecase.get('stat_ws', 1))
+    categorical_feat_cr = CategoricalFeatures(selected_feats=dict_usecase.get('onehot_feats', []))
+    statistical_feat_cr = StatisticalFeatures(features_to_select=dict_usecase.get('stat_feats', []),
+                                              statistical_features=dict_usecase.get('stat_vals', []),
+                                              window_size=dict_usecase.get('stat_ws', 1))
     feature_creators = make_pipeline(cyclic_feat_cr, categorical_feat_cr, statistical_feat_cr, 'passthrough')
     return feature_creators.transform(data)

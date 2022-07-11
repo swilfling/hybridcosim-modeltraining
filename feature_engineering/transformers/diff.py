@@ -1,17 +1,16 @@
-from . import Transformer_inplace
 import pandas as pd
+from .basictransformer import BasicTransformer
 
 
-class Diff(Transformer_inplace):
+class Diff(BasicTransformer):
     """
     Differencing transformation
     """
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    def _transform(self, X):
+    def transform(self, X):
         if isinstance(X, pd.DataFrame):
             return X.diff()
         else:
             return pd.DataFrame(X).diff().to_numpy()
 
+    def _get_feature_names_out(self, feature_names=None):
+        return [f"{name}_diff" for name in feature_names] if feature_names is not None else None

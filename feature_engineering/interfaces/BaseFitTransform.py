@@ -14,7 +14,7 @@ class Reshape:
         return X
 
 
-class Transformer:
+class FitTransform:
     def fit(self, X, y=None, **fit_params):
         """
         Fit transformer - Overrides TransformerMixin method.
@@ -40,7 +40,7 @@ class BaseTransform:
         @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
         @return: Output feature vector (n_samples, n_features) or (n_samples, n_selected_features * lookback)
         """
-        return X
+        return self._transform(X)
 
     def _transform(self, X):
         """
@@ -49,7 +49,6 @@ class BaseTransform:
         @return: transformed features
         """
         return X
-
 
 
 class BaseFit:

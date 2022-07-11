@@ -1,14 +1,23 @@
 import numpy as np
-from . import Transformer_inplace
+from .basictransformer import BasicTransformer
 
 
-class SqrtTransform(Transformer_inplace):
+class SqrtTransform(BasicTransformer):
     """
     Square root transformation
     """
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    omit_neg_vals = True
 
-    def _transform(self, X):
-        return np.sqrt(X)
+    def __init__(self, omit_neg_vals=True, **kwargs):
+        self.omit_neg_vals = omit_neg_vals
 
+    def transform(self, X):
+        if self.omit_neg_vals:
+            X_tr = X.copy()
+            X_tr[X >= 0] = np.sqrt(X[X >= 0])
+            return X_tr
+        else:
+            return np.sqrt(X)
+
+    def _get_feature_names_out(self, feature_names=None):
+        return [f"{name}_sqrt" for name in feature_names] if feature_names is not None else None
