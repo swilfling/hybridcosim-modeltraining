@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from . import TransformerWrapper
 from ..interfaces import MaskFeats
 
@@ -36,7 +37,8 @@ class Transformer_MaskFeats(TransformerWrapper):
         @return: transformed features
         """
         x_transf = self._transform(self.feature_mask_.mask_feats(X))
-        return self.feature_mask_.combine_feats(x_transf, X)
+        feat_names = self.transformer_.get_feature_names_out(self.feature_mask_.mask_feats(X.columns)) if isinstance(X, pd.DataFrame) else None
+        return self.feature_mask_.combine_feats(x_transf, X, feat_names)
 
     def get_feature_names_out(self, feature_names=None):
         """
@@ -50,3 +52,13 @@ class Transformer_MaskFeats(TransformerWrapper):
         feature_names_tr = self._get_feature_names_out(feat_names_to_transform)
         return self.feature_mask_.combine_feats(np.array(feature_names_tr), feature_names)
 
+    def get_transformed_feature_names(self, feature_names=None):
+        """
+        Get transformed feature names
+        @param feature_names: input feature names
+        @return: transformed feature names
+        """
+        if feature_names is None:
+            return None
+        feat_names_to_transform = self.feature_mask_.mask_feats(feature_names)
+        return self._get_feature_names_out(feat_names_to_transform)

@@ -63,6 +63,8 @@ def preprocess_data(data: pd.DataFrame, filename=""):
         if filename == 'Beyond_B20_full':
             data = feature_mean(data, ['TB20BR1', 'TB20BR2', 'TB20BR3', 'TB20LR'], 'TB20')
 
+        data['SGlobalH_TAmbient'] = data['SGlobalH'] * data['TAmbient']
+
     data = data.dropna(axis=0)
     data = data.astype('float')
     return data

@@ -1,10 +1,10 @@
-from . import FeatureCreator
 import numpy as np
 from ...datamodels.datamodels.processing.shape import split_into_target_segments
-from sklearn.base import BaseEstimator
+from sklearn.base import BaseEstimator, TransformerMixin
+from ..interfaces import PickleInterface, BaseFitTransform
 
 
-class DynamicFeatures(FeatureCreator, BaseEstimator):
+class DynamicFeatures(PickleInterface, BaseFitTransform, TransformerMixin, BaseEstimator):
     """
     This class creates dynamic features with a certain lookback.
     Options:
@@ -15,8 +15,7 @@ class DynamicFeatures(FeatureCreator, BaseEstimator):
     flatten_dynamic_feats = False
     return_3d_array = False
 
-    def __init__(self, features_to_transform=None, lookback_horizon=5, flatten_dynamic_feats=False, return_3d_array=False, **kwargs):
-        super().__init__(features_to_transform=features_to_transform)
+    def __init__(self, lookback_horizon=5, flatten_dynamic_feats=False, return_3d_array=False, **kwargs):
         self.lookback_horizon = lookback_horizon
         self.flatten_dynamic_feats = flatten_dynamic_feats
         self.return_3d_array = return_3d_array
@@ -31,25 +30,14 @@ class DynamicFeatures(FeatureCreator, BaseEstimator):
         X_transf = np.concatenate((np.zeros((self.lookback_horizon, *X_transf.shape[1:])),X_transf))
         if self.flatten_dynamic_feats:
             X_transf = X_transf.reshape(X_transf.shape[0], -1)
-        return X_transf
-
-    def combine_feats(self, X_transf, X_orig):
-        """
-        Combine transformed and original features
-        @param X_transf: array of transformed feats
-        @param X_orig: original feature vector
-        @return: full array
-        """
-        feats = super(DynamicFeatures, self).combine_feats(X_transf, X_orig)
         if self.return_3d_array:
-            if isinstance(feats, np.ndarray):
-                if feats.ndim == 2:
-                    feats = feats.reshape(feats.shape[0], 1, feats.shape[1])
-        return feats
+            if isinstance(X_transf, np.ndarray):
+                if X_transf.ndim == 2:
+                    X_transf = X_transf.reshape(X_transf.shape[0], 1, X_transf.shape[1])
+        return X_transf
 
     def get_additional_feat_names(self, feature_names=None):
         return [f'{name}_{lag}' for lag in np.flip(np.arange(1, self.lookback_horizon + 1)) for name in feature_names]
 
     def _get_feature_names_out(self, feature_names=None):
         return self.get_additional_feat_names(feature_names) + list(feature_names)
-

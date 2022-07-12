@@ -1,7 +1,6 @@
 from imblearn.base import SamplerMixin
 from sklearn.base import BaseEstimator
 
-from ..featurecreators import DynamicFeatures
 from ..resamplers import SampleCut_imblearn
 from .transformer_maskfeats import Transformer_MaskFeats
 
@@ -28,16 +27,12 @@ class DynamicFeaturesSampleCut(SamplerMixin, BaseEstimator):
         return self.fit(X, y).resample(X, y)
 
     def fit(self, X, y):
-        #self.dyn_feats_ = Transformer_MaskFeats(transformer_type='DynamicFeatures',
-        #                                        transformer_params={'lookback_horizon':self.lookback_horizon,
-        #                                                            'flatten_dynamic_feats':self.flatten_dynamic_feats,
-        #                                                            'return_3d_array':self.return_3d_array},
-        #                                        features_to_transform=self.features_to_transform,
-        #                                        mask_type='MaskFeats_Expanded')
-        self.dyn_feats_ = DynamicFeatures(lookback_horizon=self.lookback_horizon,
-                                          features_to_transform=self.features_to_transform,
-                                          flatten_dynamic_feats=self.flatten_dynamic_feats,
-                                          return_3d_array=self.return_3d_array)
+        self.dyn_feats_ = Transformer_MaskFeats(transformer_type='DynamicFeatures',
+                                                transformer_params={'lookback_horizon':self.lookback_horizon,
+                                                                    'flatten_dynamic_feats':self.flatten_dynamic_feats,
+                                                                    'return_3d_array':self.return_3d_array},
+                                                features_to_transform=self.features_to_transform,
+                                                mask_type='MaskFeats_Expanded')
         self.sample_cut_ = SampleCut_imblearn(self.lookback_horizon)
         self.dyn_feats_.fit(X, y)
         self.sample_cut_.fit(X, y)
