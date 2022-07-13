@@ -36,15 +36,16 @@ class StatisticalFeatures(PickleInterface, BaseFitTransform, TransformerMixin, B
         group_range = np.repeat(np.arange(df.shape[0] // self.window_size),  self.window_size)
         df_for_group = df[:len(group_range)]
         if self.window_type == "static":
-            x_vals = df_for_group.values
-            array_splits = np.vsplit(x_vals, x_vals.shape[0] / self.window_size)
-            for idx, feat in enumerate(self.statistical_features):
-                x_vals_tr = df_for_group.groupby(group_range).apply(zscores[idx])
-                x_vals_tr = np.array([zscores[idx](split, axis=0) for split in array_splits])
-                x_vals_tr = np.repeat(x_vals_tr, self.window_size, axis=0)
-                #df_cols = [f'{col}_{feat}_{self.window_size}' for col in df.columns]
-             #   df_vals = pd.DataFrame(data=x_vals_tr, columns=df_cols, index=df.index)
-                df_new = df_new.join(pd.DataFrame(index=df_for_group.index, data=x_vals_tr,columns=df.columns).add_suffix(f"_{feat}_{self.window_size}")).fillna(0)
+            for col in df_for_group.columns:
+                #x_vals = df_for_group[col].values
+                #array_splits = np.array_split(x_vals, x_vals.shape[0] / self.window_size)
+                for idx, feat in enumerate(self.statistical_features):
+                    x_vals_tr = df_for_group[col].groupby(group_range).apply(zscores[idx])
+                    #x_vals_tr = np.array([zscores[idx](split, axis=0) for split in array_splits])
+                    x_vals_tr = np.repeat(x_vals_tr.values, self.window_size, axis=0)
+                    #df_cols = [f'{col}_{feat}_{self.window_size}' for col in df.columns]
+                    #df_vals = pd.DataFrame(data=x_vals_tr, columns=df_cols, index=df.index)
+                    df_new = df_new.join(pd.DataFrame(index=df_for_group.index, data=x_vals_tr,columns=[col]).add_suffix(f"_{feat}_{self.window_size}")).fillna(0)
         else:
             df = X if isinstance(X, (pd.DataFrame)) else pd.DataFrame(X)
             for col in df.columns:

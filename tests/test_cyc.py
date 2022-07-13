@@ -38,9 +38,16 @@ if __name__ == "__main__":
     print(data_cd.columns)
 
     stat_feats = StatisticalFeatures(window_size=24)
-    data_stat = stat_feats.fit_transform(data['TSolarRL'])
+    import datetime
+    print(datetime.datetime.now())
+    data_stat = stat_feats.fit_transform(data[['TSolarRL','VDSolar']])
+    print(datetime.datetime.now())
 
     plt.figure()
-    plt.plot(data['TSolarRL'][0:100])
-    plt.plot(data_stat['TSolarRL_tmin_24'][0:100])
+    plt.plot(data['TSolarRL'][0:1000])
+    plt.plot(data_stat['TSolarRL_tmin_24'][0:1000])
+    plt.show()
+    plt.figure()
+    plt.plot(data['VDSolar'][0:1000])
+    plt.plot(data_stat['VDSolar_tmin_24'][0:1000])
     plt.show()
