@@ -119,7 +119,7 @@ class ResultExport:
             model.model.get_rules().to_csv(os.path.join(property_dir, f'Rules_{title_full}.csv'), float_format="%.2f",
                                      index_label='Rule')
 
-    def export_result(self, result: TrainingData, title=""):
+    def export_result(self, result: TrainingData, title="", show_fig=True):
         """
         Export result to csv - optional plotting
         @param result: TrainingResults structure
@@ -129,6 +129,6 @@ class ResultExport:
         if self.plot_enabled:
             for feat in result.target_feat_names:
                 plt_utils.plot_data(result.test_result_df(feat), self.get_tseries_dir(), filename=f"Timeseries_{feat}_{title}",
-                                    store_to_csv=True, figsize=(14, 4), fig_title=f"Timeseries - {feat} - {title}")
+                                    store_to_csv=True, figsize=(14, 4), fig_title=f"Timeseries - {feat} - {title}", show_fig=show_fig)
                 plt_utils.scatterplot(result.test_pred_vals(feat), result.test_target_vals(feat), self.get_scatter_dir(),
-                                      f"Scatter_{feat}_{title}")
+                                      f"Scatter_{feat}_{title}", show_fig=show_fig)

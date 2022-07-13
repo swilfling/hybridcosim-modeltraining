@@ -50,7 +50,7 @@ def plot_training_results(result: TrainingData, path="./", filename="Result", fi
     plt.close()
 
 
-def plot_data(data: pd.DataFrame, plot_path="./", filename='Result', store_to_csv=True, **kwargs):
+def plot_data(data: pd.DataFrame, plot_path="./", filename='Result', store_to_csv=True, show_fig=True, **kwargs):
     """
     Plot dataframe, store values to csv (optional)
     @param data: dataframe
@@ -70,8 +70,10 @@ def plot_data(data: pd.DataFrame, plot_path="./", filename='Result', store_to_cs
             plt.ylabel(kwargs.pop('ylabel'))
         plt_utils.plot_df(ax, data, **kwargs)
         plt_utils.save_figure(plot_path, filename)
-
-        plt.show()
+        if show_fig:
+            plt.show()
+        else:
+            plt.close(plt.gcf())
 
 
 ############################ Subplots ##################################################################################
@@ -123,7 +125,7 @@ def plt_subplots(list_df: List[List[pd.DataFrame]], path="./", filename="Plots",
 ##################################### Additional plots #################################################################
 
 
-def scatterplot(y_pred, y_true, path="./", filename="Scatterplot", **kwargs):
+def scatterplot(y_pred, y_true, path="./", filename="Scatterplot", show_fig=True, **kwargs):
     """
     Scatterplot - True values vs predicted values. Stores plot to csv, tikz optional
     @param y_pred: y axis - predicted vals
@@ -145,7 +147,10 @@ def scatterplot(y_pred, y_true, path="./", filename="Scatterplot", **kwargs):
     ax.plot([limits[0], limits[1]], [limits[0],limits[1]], color='k', linestyle='-', label="Optimal Prediction")
     ax.legend()
     plt_utils.save_figure(path, filename, store_tikz=store_tikz)
-    plt.show()
+    if show_fig:
+        plt.show()
+    else:
+        plt.close(plt.gcf())
 
 
 def barplot(data: pd.Series, path='./', filename='Barplot', **kwargs):
