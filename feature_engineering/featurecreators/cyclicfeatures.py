@@ -62,7 +62,7 @@ class CyclicFeaturesSampleTime(CyclicFeatures):
     Currently supported: daytime, weekday, month, day
     """
     sample_time = 3600
-    all_time_vals = {"daytime":CyclicFeatureInfo("hour", 3600 * 24),
+    _all_time_vals = {"hour":CyclicFeatureInfo("hour", 3600 * 24),
                      "weekday":CyclicFeatureInfo("weekday", 3600 * 24 * 7),
                      "month":CyclicFeatureInfo("month", 3600 * 24 * 365),
                      "day":CyclicFeatureInfo("day", 3600 * 24 * 30)}
@@ -81,7 +81,7 @@ class CyclicFeaturesSampleTime(CyclicFeatures):
         X_t = X.copy()
         # Add labels to data
         for label in self.selected_feats:
-            cycl_info = self.all_time_vals[label]
+            cycl_info = self._all_time_vals[label]
             X_t[label] = np.array([(val - X.index[0]).total_seconds() for val in X.index]) / self.sample_time
             X_t[f'{label}_sin'], X_t[f'{label}_cos'] = self.calc_sin_cos(X_t[label], cycl_info.T / self.sample_time)
         return X_t

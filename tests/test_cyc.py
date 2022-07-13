@@ -1,6 +1,6 @@
 from ModelTraining.dataimport import DataImport
 from ModelTraining.feature_engineering.featurecreators import CategoricalFeatures, CategoricalFeaturesDivider,\
-    CyclicFeatures, CyclicFeaturesSampleTime
+    CyclicFeatures, CyclicFeaturesSampleTime, StatisticalFeatures
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
@@ -36,3 +36,11 @@ if __name__ == "__main__":
     plt.show()
     print(categorical_feats.get_additional_feat_names())
     print(data_cd.columns)
+
+    stat_feats = StatisticalFeatures(window_size=24)
+    data_stat = stat_feats.fit_transform(data['TSolarRL'])
+
+    plt.figure()
+    plt.plot(data['TSolarRL'][0:100])
+    plt.plot(data_stat['TSolarRL_tmin_24'][0:100])
+    plt.show()
