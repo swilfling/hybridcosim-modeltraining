@@ -2,6 +2,7 @@ import pandas as pd
 from ..feature_engineering.featurecreators import CategoricalFeatures, CyclicFeatures, StatisticalFeatures
 from ..feature_engineering.featureset import FeatureSet
 from sklearn.pipeline import make_pipeline
+from ..feature_engineering.compositetransformers import Transformer_MaskFeats
 
 
 def add_features_to_featureset(feature_set: FeatureSet, dict_usecase: dict):
@@ -21,8 +22,8 @@ def add_features_to_featureset(feature_set: FeatureSet, dict_usecase: dict):
     for name in cyclic_feat_cr.get_additional_feat_names() + categorical_feat_cr.get_additional_feat_names():
         feature_set.add_cyclic_input_feature(name)
     # Add statistical features
-    for name in statistical_feat_cr.get_additional_feat_names():
-        feature_set.add_statistial_input_feature(name)
+    #for name in statistical_feat_cr.get_additional_feat_names():
+    #    feature_set.add_statistial_input_feature(name)
     return feature_set
 
 
@@ -33,10 +34,13 @@ def add_features_to_data(data: pd.DataFrame, dict_usecase: dict):
     @param dict_usecase: Dict containing configuration
     @return: extended data set
     """
-    cyclic_feat_cr = CyclicFeatures(dict_usecase.get('cyclical_feats', []))
-    categorical_feat_cr = CategoricalFeatures(selected_feats=dict_usecase.get('onehot_feats', []))
-    statistical_feat_cr = StatisticalFeatures(features_to_select=dict_usecase.get('stat_feats', []),
-                                              statistical_features=dict_usecase.get('stat_vals', []),
-                                              window_size=dict_usecase.get('stat_ws', 1))
-    feature_creators = make_pipeline(cyclic_feat_cr, categorical_feat_cr, statistical_feat_cr, 'passthrough')
-    return feature_creators.transform(data)
+
+    cyclic_feat_cr = CyclicFeatures(selected_feats=dict_usecase.get('cyclical_feats',[]))
+    categoric_feat_cr = CategoricalFeatures(selected_feats=dict_usecase.get('onehot_feats', []))
+    statistical_feat_cr = Transformer_MaskFeats(transformer_type='StatisticalFeatures',
+                          transformer_params={'statistical_features': dict_usecase.get('stat_vals', []),
+                                              'window_size':dict_usecase.get('stat_ws', 1)},
+                          mask_type='MaskFeats_Addition',
+                          features_to_transform=dict_usecase.get('stat_feats', []))
+    feature_creators = make_pipeline(cyclic_feat_cr, categoric_feat_cr, statistical_feat_cr, 'passthrough')
+    return feature_creators.fit_transform(data)

@@ -5,8 +5,8 @@ from .predict import predict_with_history
 from .GridSearch import best_estimator
 from ..feature_engineering.parameters import TrainingParams, TrainingParamsExpanded
 from ..Utilities.trainingdata import TrainingData
-from ..datamodels.datamodels.processing.datascaler import DataScaler
-from ..datamodels.datamodels import Model
+from ..datamodels.datamodels.processing import datascaler
+from ..datamodels import datamodels
 from ..feature_engineering.expandedmodel import ExpandedModel, TransformerSet
 
 
@@ -66,8 +66,8 @@ def run_training_model(data, training_params=TrainingParams(), model_parameters=
 
     # Create model
     logging.info(f"Training model with input of shape: {x_train.shape} and targets of shape {y_train.shape}")
-    model = Model.from_name(training_params.model_type,
-                                  x_scaler_class=DataScaler.cls_from_name(training_params.normalizer),
+    model = getattr(datamodels, training_params.model_type)(
+                                  x_scaler_class=getattr(datascaler, training_params.normalizer),
                                   name=training_params.str_target_feats(),
                                   parameters={})
     # Create expanded model wrapper
