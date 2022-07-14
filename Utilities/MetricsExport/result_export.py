@@ -1,13 +1,11 @@
 import os
-from typing import List
 import pandas as pd
 
-from ModelTraining.feature_engineering.feature_selectors import FeatureSelector
-from ModelTraining.feature_engineering.feature_expanders import FeatureExpansion
+from ...feature_engineering.feature_selectors import FeatureSelector
 from . import metr_utils
 from ..trainingdata import TrainingData
 from ..Plotting import plot_data as plt_utils
-from ModelTraining.feature_engineering.expandedmodel import ExpandedModel
+from ...feature_engineering.expandedmodel import ExpandedModel
 
 
 class ResultExport:

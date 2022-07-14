@@ -3,11 +3,11 @@ from typing import List
 from numpy.core.multiarray import asarray
 from sklearn.metrics import mean_absolute_error
 
-import ModelTraining
 from .predict import predict_gt
 from ..feature_engineering.parameters import TrainingParams
 from ..datamodels.datamodels.processing.datascaler import DataScaler
 from ..datamodels.datamodels import Model
+from ..Training.TrainingUtilities.training_utils import extract_training_and_test_set, split_into_training_and_test_set
 
 
 def run_training_ensemble(data, list_training_parameters: List[TrainingParams],
@@ -16,8 +16,8 @@ def run_training_ensemble(data, list_training_parameters: List[TrainingParams],
     results = []
     for training_params in list_training_parameters:
         # Get data and reshape
-        index, x, y,_ = ModelTraining.Training.TrainingUtilities.training_utils.extract_training_and_test_set(data, training_params)
-        index_train, x_train, y_train, index_test, x_test, y_test = ModelTraining.Training.TrainingUtilities.training_utils.split_into_training_and_test_set(index, x, y, training_params.training_split)
+        index, x, y,_ = extract_training_and_test_set(data, training_params)
+        index_train, x_train, y_train, index_test, x_test, y_test = split_into_training_and_test_set(index, x, y, training_params.training_split)
         ensemble = list()
         for i in range(n_members):
             # define and fit the model on the training set

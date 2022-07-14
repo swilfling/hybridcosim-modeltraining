@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from ModelTraining.feature_engineering.interfaces import PickleInterface
+from ..feature_engineering.interfaces import PickleInterface
 import numpy as np
 import os
 import pandas as pd

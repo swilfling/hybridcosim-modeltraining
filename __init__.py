@@ -1,5 +1,5 @@
-import ModelTraining.dataimport
-import ModelTraining.feature_engineering.featureset
-import ModelTraining.Utilities
-import ModelTraining.Training
-import ModelTraining.datamodels.datamodels
+from . import dataimport
+from . import feature_engineering
+from . import Utilities
+from . import Training
+from .datamodels import datamodels
