@@ -26,8 +26,8 @@ class Transformer_MaskFeats(TransformerWrapper):
         @return: self
         """
         self.feature_mask_ = MaskFeats.from_name(self.mask_type, features_to_transform=self.features_to_transform)
-        if self.feature_mask_ is not None:
-            self._fit(self.feature_mask_.mask_feats(X), y, **fit_params)
+        x_masked = self.feature_mask_.mask_feats(X) if self.feature_mask_ is not None else X
+        self._fit(x_masked, y, **fit_params)
         return self
 
     def transform(self, X):
@@ -36,7 +36,8 @@ class Transformer_MaskFeats(TransformerWrapper):
         @param X: Input feature vector (n_samples, n_features) - supports pd dataframe
         @return: transformed features
         """
-        x_transf = self._transform(self.feature_mask_.mask_feats(X))
+        x_to_transform = self.feature_mask_.mask_feats(X) if self.feature_mask_ is not None else X
+        x_transf = self._transform(x_to_transform)
         feat_names = self.transformer_.get_feature_names_out(self.feature_mask_.mask_feats(X.columns)) if isinstance(X, pd.DataFrame) else None
         return self.feature_mask_.combine_feats(x_transf, X, feat_names)
 

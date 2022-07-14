@@ -22,9 +22,10 @@ class FeatureSelector(SelectorMixin, BaseFit, BaseEstimator, PickleInterface, Re
         @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
         @param y: Target feature vector (n_samples)
         """
-        x_to_fit = self.reshape_data(X)
-        self.n_features_in_ = x_to_fit.shape[1]
-        return super().fit(x_to_fit, y, **fit_params)
+        X = self.reshape_x(X)
+        y = self.reshape_y(y)
+        self.n_features_in_ = X.shape[1]
+        return super().fit(X, y, **fit_params)
 
     def transform(self, X):
         """
@@ -32,7 +33,7 @@ class FeatureSelector(SelectorMixin, BaseFit, BaseEstimator, PickleInterface, Re
         @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
         @return: Output feature vector (n_samples, n_features) or (n_samples, n_selected_features * lookback)
         """
-        return super().transform(self.reshape_data(X))
+        return super().transform(self.reshape_x(X))
 
     def get_num_selected_features(self):
         """

@@ -15,7 +15,8 @@ class FeatureExpansion(TransformerMixin, PickleInterface, Reshape, BaseFitTransf
         @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
         @param y: Target feature vector (n_samples)
         """
-        X = self.reshape_data(X)
+        X = self.reshape_x(X)
+        y = self.reshape_y(y)
         if X.shape[1] > 0:
             self._fit(X, y)
         return self
@@ -27,6 +28,6 @@ class FeatureExpansion(TransformerMixin, PickleInterface, Reshape, BaseFitTransf
         @return: Transformed sample vector (n_samples, n_features_expanded)
         """
         # Reshape if necessary
-        X_reshaped = self.reshape_data(X)
+        X_reshaped = self.reshape_x(X)
         return self._transform(X_reshaped)
 
