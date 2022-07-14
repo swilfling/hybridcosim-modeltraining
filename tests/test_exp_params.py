@@ -5,6 +5,8 @@ import os
 
 def test_store_load_params():
     # Load basic config
+    expander_parameters = load_from_json(
+        os.path.join("../", 'Configuration', 'expander_params_PolynomialExpansion.json'))
     train_params = TrainingParamsExpanded.load(
         "../Configuration/TrainingParameters/training_params_poly_normalized.json")
     # Adapt config
