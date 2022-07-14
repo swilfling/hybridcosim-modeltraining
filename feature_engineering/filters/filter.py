@@ -1,4 +1,3 @@
-from scipy import signal as sig
 import pandas as pd
 import numpy as np
 
@@ -16,7 +15,6 @@ class Filter(BaseFitTransform, PickleInterface, TransformerMixin, BaseEstimator,
     """
     offset_comp_ = None
     nan_comp_ = None
-    coef_ = [[0], [0]]
     remove_offset = False
     keep_nans = False
 
@@ -31,7 +29,7 @@ class Filter(BaseFitTransform, PickleInterface, TransformerMixin, BaseEstimator,
         return super().fit(X_to_filter)
 
     def _fit(self, X, y=None, **fit_params):
-        self.coef_ = self.calc_coef(X, y, **fit_params)
+        pass
 
     def transform(self, X):
         """
@@ -55,16 +53,4 @@ class Filter(BaseFitTransform, PickleInterface, TransformerMixin, BaseEstimator,
         @param x: Input feature vector (n_samples, n_features)
         @param y: Target feature vector (n_samples)
         """
-        return sig.lfilter(*self.coef_, X, axis=0)
-
-    def get_coef(self):
-        """
-        Get filter coefficients.
-        """
-        return self.coef_
-
-    def calc_coef(self, X, y=None, **fit_params):
-        """
-        Override this method to create filter coeffs.
-        """
-        return None
+        return X

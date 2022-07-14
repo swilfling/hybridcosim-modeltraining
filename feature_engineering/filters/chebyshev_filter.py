@@ -1,9 +1,9 @@
 from scipy import signal as sig
 
-from .filter import Filter
+from . import FilterDirectForm
 
 
-class ChebyshevFilter(Filter):
+class ChebyshevFilter(FilterDirectForm):
     """
        Chebyshev filter for data smoothing.
     """
@@ -19,3 +19,6 @@ class ChebyshevFilter(Filter):
 
     def calc_coef(self, X, y=None, **fit_params):
         return sig.cheby1(self.order, self.ripple, 1 / self.T, btype=self.filter_type)
+
+    def _get_feature_names_out(self, feature_names=None):
+        return [f'{feat}_cheb_{self.T}' for feat in feature_names]

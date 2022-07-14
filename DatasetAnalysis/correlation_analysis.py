@@ -19,7 +19,7 @@ if __name__ == '__main__':
     # Added: Preprocessing - Smooth features
     config_path = os.path.join(root_dir, 'Configuration')
     list_usecases = ['CPS-Data', 'SensorA6', 'SensorB2', 'SensorC6', 'Solarhouse1','Solarhouse2']
-    list_usecases = ['Beyond_B20_LR']
+    list_usecases = ['Beyond_B20_LR_dyn', 'Beyond_B12_LR_dyn']
 
     dict_usecases = [data_import.load_from_json(os.path.join(config_path,"UseCaseConfig", f"{name}.json")) for name in
                      list_usecases]
@@ -39,13 +39,21 @@ if __name__ == '__main__':
             os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
         data = data_import.import_data(
             os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
-        data = feat_utils.add_features_to_data(data, dict_usecase)
+        #data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         # Data preprocessing
         data = dp_utils.preprocess_data(data,dict_usecase['dataset_filename'])
         # Export correlation matrices
         features_for_corrmatrix = [feature.name for feature in feature_set.get_input_feats() if not feature.cyclic and not feature.statistical]
+        if usecase_name == 'Beyond_B20_LR_dyn':
+            features_for_corrmatrix.append('TB20LR')
+        if usecase_name == 'Beyond_B20_BR1':
+            features_for_corrmatrix.append('TB20BR1')
+        if usecase_name == 'Beyond_B12_LR':
+            features_for_corrmatrix.append('TB12LR')
+        data['SGlobalHTAmbientvWind_inv'] = data['SGlobalH']*data['TAmbient'] / data['vWind']
+        features_for_corrmatrix.append('SGlobalHTAmbientvWind_inv')
 
         if data.shape[1] > 1:
             filename_basic = f'Correlation_{usecase_name}_IdentityExpander'
@@ -53,11 +61,11 @@ if __name__ == '__main__':
             plt_dist.printHeatMap(corr, matrix_path, filename_basic, vmin=-1, vmax=1, cmap='coolwarm', annot=True, fmt='.2f')
             data_analysis.reshape_corrmatrix(corr).to_csv(os.path.join(matrix_path, f'{filename_basic}_flat.csv'))
 
-            filename_exp = f'Correlation_{usecase_name}_PolynomialExpansion'
-            expanded_features = train_utils.expand_features(data, features_for_corrmatrix, expander_parameters=expander_parameters)
-            corr_exp = data_analysis.corrmatrix(expanded_features)
-            data_analysis.reshape_corrmatrix(corr).to_csv(os.path.join(matrix_path, f'{filename_exp}_flat.csv'))
-            plt_dist.printHeatMap(corr_exp, matrix_path, filename_exp, vmin=-1, vmax=1, cmap='coolwarm', annot=True, fmt='.2f')
+        #    filename_exp = f'Correlation_{usecase_name}_PolynomialExpansion'
+        #    expanded_features = train_utils.expand_features(data, features_for_corrmatrix, expander_parameters=expander_parameters)
+        #    corr_exp = data_analysis.corrmatrix(expanded_features)
+        #    data_analysis.reshape_corrmatrix(corr).to_csv(os.path.join(matrix_path, f'{filename_exp}_flat.csv'))
+        #    plt_dist.printHeatMap(corr_exp, matrix_path, filename_exp, vmin=-1, vmax=1, cmap='coolwarm', annot=True, fmt='.2f')
 
 
 #%% VIF calculation

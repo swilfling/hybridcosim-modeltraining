@@ -1,9 +1,9 @@
 from scipy import signal as sig
 
-from .filter import Filter
+from . import FilterDirectForm
 
 
-class ButterworthFilter(Filter):
+class ButterworthFilter(FilterDirectForm):
     """
     Butterworth filter for data smoothing.
     """
@@ -17,3 +17,6 @@ class ButterworthFilter(Filter):
 
     def calc_coef(self, X, y=None, **fit_params):
         return sig.butter(self.order, 1 / self.T, btype=self.filter_type)
+
+    def _get_feature_names_out(self, feature_names=None):
+        return [f'{feat}_but_{self.T}' for feat in feature_names]
