@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from . import BasicInterface
-
+from typing import List
 
 class FeatureNames:
 
@@ -30,6 +30,14 @@ class MaskFeats(FeatureNames, BasicInterface):
     def __init__(self, features_to_transform=None):
         self.features_to_transform = features_to_transform
 
+    def get_feat_indices(self, X, inverse=False):
+        if self.features_to_transform is not None:
+            if isinstance(self.features_to_transform[0], str):
+                feat_ind = np.array([feat in self.features_to_transform for feat in (X.columns if isinstance(X, pd.DataFrame) else X)])
+                return feat_ind if not inverse else np.bitwise_not(feat_ind)
+            else:
+                return self.features_to_transform if not inverse else np.bitwise_not(self.features_to_transform)
+
     def mask_feats(self, X, inverse=False):
         """
         Select features to transform
@@ -38,7 +46,7 @@ class MaskFeats(FeatureNames, BasicInterface):
         @return: selected features
         """
         if self.features_to_transform is not None:
-            mask = np.bitwise_not(self.features_to_transform) if inverse else np.array(self.features_to_transform)
+            mask = self.get_feat_indices(X, inverse)
             if isinstance(X, pd.DataFrame):
                 return X[X.columns[mask]]
             elif isinstance(X, np.ndarray):
@@ -79,17 +87,18 @@ class MaskFeats_Inplace(MaskFeats):
         if self.features_to_transform is not None:
             # If transformation did not create new features, replace original by transformed values
             x_transf_new = X_orig.copy()
+            indices = self.get_feat_indices(X_orig)
             if isinstance(X_orig, pd.DataFrame):
-                x_transf_new[x_transf_new.columns[self.features_to_transform]] = X_transf
+                x_transf_new[x_transf_new.columns[indices]] = X_transf
                 if feature_names is not None:
                     column_names = np.array(x_transf_new.columns)
-                    column_names[self.features_to_transform] = feature_names
+                    column_names[indices] = feature_names
                     x_transf_new.columns = column_names
             elif isinstance(X_orig, np.ndarray):
-                x_transf_new[..., self.features_to_transform] = X_transf
+                x_transf_new[..., indices] = X_transf
             else:
                 x_transf_new = np.array(x_transf_new)
-                x_transf_new[self.features_to_transform] = X_transf
+                x_transf_new[indices] = X_transf
             return x_transf_new
 
         else:
