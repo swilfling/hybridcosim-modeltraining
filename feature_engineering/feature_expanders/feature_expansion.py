@@ -8,6 +8,9 @@ class FeatureExpansion(TransformerMixin, PickleInterface, Reshape, BaseFitTransf
     Base class for feature expansion transformers.
     Implements scikit-learn's TransformerMixin interface, allows storing and loading from pickle
     """
+    def __init__(self, **kwargs):
+        pass
+
     def fit(self, X, y=None, **fit_params):
         """
         Fit transformer to samples. Calls self._fit

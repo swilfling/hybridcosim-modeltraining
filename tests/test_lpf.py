@@ -4,27 +4,64 @@ from ModelTraining.feature_engineering.compositetransformers import Transformer_
 from sklearn.compose import ColumnTransformer
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
+
+
+def test_filter_params_baseclass():
+    filter_1 = ButterworthFilter(T=20, order=3)
+    params_but = filter_1.get_params(deep=True)
+    filter_basic = Filter()
+    params_basic = filter_basic.get_params(deep=True)
+    # Are params different from each other?
+    assert(params_but != params_basic)
+    # Are basic params in subclass params?
+    assert([param in params_but for param in params_basic])
+
+
+def test_store_load_filter():
+    path = "../results"
+    filename = "LPF.pickle"
+
+    filter_1 = ButterworthFilter(T=20, order=3)
+    filter_1.save_pkl(path, filename)
+    filter_2 = ButterworthFilter.load_pkl(path, filename)
+    assert(filter_1.get_params() == filter_2.get_params())
+    assert(filter_1.get_params(deep=True) == filter_2.get_params(deep=True))
+
+
+def test_store_load_filter_baseclass():
+    path = "../results"
+    filename = "LPF.pickle"
+
+    filter_1 = ButterworthFilter(T=20, order=3)
+    filter_1.save_pkl(path, filename)
+
+    filter_2 = ButterworthFilter.load_pkl(path, filename)
+    filter_3 = Filter.load_pkl(path, filename)
+    assert(filter_2.get_params() == filter_3.get_params())
+    assert (filter_2.get_params(deep=True) == filter_3.get_params(deep=True))
+
+
+def test_columntransformer():
+    data = DataImport.load("../Configuration/DataImport/Resampled15min.json").import_data(
+        "../../Data/AEE/Resampled15min")
+    data = data[['TSolarVL', 'TSolarRL', 'VDSolar', 'SGlobal']]
+    features_to_smoothe = ['TSolarVL']
+    filter_mask = Transformer_MaskFeats(features_to_transform=[True, False, False, False],
+                                        transformer_type='ButterworthFilter', transformer_params={'T': 20})
+    transf = ColumnTransformer(
+        [("filter", ButterworthFilter(T=20), [feat in features_to_smoothe for feat in data.columns])],
+        remainder='passthrough').fit(data)
+    data_tr_1 = pd.DataFrame(index=data.index, columns=data.columns, data=transf.transform(data))
+    data_tr_2 = filter_mask.fit_transform(data)
+    assert(np.all(data_tr_1 - data_tr_2 == 0))
 
 
 if __name__ == "__main__":
-    filter_1 = ButterworthFilter(T=20, order=3)
-    path = "../results"
-    filename = "LPF.pickle"
-    filter_1.save_pkl(path, filename)
-    params = filter_1.get_params(deep=True)
-    print(params)
-    filter_basic = Filter()
-    print(filter_basic.get_params(deep=True))
 
-    filter_2 = ButterworthFilter.load_pkl(path, filename)
-    print(filter_2.T)
-    print(filter_2.order)
-    print(filter_2.coef_)
-
-    filter_3 = Filter.load_pkl(path, filename)
-    print(filter_3.T)
-    print(filter_3.order)
-    print(filter_3.coef_)
+    test_filter_params_baseclass()
+    test_store_load_filter()
+    test_store_load_filter_baseclass()
 
     data = DataImport.load("../Configuration/DataImport/Resampled15min.json").import_data(
         "../../Data/AEE/Resampled15min")
@@ -39,12 +76,4 @@ if __name__ == "__main__":
     plt.legend(['TSolarVL', 'TSolarVL_transf','TSolarRL', 'TSolarRL_transf'])
     plt.show()
 
-    data = data[['TSolarVL', 'TSolarRL', 'VDSolar', 'SGlobal']]
-    features_to_smoothe = ['TSolarVL']
-    filter_mask = Transformer_MaskFeats(features_to_transform=[True, False, False, False], transformer_type='ButterworthFilter', transformer_params={'T':20})
-    transf = ColumnTransformer([("filter", ButterworthFilter(T=20), [feat in features_to_smoothe for feat in data.columns])],
-                               remainder='passthrough').fit(data)
-    data_tr_1 = pd.DataFrame(index=data.index, columns=data.columns, data=transf.transform(data))
-    data_tr_2 = filter_mask.fit_transform(data)
-    import numpy as np
-    print(np.all(data_tr_1 - data_tr_2 == 0))
+    test_columntransformer()
