@@ -12,7 +12,7 @@ class FilterDirectForm(Filter):
     coef_ = [[0], [0]]
 
     def __init__(self, remove_offset=False, keep_nans=False, **kwargs):
-        super().__init__(self, remove_offset=remove_offset, keep_nans=keep_nans)
+        super().__init__(remove_offset=remove_offset, keep_nans=keep_nans)
 
     def _fit(self, X, y=None, **fit_params):
         self.coef_ = self.calc_coef(X, y, **fit_params)
