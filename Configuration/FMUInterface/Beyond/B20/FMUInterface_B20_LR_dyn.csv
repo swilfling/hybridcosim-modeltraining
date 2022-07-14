@@ -2,9 +2,10 @@ IndoorTemperature;;;;;;
 Name;In_Out;Init;Stat_Dyn;Predictions;Type;Description
 TAmbient;input;0;dynamic;TB20LR;Real;
 SGlobalH;input;0;dynamic;TB20LR;Real;
-vWind;input;0;dynamic;TB20LR;Real;
-humidity;input;0;dynamic;TB20LR;Real;
+vWind;input;0;static;TB20LR;Real;
+B20Gas;input;0;static;TB20LR;Real;
+humidity;input;0;static;TB20LR;Real;
+rain;input;0;static;TB20LR;Real;
 lumB20LR;input;0;dynamic;TB20LR;Real;
-rain;input;0;dynamic;TB20LR;Real;
 TB20LR;output;0;;TB20LR;Real;
 TB20LR_start;parameter;0;TB20LR;Real;
