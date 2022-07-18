@@ -1,8 +1,7 @@
-from sklearn.base import TransformerMixin, BaseEstimator
-from ..interfaces import PickleInterface, Reshape, BaseFitTransform, FeatureNames
+from ..interfaces import BasicTransformer, Reshape
 
 
-class FeatureExpansion(TransformerMixin, PickleInterface, Reshape, BaseFitTransform, BaseEstimator, FeatureNames):
+class FeatureExpansion(BasicTransformer, Reshape):
     """
     Feature Expansion
     Base class for feature expansion transformers.

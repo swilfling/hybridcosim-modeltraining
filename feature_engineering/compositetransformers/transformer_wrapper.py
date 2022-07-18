@@ -1,8 +1,7 @@
-from sklearn.base import TransformerMixin, BaseEstimator
-from ..interfaces import PickleInterface, BaseFitTransform, FeatureNames, BasicInterface
+from ..interfaces import BasicTransformer, BasicInterface
 
 
-class TransformerWrapper(TransformerMixin, PickleInterface, BaseFitTransform, FeatureNames, BaseEstimator):
+class TransformerWrapper(BasicTransformer):
     """
     Transform only selected features - keep other features
     Transformed features replace basic features
