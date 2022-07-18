@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.feature_selection import SelectorMixin
 from ..interfaces import PickleInterface, Reshape, BaseFit
@@ -33,7 +34,10 @@ class FeatureSelector(SelectorMixin, BaseFit, BaseEstimator, PickleInterface, Re
         @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
         @return: Output feature vector (n_samples, n_features) or (n_samples, n_selected_features * lookback)
         """
-        return super().transform(self.reshape_x(X))
+        x_tr = super().transform(self.reshape_x(X))
+        if isinstance(X, pd.DataFrame):
+            return pd.DataFrame(data=x_tr, columns=self.get_feature_names_out(X.columns))
+        return x_tr
 
     def get_num_selected_features(self):
         """
