@@ -45,7 +45,7 @@ if __name__ == "__main__":
     os.makedirs(results_path, exist_ok=True)
     metrics_path = os.path.join(root_dir, 'results', timestamp, 'Metrics')
     os.makedirs(metrics_path, exist_ok=True)
-    metrics_names = {'FeatureSelect': ['selected_features', 'all_features'], 'Metrics': ['R2_SKLEARN', 'CV-RMS', 'MAPE', 'RA_SKLEARN'], 'pvalues': ['pvalue_lm', 'pvalue_f']}
+    metrics_names = {'FeatureSelect': ['selected_features', 'all_features'], 'Metrics': ['rsquared', 'cvrmse', 'mape', 'RA'], 'pvalues': ['pvalue_lm', 'pvalue_f']}
 
 # %%
     print('Analyzing results')

@@ -1,5 +1,5 @@
 import numpy as np
-from ...datamodels.datamodels.processing.shape import split_into_target_segments
+from ...datamodels.datamodels.processing.shape import get_windows
 from sklearn.base import BaseEstimator, TransformerMixin
 from ..interfaces import PickleInterface, BaseFitTransform, FeatureNames
 
@@ -26,7 +26,7 @@ class DynamicFeatures(PickleInterface, BaseFitTransform, TransformerMixin, BaseE
         @param X: input features (n_samples, n_features)
         @return: transformed features (n_samples, lookback + 1, n_features) or (n_samples, n_features)
         """
-        X_transf, _ = split_into_target_segments(X, None, lookback_horizon=self.lookback_horizon, prediction_horizon=0)
+        X_transf = get_windows(features=X, targets=None, lookback=self.lookback_horizon, lookahead=0)
         X_transf = np.concatenate((np.zeros((self.lookback_horizon, *X_transf.shape[1:])),X_transf))
         if self.flatten_dynamic_feats:
             X_transf = X_transf.reshape(X_transf.shape[0], -1)

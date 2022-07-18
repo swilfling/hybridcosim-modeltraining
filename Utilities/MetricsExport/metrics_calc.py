@@ -5,13 +5,13 @@ from typing import List
 from .metrics_vals import MetricsVal, MetrValsSet
 from ...feature_engineering.expandedmodel import ExpandedModel
 from ...datamodels.datamodels.validation import metrics
-from ...datamodels.datamodels.validation.white_test import white_test
+from ...datamodels.datamodels.validation.whitetest import white_test
 from ..trainingdata import TrainingData
 from ...feature_engineering.feature_selectors import FeatureSelector
 
 
 class MetricsCalc:
-    metr_names = {'Metrics': ['R2_SKLEARN', 'CV-RMS', 'MAPE'],
+    metr_names = {'Metrics': ['rsquared', 'cvrmse', 'mape'],
                   'FeatureSelect': ['selected_features', 'all_features'],
                   'pvalues': ['pvalue_lm']}
     metr_vals: MetrValsSet = MetrValsSet()
@@ -27,17 +27,15 @@ class MetricsCalc:
     def calc_perf_metrics(self, result: TrainingData, n_predictors=0):
         n_samples = result.train_index.shape[0] + result.test_index.shape[0]
         list_metrs = []
+        perf_metr_names = self.metr_names['Metrics']
         for feat in result.target_feat_names:
             y_true = result.test_target_vals(feat)
             y_pred = result.test_pred_vals(feat)
             # Get metrics
-            metrs = metrics.all_metrics(y_true=y_true, y_pred=y_pred)
+            metrs = {name: getattr(metrics, name)(y_true=y_true, y_pred=y_pred) for name in perf_metr_names}
             # Additional metrics
             if 'RA' in self.metr_names['Metrics']:
-                metrs.update({"RA": metrics.rsquared_adj(y_true, y_pred, n_samples, n_predictors)})
-            if 'RA_SKLEARN' in self.metr_names['Metrics']:
-                metrs.update(
-                    {"RA_SKLEARN": metrics.rsquared_sklearn_adj(y_true, y_pred, n_samples, n_predictors)})
+                metrs.update({"RA": metrics.adjusted_rsquared(y_true, y_pred, n_predictors)})
             for k, v in metrs.items():
                 if k in self.metr_names['Metrics']:
                     list_metrs.append(MetricsVal(metrics_type='Metrics', metrics_name=k, val=v, target_feat=feat))
