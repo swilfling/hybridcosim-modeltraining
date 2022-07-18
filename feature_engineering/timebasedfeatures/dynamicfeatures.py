@@ -1,6 +1,5 @@
 import numpy as np
 from ...datamodels.datamodels.processing.shape import get_windows
-from ...datamodels.datamodels.processing.shape import split_into_target_segments
 from ..interfaces import BasicTransformer
 
 
