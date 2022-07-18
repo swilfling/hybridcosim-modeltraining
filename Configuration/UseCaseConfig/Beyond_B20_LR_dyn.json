@@ -6,7 +6,7 @@
     "stat_feats": ["TAmbient", "SGlobalH", "vWind","B20Gas", "rain","humidity"],
     "to_smoothe": ["SGlobalH", "vWind", "humidity", "TAmbient", "B20Gas", "TB20LR", "lumB20LR"],
     "stat_vals": ["tmean","tmin","tmax"],
-    "stat_ws": 168,
+    "stat_ws": [24,168,720],
     "onehot_feats": [
         "month"
     ],

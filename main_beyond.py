@@ -1,3 +1,4 @@
+import json
 import os
 import logging
 import shutil
@@ -48,30 +49,26 @@ if __name__ == '__main__':
     transformer_type = 'RThreshold'
     stat_feats = dict_usecase['stat_feats']
     stat_vals = dict_usecase['stat_vals']
+    stat_ws = dict_usecase['stat_ws']
 
     inv_params = TransformerParams(type='Transformer_MaskFeats', params={
             'transformer_type':'InverseTransform',
             'mask_type': 'MaskFeats_Inplace'})
 
-    transformer_params = [
-        TransformerParams(type='Transformer_MaskFeats',
+    if type(stat_ws) == list:
+        stat_params = [TransformerParams(type='Transformer_MaskFeats',
                           params={'transformer_type':'StatisticalFeatures',
                                   'features_to_transform': stat_feats,
                                   'transformer_params':{'statistical_features': stat_vals,
-                                  'window_size': 24},
-                                  'mask_type': 'MaskFeats_Addition'},),
-        TransformerParams(type='Transformer_MaskFeats',
-                          params={'transformer_type': 'StatisticalFeatures',
+                                  'window_size': ws},'mask_type': 'MaskFeats_Addition'},) for ws in stat_ws]
+    else:
+        stat_params = [TransformerParams(type='Transformer_MaskFeats',
+                          params={'transformer_type':'StatisticalFeatures',
                                   'features_to_transform': stat_feats,
-                                  'transformer_params': {'statistical_features': stat_vals,
-                                                         'window_size': 24*7},
-                                  'mask_type': 'MaskFeats_Addition'}, ),
-        TransformerParams(type='Transformer_MaskFeats',
-                          params={'transformer_type': 'StatisticalFeatures',
-                                  'features_to_transform': stat_feats,
-                                  'transformer_params': {'statistical_features': stat_vals,
-                                                         'window_size': 24*30},
-                                  'mask_type': 'MaskFeats_Addition'}, ),
+                                  'transformer_params':{'statistical_features': stat_vals,
+                                  'window_size': stat_ws},'mask_type': 'MaskFeats_Addition'},)]
+
+    transformer_params = stat_params + [
         TransformerParams(type='PolynomialExpansion', params={'interaction_only': True, "degree": 2}),
         TransformerParams(type=transformer_type, params={'thresh': 0.05, 'omit_zero_samples':True})]
     transformer_name = transformer_type.lower()
@@ -139,6 +136,8 @@ if __name__ == '__main__':
     #hresh_params[f'{transformer_name}__thresh'] = [0.25]
     model_types = ['RidgeRegression','RandomForestRegression']
     model_types = ['RidgeRegression']
+
+
     metr_exp = MetricsCalc()
     for model_type in model_types:
         for lookback_horizon in lookbacks:
@@ -186,6 +185,9 @@ if __name__ == '__main__':
             parameters = thresh_params.copy()
             for name, vals in gridsearch_params[training_params.model_type].items():
                 parameters.update({f"{model_names[model_type]}__{name}": vals})
+            import json
+            with open(os.path.join(result_dir, f'gridsearch_params{model_type}.json'), "w") as f:
+                json.dump(gridsearch_params, f)
             search = GridSearchCV(model.get_full_pipeline(), parameters, cv=5, scoring=gridsearch_scoring, refit='r2',
                                   verbose=4)
             # Transform x train
