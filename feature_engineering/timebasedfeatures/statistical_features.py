@@ -1,13 +1,11 @@
-import datetime
 from math import ceil
 import pandas as pd
 import scipy.stats
 import numpy as np
-from sklearn.base import BaseEstimator, TransformerMixin
-from ..interfaces import PickleInterface, FeatureNames, BaseFitTransform
+from ..interfaces import BasicTransformer
 
 
-class StatisticalFeatures(PickleInterface, BaseFitTransform, TransformerMixin, BaseEstimator, FeatureNames):
+class StatisticalFeatures(BasicTransformer):
     """
     Statistical features.
     Parameters: Windowsize, window type, features to select
