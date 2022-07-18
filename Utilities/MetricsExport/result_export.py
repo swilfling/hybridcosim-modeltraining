@@ -6,6 +6,7 @@ from . import metr_utils
 from ..trainingdata import TrainingData
 from ..Plotting import plot_data as plt_utils
 from ...feature_engineering.expandedmodel import ExpandedModel
+from ...datamodels.datamodels import Model, LinearModel, RandomForestRegression, SymbolicRegression, RuleFitRegression
 
 
 class ResultExport:
@@ -104,18 +105,21 @@ class ResultExport:
         """
         property_dir = os.path.join(self.results_root, self.property_dir)
         os.makedirs(property_dir, exist_ok=True)
-        model_type = model.model.__class__.__name__
-        title_full = f'{model_type}_{model.name}_{title}'
+        regressor = model.model
+        title_full = f'{regressor.__class__.__name__}_{model.name}_{title}'
         # Export coefficients
-        if model_type in ['RandomForestRegression', 'RidgeRegression', 'LinearRegression']:
-            ylabel = 'F-Score' if model_type == 'RandomForestRegression' else 'Coefficients'
-            self.export_coeffs(model.model.get_coef().T, model.get_transformed_feature_names(), property_dir, title_full, ylabel)
-        if model_type == 'SymbolicRegression':
-            metr_utils.dict_to_json({'Program': str(model.model.get_program())},
+        if isinstance(regressor, LinearModel):
+            self.export_coeffs(regressor.get_coef().T, model.get_transformed_feature_names(), property_dir,
+                               title_full, "Coefficients")
+        if isinstance(regressor, RandomForestRegression):
+            self.export_coeffs(regressor.get_coef().T, model.get_transformed_feature_names(), property_dir,
+                               title_full, "F-Score")
+        if isinstance(regressor, SymbolicRegression):
+            metr_utils.dict_to_json({'Program': str(regressor.get_program())},
                                     os.path.join(property_dir, f'Program_{title_full}.json'))
-        if model_type == 'RuleFitRegression':
-            model.model.get_rules().to_csv(os.path.join(property_dir, f'Rules_{title_full}.csv'), float_format="%.2f",
-                                     index_label='Rule')
+        if isinstance(regressor, RuleFitRegression):
+            regressor.get_rules().to_csv(os.path.join(property_dir, f'Rules_{title_full}.csv'),
+                                                float_format="%.2f", index_label='Rule')
 
     def export_result(self, result: TrainingData, title="", show_fig=True):
         """
