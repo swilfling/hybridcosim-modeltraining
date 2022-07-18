@@ -1,6 +1,6 @@
 from sklearn.base import BaseEstimator, TransformerMixin
-from . import FitTransform, PickleInterface, FeatureNames
+from . import BaseFitTransform, PickleInterface, FeatureNames
 
 
-class BasicTransformer(BaseEstimator, FitTransform, PickleInterface, FeatureNames, TransformerMixin):
+class BasicTransformer(BaseEstimator, BaseFitTransform, PickleInterface, FeatureNames, TransformerMixin):
     pass

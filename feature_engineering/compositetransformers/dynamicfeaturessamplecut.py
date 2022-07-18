@@ -39,10 +39,8 @@ class DynamicFeaturesSampleCut(SamplerMixin, BaseEstimator):
         return self
 
     def resample(self, X, y):
-        if y is None:
-            return self.sample_cut_._fit_resample(self.dyn_feats_.fit_transform(X, y), y)
-        else:
-            return self.sample_cut_.fit_resample(self.dyn_feats_.fit_transform(X, y), y)
+        x_tr = self.dyn_feats_.fit_transform(X, y)
+        return self.sample_cut_.fit_resample(x_tr, y)
 
     def get_feature_names_out(self, feature_names=None):
         return self.dyn_feats_.get_feature_names_out(feature_names)

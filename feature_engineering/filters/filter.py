@@ -1,12 +1,11 @@
 import pandas as pd
 import numpy as np
 
-from sklearn.base import TransformerMixin, BaseEstimator
 from .compensators import OffsetComp, NaNComp
-from ..interfaces import BaseFitTransform, PickleInterface, FeatureNames
+from ..interfaces import BasicTransformer
 
 
-class Filter(BaseFitTransform, PickleInterface, TransformerMixin, BaseEstimator, FeatureNames):
+class Filter(BasicTransformer):
     """
     Signal filter - based on sklearn TransformerMixin. Can be stored to pickle file.
     Options:
