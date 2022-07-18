@@ -32,7 +32,7 @@ class MetricsCalc:
             y_true = result.test_target_vals(feat)
             y_pred = result.test_pred_vals(feat)
             # Get metrics
-            metrs = {name: getattr(metrics, name)(y_true=y_true, y_pred=y_pred) for name in perf_metr_names}
+            metrs = {name: float(getattr(metrics, name)(y_true=y_true, y_pred=y_pred)) for name in perf_metr_names}
             # Additional metrics
             if 'RA' in self.metr_names['Metrics']:
                 metrs.update({"RA": metrics.adjusted_rsquared(y_true, y_pred, n_predictors)})
