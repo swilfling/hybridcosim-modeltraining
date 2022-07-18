@@ -1,10 +1,9 @@
 import numpy as np
 from ...datamodels.datamodels.processing.shape import split_into_target_segments
-from sklearn.base import BaseEstimator, TransformerMixin
-from ..interfaces import PickleInterface, BaseFitTransform, FeatureNames
+from ..interfaces import BasicTransformer
 
 
-class DynamicFeatures(PickleInterface, BaseFitTransform, TransformerMixin, BaseEstimator, FeatureNames):
+class DynamicFeatures(BasicTransformer):
     """
     This class creates dynamic features with a certain lookback.
     Options:
