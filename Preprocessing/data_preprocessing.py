@@ -64,6 +64,8 @@ def preprocess_data(data: pd.DataFrame, filename=""):
             data = feature_mean(data, ['TB20BR1', 'TB20BR2', 'TB20BR3', 'TB20LR'], 'TB20')
 
         data['SGlobalH_TAmbient'] = data['SGlobalH'] * data['TAmbient']
+        data['SGlobalH_TAmbient_vWind_inv'] = data['SGlobalH_TAmbient'] / data['vWind']
+        data['SGlobalH_TAmbient_vWind_inv'][data['vWind'] == 0] = 0
 
     data = data.dropna(axis=0)
     data = data.astype('float')

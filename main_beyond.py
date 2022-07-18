@@ -1,5 +1,6 @@
 import os
 import logging
+import shutil
 from sklearn.pipeline import make_pipeline
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 from ModelTraining.dataimport.data_import import DataImport, load_from_json
@@ -18,6 +19,7 @@ from sklearn.model_selection import GridSearchCV
 from ModelTraining.feature_engineering.feature_selectors import MICThreshold
 from ModelTraining.feature_engineering.compositetransformers import DynamicFeaturesSampleCut
 
+
 if __name__ == '__main__':
     data_dir_path = "../"
     config_path = os.path.join("./", 'Configuration')
@@ -33,9 +35,15 @@ if __name__ == '__main__':
                    'RuleFitRegression': 'rulefit', 'XGBoost': 'xgboost'}
 
     # Get main config
-    dict_usecase = load_from_json(os.path.join(config_path, 'UseCaseConfig', f"{usecase_name}.json"))
+    usecase_config_file = os.path.join(config_path, 'UseCaseConfig', f"{usecase_name}.json")
+    dict_usecase = load_from_json(usecase_config_file)
+
+    interface_file = os.path.join("./", dict_usecase['fmu_interface'])
+    shutil.copy(usecase_config_file, os.path.join(result_dir, f"{usecase_name}.json"))
+    shutil.copy(interface_file, os.path.join(result_dir, "feature_set.csv"))
+
     # Get feature set
-    feature_set = FeatureSet(os.path.join("./", dict_usecase['fmu_interface']))
+    feature_set = FeatureSet(interface_file)
 
     transformer_type = 'RThreshold'
     stat_feats = dict_usecase['stat_feats']
@@ -46,13 +54,24 @@ if __name__ == '__main__':
             'mask_type': 'MaskFeats_Inplace'})
 
     transformer_params = [
-        TransformerParams(type='StatisticalFeatures',
-                          params={'features_to_select': stat_feats, 'statistical_features': stat_vals,
-                                  'window_size': 24}),
-        TransformerParams(type='StatisticalFeatures',
-                          params={'features_to_select': stat_feats, 'statistical_features': stat_vals,'window_size': 24*7}),
-        TransformerParams(type='StatisticalFeatures',
-                          params={'features_to_select': stat_feats, 'statistical_features': stat_vals,'window_size': 24*30}),
+        TransformerParams(type='Transformer_MaskFeats',
+                          params={'transformer_type':'StatisticalFeatures',
+                                  'features_to_transform': stat_feats,
+                                  'transformer_params':{'statistical_features': stat_vals,
+                                  'window_size': 24},
+                                  'mask_type': 'MaskFeats_Addition'},),
+        TransformerParams(type='Transformer_MaskFeats',
+                          params={'transformer_type': 'StatisticalFeatures',
+                                  'features_to_transform': stat_feats,
+                                  'transformer_params': {'statistical_features': stat_vals,
+                                                         'window_size': 24*7},
+                                  'mask_type': 'MaskFeats_Addition'}, ),
+        TransformerParams(type='Transformer_MaskFeats',
+                          params={'transformer_type': 'StatisticalFeatures',
+                                  'features_to_transform': stat_feats,
+                                  'transformer_params': {'statistical_features': stat_vals,
+                                                         'window_size': 24*30},
+                                  'mask_type': 'MaskFeats_Addition'}, ),
         TransformerParams(type='PolynomialExpansion', params={'interaction_only': True, "degree": 2}),
         TransformerParams(type=transformer_type, params={'thresh': 0.05, 'omit_zero_samples':True})]
     transformer_name = transformer_type.lower()
@@ -117,7 +136,7 @@ if __name__ == '__main__':
 
     #gridsearch_params['RidgeRegression'] = {'alpha': [10000]}
     gridsearch_params['RandomForestRegression'] = {}
-    #thresh_params[f'{transformer_name}__thresh'] = [0.25]
+    #hresh_params[f'{transformer_name}__thresh'] = [0.25]
     model_types = ['RidgeRegression','RandomForestRegression']
     model_types = ['RidgeRegression']
     metr_exp = MetricsCalc()
@@ -182,6 +201,12 @@ if __name__ == '__main__':
                                                      expansion_type=str(lookback_horizon),
                                                      metrics_type="best_params", metrics_name=k, val=val, usecase_name=usecase_name))
                 else:
+                    metr_exp.add_metr_val(MetricsVal(model_type=model_type,
+                                                     model_name=model.name,
+                                                     featsel_thresh=model.get_estimator().__class__.__name__,
+                                                     expansion_type=str(lookback_horizon),
+                                                     metrics_type="best_params", metrics_name=k, val=val,
+                                                     usecase_name=usecase_name))
                     setattr(model.get_estimator(), k.split("__")[1], val)
 
             # Train model
@@ -194,8 +219,8 @@ if __name__ == '__main__':
             train_data.test_prediction = model.predict(train_data.test_input)
             train_data.save_pkl(result_dir_model, "result_data.pkl")
             # Calc metrics
-            #metr_vals = metr_exp.calc_all_metrics(train_data, model.transformers.get_transformers_of_type(FeatureSelector))
-            metr_vals = metr_exp.calc_perf_metrics(train_data, model.get_num_predictors())
+            metr_vals = metr_exp.calc_all_metrics(train_data, model.transformers.get_transformers_of_type(FeatureSelector))
+            #metr_vals = metr_exp.calc_perf_metrics(train_data, model.get_num_predictors())
             # Set metrics identifiers
             for metr_val in metr_vals:
                 metr_val.set_metr_properties(model_type, model.name, str(lookback_horizon), transformer_name, usecase_name)
@@ -207,8 +232,10 @@ if __name__ == '__main__':
             # Export results
             #ResultExport(results_root=result_dir_model, plot_enabled=True).export_result_full(model, train_data, str(lookback_horizon))
             exp = ResultExport(results_root=result_dir_model, plot_enabled=True)
-            exp.export_result(train_data, str(lookback_horizon))
-            #exp.export_model_properties(model, str(lookback_horizon))
+            exp.export_result(train_data, str(lookback_horizon), show_fig=False)
+            exp.plot_enabled = False
+            exp.export_model_properties(model, str(lookback_horizon))
+            exp.export_featsel_metrs(model, str(lookback_horizon))
         # Store all metrics
         metr_exp.store_all_metrics(result_dir, index_col='expansion_type')
         print('Experiment finished')
