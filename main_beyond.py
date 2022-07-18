@@ -20,7 +20,6 @@ from sklearn.model_selection import GridSearchCV
 from ModelTraining.feature_engineering.compositetransformers import DynamicFeaturesSampleCut, Transformer_MaskFeats
 
 
-
 if __name__ == '__main__':
     data_dir_path = "../"
     config_path = os.path.join("./", 'Configuration')
@@ -69,7 +68,7 @@ if __name__ == '__main__':
                                   'transformer_params':{'statistical_features': stat_vals,
                                   'window_size': stat_ws},'mask_type': 'MaskFeats_Addition'},)]
 
-     feats_to_invert = ['vWind', f'{beyond_building}Gas', 'humidity','rain']
+    feats_to_invert = ['vWind', f'{beyond_building}Gas', 'humidity','rain']
     #stat_feats = [name if name not in feats_to_invert else f'{name}_inv' for name in stat_feats]
 
     window_sizes = [4, 8, 12, 24, 24*7, 24*30]
@@ -153,25 +152,27 @@ if __name__ == '__main__':
     model_types = ['RidgeRegression','RandomForestRegression']
     model_types = ['RidgeRegression','LassoRegression']
     metr_exp = MetricsCalc()
-    for model_type in model_types:
-        for lookback_horizon in lookbacks:
-            training_params.model_type = model_type
-            training_params.lookback_horizon = lookback_horizon
-            result_dir_model = os.path.join(result_dir, f"{model_type}_{lookback_horizon}")
-            os.makedirs(result_dir_model)
-            # Extract data and reshape
-            #micthresh = MICThreshold(thresh=0.005, omit_zero_samples=False)
-            #training_data_thresh = micthresh.fit_transform(training_data, target_data)
-            #feat_names_thresh = micthresh.get_feature_names_out(training_data.columns)
-            training_data_thresh = training_data
-            feat_names_thresh = training_data.columns
 
-            inv_params.params['features_to_transform'] = [name in ['vWind','rain','B20Gas','humidity'] for name in
-                                                          training_data_thresh.columns]
-            from ModelTraining.feature_engineering.compositetransformers import Transformer_MaskFeats
-            tr = Transformer_MaskFeats(**inv_params.params)
-            training_data_thresh = tr.fit_transform(training_data_thresh)
-            feat_names_thresh = tr.get_feature_names_out(feature_names=feat_names_thresh)
+    for lookback_horizon in lookbacks:
+        training_params.lookback_horizon = lookback_horizon
+        # Extract data and reshape
+        #micthresh = MICThreshold(thresh=0.005, omit_zero_samples=False)
+        #training_data_thresh = micthresh.fit_transform(training_data, target_data)
+        #feat_names_thresh = micthresh.get_feature_names_out(training_data.columns)
+        training_data_thresh = training_data
+        feat_names_thresh = training_data.columns
+
+        inv_params.params['features_to_transform'] = [name in ['vWind','rain','B20Gas','humidity'] for name in
+                                                      training_data_thresh.columns]
+        from ModelTraining.feature_engineering.compositetransformers import Transformer_MaskFeats
+        tr = Transformer_MaskFeats(**inv_params.params)
+        training_data_thresh = tr.fit_transform(training_data_thresh)
+        feat_names_thresh = tr.get_feature_names_out(feature_names=feat_names_thresh)
+
+        micthresh = MICThreshold(thresh=0.05, omit_zero_samples=True)
+        data = micthresh.fit_transform(training_data_thresh, target_data)
+        feature_names = micthresh.get_feature_names_out(feat_names_thresh)
+        micthresh.print_metrics()
 
         if len(training_params.dynamic_input_features) > 0:
             dynfeats = DynamicFeaturesSampleCut(
@@ -183,11 +184,6 @@ if __name__ == '__main__':
             feature_names = dynfeats.get_feature_names_out(feat_names_thresh)
         else:
             x, y, index, feature_names = training_data_thresh, target_data.to_numpy(), training_data.index, feat_names_thresh
-
-        micthresh = MICThreshold(thresh=0.05, omit_zero_samples=True)
-        x = micthresh.fit_transform(x,y)
-        feature_names = micthresh.get_feature_names_out(feature_names)
-        micthresh.print_metrics()
 
         for model_type in model_types:
             train_data = train_utils.create_train_data(index, x, y, training_params.training_split)
