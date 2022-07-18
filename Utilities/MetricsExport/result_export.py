@@ -1,7 +1,7 @@
 import os
 import pandas as pd
 
-from ...feature_engineering.feature_selectors import FeatureSelector
+from ...feature_engineering.feature_selectors import FeatureSelector, FeatureSelectThreshold
 from . import metr_utils
 from ..trainingdata import TrainingData
 from ..Plotting import plot_data as plt_utils
@@ -91,7 +91,7 @@ class ResultExport:
         transformers = model.transformers.get_list_transfomers()
         feature_names = model.feature_names
         for transformer in transformers:
-            if isinstance(transformers, FeatureSelector):
+            if isinstance(transformer, FeatureSelectThreshold):
                 self.export_coeffs(transformer.get_coef(), feature_names=transformer.get_feature_names_out(feature_names), dir=output_dir,
                                title=f'{transformer.__class__.__name__} - {title}',
                                ylabel=str(transformer.__class__.__name__))

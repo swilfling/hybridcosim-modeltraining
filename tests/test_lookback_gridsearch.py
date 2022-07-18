@@ -32,8 +32,8 @@ if __name__ == "__main__":
 
     lookback_tr_3 = DynamicFeaturesSampleCut(lookback_horizon=lookback, flatten_dynamic_feats=True)
 
-    reg = SamplingPipeline(steps=[('dynamicfeaturessamplecut', lookback_tr_3), ('linearregression',LinearRegression())])
-    reg = TransformedTargetRegressor(regressor=make_pipeline(DynamicFeatures(lookback_horizon=3, flatten_dynamic_feats=True),LinearRegression()), transformer=SampleCut(lookback), check_inverse=False)
+    #reg = SamplingPipeline(steps=[('dynamicfeaturessamplecut', lookback_tr_3), ('linearregression',LinearRegression())])
+    #reg = TransformedTargetRegressor(regressor=make_pipeline(DynamicFeatures(lookback_horizon=3, flatten_dynamic_feats=True),LinearRegression()), transformer=SampleCut(lookback), check_inverse=False)
 
     reg = make_pipeline(DynamicFeatures(lookback_horizon=3, flatten_dynamic_feats=True), SampleCut_imblearn(num_samples=3), LinearRegression())
     reg = SamplingPipeline([('dynamicfeatures',DynamicFeatures(lookback_horizon=3, flatten_dynamic_feats=True)),
@@ -56,9 +56,9 @@ if __name__ == "__main__":
 
     search = GridSearchCV(reg,
                           {#'ridge__alpha': [0.1],
-                          'dynamicfeaturessamplecut__lookback_horizon': [2, 3]
-                          #'dynamicfeatures__lookback_horizon': [2, 3],
-                          #'samplecut_imblearn__num_samples': [2, 3]
+                          #'dynamicfeaturessamplecut__lookback_horizon': [2, 3]
+                          'dynamicfeatures__lookback_horizon': [2, 3],
+                          'samplecut_imblearn__num_samples': [2, 3]
                         },
                           scoring=['r2','neg_mean_squared_error'],
                           refit='r2',
