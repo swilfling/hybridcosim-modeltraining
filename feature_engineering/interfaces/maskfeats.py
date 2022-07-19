@@ -31,12 +31,13 @@ class MaskFeats(FeatureNames, BasicInterface):
         self.features_to_transform = features_to_transform
 
     def get_feat_indices(self, X, inverse=False):
-        if self.features_to_transform is not None:
+        if self.features_to_transform is not None and len(self.features_to_transform) > 0:
             if isinstance(self.features_to_transform[0], str):
                 feat_ind = np.array([feat in self.features_to_transform for feat in (X.columns if isinstance(X, pd.DataFrame) else X)])
                 return feat_ind if not inverse else np.bitwise_not(feat_ind)
             else:
                 return self.features_to_transform if not inverse else np.bitwise_not(self.features_to_transform)
+        return None
 
     def mask_feats(self, X, inverse=False):
         """
