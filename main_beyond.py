@@ -45,9 +45,12 @@ if __name__ == '__main__':
 
     # Get feature set
     feature_set = FeatureSet(interface_file)
+    feats_to_invert = dict_usecase.get('to_invert', [])
+
+    window_sizes = [4, 8, 12, 24, 24 * 7, 24 * 30]
 
     transformer_type = 'RThreshold'
-    stat_feats = dict_usecase['stat_feats']
+    stat_feats = [f'{feat}_inv' if feat in feats_to_invert else feat for feat in dict_usecase['stat_feats']]
     stat_vals = dict_usecase['stat_vals']
     stat_ws = dict_usecase['stat_ws']
 
@@ -68,24 +71,13 @@ if __name__ == '__main__':
                                   'transformer_params':{'statistical_features': stat_vals,
                                   'window_size': stat_ws},'mask_type': 'MaskFeats_Addition'},)]
 
-    feats_to_invert = ['vWind', f'{beyond_building}Gas', 'humidity','rain']
-    #stat_feats = [name if name not in feats_to_invert else f'{name}_inv' for name in stat_feats]
-
-    window_sizes = [4, 8, 12, 24, 24*7, 24*30]
-    stat_feats_params = [TransformerParams(type='Transformer_MaskFeats', params={
-                                                                'transformer_type':'StatisticalFeatures',
-                                                                'transformer_params':{'statistical_features':stat_vals,
-                                                                                      'features_to_transform':stat_feats,
-                                                                'window_size':ws},
-                                                                'mask_type': 'MaskFeats_Addition'}) for ws in window_sizes]
-
     transformer_params = stat_params + [
         #TransformerParams(type='MICThreshold', params={'thresh': 0.05, 'omit_zero_samples': True}),
         TransformerParams(type='PolynomialExpansion', params={'interaction_only': True,'include_bias':False, "degree": 2}),
         TransformerParams(type=transformer_type, params={'thresh': 0.05, 'omit_zero_samples':True})]
     transformer_name = transformer_type.lower()
     transf_params = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
-    #transf_params = [0.01, 0.1, 0.2, 0.3, 0.5]
+    transf_params = [0.01, 0.1, 0.2, 0.3, 0.5]
     thresh_params = {f"{transformer_name}__thresh": transf_params,
                      #f"butterworthfilter__order":[2,3,5],
                      #f"butterworthfilter__T":[5,10,20]
@@ -148,7 +140,7 @@ if __name__ == '__main__':
     gridsearch_params['RandomForestRegression'] = {}
     gridsearch_params['LassoRegression'] = {}
     #thresh_params[f'{transformer_name}__thresh'] = [0.05,0.1,0.15,0.2]
-    thresh_params[f'{transformer_name}__thresh'] = [0]
+    #thresh_params[f'{transformer_name}__thresh'] = [0]
     model_types = ['RidgeRegression','RandomForestRegression']
     model_types = ['RidgeRegression','LassoRegression']
     metr_exp = MetricsCalc()
@@ -162,17 +154,11 @@ if __name__ == '__main__':
         training_data_thresh = training_data
         feat_names_thresh = training_data.columns
 
-        inv_params.params['features_to_transform'] = [name in ['vWind','rain','B20Gas','humidity'] for name in
-                                                      training_data_thresh.columns]
+        inv_params.params['features_to_transform'] = feats_to_invert
         from ModelTraining.feature_engineering.compositetransformers import Transformer_MaskFeats
         tr = Transformer_MaskFeats(**inv_params.params)
         training_data_thresh = tr.fit_transform(training_data_thresh)
         feat_names_thresh = tr.get_feature_names_out(feature_names=feat_names_thresh)
-
-        micthresh = MICThreshold(thresh=0.05, omit_zero_samples=True)
-        data = micthresh.fit_transform(training_data_thresh, target_data)
-        feature_names = micthresh.get_feature_names_out(feat_names_thresh)
-        micthresh.print_metrics()
 
         if len(training_params.dynamic_input_features) > 0:
             dynfeats = DynamicFeaturesSampleCut(
@@ -204,7 +190,7 @@ if __name__ == '__main__':
             # Grid search
             parameters = thresh_params.copy()
             for name, vals in gridsearch_params[training_params.model_type].items():
-                parameters.update({f"{model_names[model_type]}__{name}": vals})
+                parameters.update({f"{model.model.model.__class__.__name__.lower()}__{name}": vals})
             import json
             with open(os.path.join(result_dir, f'gridsearch_params{model_type}.json'), "w") as f:
                 json.dump(parameters, f)

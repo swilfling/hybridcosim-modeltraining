@@ -2,15 +2,16 @@ import os
 import logging
 from sklearn.pipeline import make_pipeline
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
-from ModelTraining.feature_engineering.featurecreators import CyclicFeatures, StatisticalFeatures, CategoricalFeatures
+from ModelTraining.feature_engineering.featurecreators import CyclicFeatures, CategoricalFeatures
+from ModelTraining.feature_engineering.timebasedfeatures import StatisticalFeatures
 from ModelTraining.dataimport.data_import import DataImport, load_from_json
-import ModelTraining.datamodels.datamodels.validation.white_test
+import ModelTraining.datamodels.datamodels.validation.whitetest
 from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.Training.predict import predict_history_ar
-from ModelTraining.datamodels.datamodels import Model
+from ModelTraining.datamodels import datamodels
 from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
-from ModelTraining.datamodels.datamodels.processing import DataScaler
+from ModelTraining.datamodels.datamodels.processing import datascaler
 from ModelTraining.Training.GridSearch import best_estimator, best_pipeline
 from ModelTraining.Utilities.Plotting import plot_data as plt_utils
 from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded, TransformerParams
@@ -23,7 +24,7 @@ from ModelTraining.feature_engineering.filters import ButterworthFilter
 if __name__ == '__main__':
     data_dir_path = "../"
     config_path = os.path.join("./", 'Configuration')
-    usecase_name = 'Beyond_T24_dyn'
+    usecase_name = 'Solarhouse1_T'
     result_dir = f"./results/{usecase_name}"
     os.makedirs(result_dir, exist_ok=True)
     dict_usecase = load_from_json(os.path.join(config_path,'UseCaseConfig', f"{usecase_name}.json"))
@@ -38,21 +39,21 @@ if __name__ == '__main__':
     data = dp_utils.preprocess_data(data, filename=dict_usecase['dataset_filename'])
 
     # Cyclic, categorical and statistical features
-    cyclic_feat_cr = CyclicFeatures(dict_usecase.get('cyclical_feats', []))
-    categorical_feat_cr = CategoricalFeatures(dict_usecase.get('onehot_feats', []))
-    statistical_feat_cr = StatisticalFeatures(selected_feats=dict_usecase.get('stat_feats', []), statistical_features=dict_usecase.get('stat_vals', []),
-                                              window_size=dict_usecase.get('stat_ws', 1))
-    preproc_steps = [cyclic_feat_cr, categorical_feat_cr, statistical_feat_cr]
-    # Smoothing - filter
-    if smoothe_data:
-        preproc_steps.insert(0, ButterworthFilter(order=2, T=10, keep_nans=False, remove_offset=True,
-                               features_to_transform=dict_usecase['to_smoothe']))
+    #cyclic_feat_cr = CyclicFeatures(dict_usecase.get('cyclical_feats', []))
+    #categorical_feat_cr = CategoricalFeatures(dict_usecase.get('onehot_feats', []))
+    #statistical_feat_cr = StatisticalFeatures(selected_feats=dict_usecase.get('stat_feats', []), statistical_features=dict_usecase.get('stat_vals', []),
+    #                                          window_size=dict_usecase.get('stat_ws', 1))
+    #preproc_steps = [cyclic_feat_cr, categorical_feat_cr, statistical_feat_cr]
+    ## Smoothing - filter
+    #if smoothe_data:
+    #    preproc_steps.insert(0, ButterworthFilter(order=2, T=10, keep_nans=False, remove_offset=True,
+    #                           features_to_transform=dict_usecase['to_smoothe']))
+    #
+    #preproc = make_pipeline(*preproc_steps, 'passthrough')
+    #data = preproc.fit_transform(data)
 
-    preproc = make_pipeline(*preproc_steps, 'passthrough')
-    data = preproc.fit_transform(data)
-
-    feature_set.add_cyclic_input_features(cyclic_feat_cr.get_additional_feat_names() + categorical_feat_cr.get_additional_feat_names())
-    feature_set.add_statistical_input_features(statistical_feat_cr.get_additional_feat_names())
+    #feature_set.add_cyclic_input_features(cyclic_feat_cr.get_additional_feat_names() + categorical_feat_cr.get_additional_feat_names())
+    #feature_set.add_statistical_input_features(statistical_feat_cr.get_additional_feat_names())
     target_features = feature_set.get_output_feature_names()
 
     model_type = "LinearRegression"
@@ -87,8 +88,7 @@ if __name__ == '__main__':
 
     # Create model
     logging.info(f"Training model with input of shape: {x_train.shape} and targets of shape {y_train.shape}")
-    model_basic = Model.from_name(training_params.model_type,
-                                  x_scaler_class=DataScaler.cls_from_name(training_params.normalizer),
+    model_basic = getattr(datamodels, training_params.model_type)(x_scaler_class=getattr(datascaler,training_params.normalizer),
                                   name=training_params.str_target_feats(), parameters={})
 
     transformers = TransformerSet.from_list_params(training_params.transformer_params)
