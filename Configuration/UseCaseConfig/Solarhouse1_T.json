@@ -5,6 +5,7 @@
     "dataset_filename": "Resampled15min",
     "stat_feats": [],
     "stat_vals": [],
+    "to_smoothe": ["SGlobal","TAussen","TArbeitszimmer"],
     "onehot_feats": [],
     "cyclical_feats": [],
     "stat_ws": 96
