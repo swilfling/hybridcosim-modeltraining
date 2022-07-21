@@ -12,6 +12,7 @@ class CategoricalFeatures(FeatureCreator):
     selected_feats = None
     _onehot_vals = {"weekday": ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'],
                    "hour": [f"hour_{i}" for i in range(24)],
+                    "week":[f"week_{i}" for i in range(52)],
                    "month": [f"month_{i}" for i in range(12)]}
 
     def __init__(self, selected_feats=['weekday', 'hour'], **kwargs):
