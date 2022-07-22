@@ -1,4 +1,4 @@
-from ModelTraining.feature_engineering.interfaces import BaseFit, BaseTransform
+from . import BaseFit, BaseTransform
 
 
 class BaseFitTransform(BaseFit, BaseTransform):

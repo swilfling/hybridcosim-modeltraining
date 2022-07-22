@@ -1,5 +1,6 @@
 from sklearn.base import BaseEstimator, TransformerMixin
-from ModelTraining.feature_engineering.interfaces import BaseFitTransform, PickleInterface, FeatureNames
+from . import BaseFitTransform, FeatureNames
+from ..storage import PickleInterface
 
 
 class BasicTransformer(BaseEstimator, BaseFitTransform, PickleInterface, FeatureNames, TransformerMixin):
