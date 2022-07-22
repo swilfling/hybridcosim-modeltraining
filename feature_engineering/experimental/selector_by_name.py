@@ -1,6 +1,6 @@
 import numpy as np
 
-from .feature_selector import FeatureSelector
+from ..featureengineeringbasic.featureselectors import FeatureSelector
 
 
 class SelectorByName(FeatureSelector):

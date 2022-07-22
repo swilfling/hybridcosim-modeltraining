@@ -9,8 +9,13 @@ from sklearn.model_selection import train_test_split
 from ...Utilities import feature_combination as fc
 from ...feature_engineering.parameters import TrainingParams, TrainingParamsExpanded
 from ...feature_engineering.expandedmodel import ExpandedModel
+<<<<<<< HEAD
 from ...feature_engineering.feature_expanders import PolynomialExpansion
 from ...datamodels.datamodels.processing.shape import get_windows
+=======
+from ModelTraining.feature_engineering.featureengineeringbasic.featureexpanders import PolynomialExpansion
+from ...datamodels.datamodels.processing.shape import split_into_target_segments
+>>>>>>> 2d337dd3d3e0b004c84ea864b210925bbd41d880
 from ...datamodels.datamodels import Model
 from ...Utilities.trainingdata import TrainingData
 

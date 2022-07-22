@@ -1,27 +1,6 @@
 import numpy as np
 import pandas as pd
-from . import BasicInterface
-from typing import List
-
-class FeatureNames:
-
-    def get_feature_names_out(self, feature_names=None):
-        """
-        Get feature names
-        @param feature_names: Input feature names
-        @return: Expanded feature names
-        """
-        if feature_names is None:
-            return None
-        return self._get_feature_names_out(feature_names)
-
-    def _get_feature_names_out(self, feature_names=None):
-        """
-        Get feature names - Override this method.
-        @param feature_names: Input feature names
-        @return: Expanded feature names
-        """
-        return feature_names
+from ..featureengineeringbasic.interfaces import BasicInterface, FeatureNames
 
 
 class MaskFeats(FeatureNames, BasicInterface):
@@ -31,16 +10,17 @@ class MaskFeats(FeatureNames, BasicInterface):
         self.features_to_transform = features_to_transform
 
     def get_feat_indices(self, X, inverse=False):
-        if self.features_to_transform is not None:
+        if self.features_to_transform is not None and len(self.features_to_transform) > 0:
             if isinstance(self.features_to_transform[0], str):
                 feat_ind = np.array([feat in self.features_to_transform for feat in (X.columns if isinstance(X, pd.DataFrame) else X)])
                 return feat_ind if not inverse else np.bitwise_not(feat_ind)
             else:
                 return self.features_to_transform if not inverse else np.bitwise_not(self.features_to_transform)
+        return None
 
     def mask_feats(self, X, inverse=False):
         """
-        Select features to transform
+        Select features to transformation
         @param X: all features
         @param inverse: invert features_to_transform
         @return: selected features

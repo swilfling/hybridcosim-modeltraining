@@ -27,9 +27,7 @@ def preprocess_data(data: pd.DataFrame, filename=""):
     """
         This is the main preprocessing function.
         @param data: Data
-        @param features_to_smoothe: Names of features for smoothing
-        @param do_smoothe: Activation for smoothing
-        @param keep_nans: keep NaN values during smoothing operation
+        @param filename: filename of data
         @return: pre-processed data
     """
     # Solarhouse 1
@@ -62,10 +60,12 @@ def preprocess_data(data: pd.DataFrame, filename=""):
             data = feature_mean(data, ['TB12BR1', 'TB12BR2', 'TB12BR3', 'TB12LR'], 'TB12')
         if filename == 'Beyond_B20_full':
             data = feature_mean(data, ['TB20BR1', 'TB20BR2', 'TB20BR3', 'TB20LR'], 'TB20')
+            data['SGlobalH_wo_lum_LR'] = data['SGlobalH'] - data['lumB20LR'] # TODO add this also for other datsetrs
 
         data['SGlobalH_TAmbient'] = data['SGlobalH'] * data['TAmbient']
         data['SGlobalH_TAmbient_vWind_inv'] = data['SGlobalH_TAmbient'] / data['vWind']
         data['SGlobalH_TAmbient_vWind_inv'][data['vWind'] == 0] = 0
+
 
     data = data.dropna(axis=0)
     data = data.astype('float')

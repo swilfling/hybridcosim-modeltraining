@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
-from . import TransformerWrapper
-from ..interfaces import MaskFeats
+from . import TransformerWrapper, MaskFeats
 
 
 class Transformer_MaskFeats(TransformerWrapper):

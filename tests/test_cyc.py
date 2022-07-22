@@ -1,6 +1,7 @@
 from ModelTraining.dataimport import DataImport
-from ModelTraining.feature_engineering.featurecreators import CategoricalFeatures, CategoricalFeaturesDivider,\
-    CyclicFeatures, CyclicFeaturesSampleTime, StatisticalFeatures
+from ModelTraining.feature_engineering.featureengineeringbasic.featurecreators import CategoricalFeatures, CategoricalFeaturesDivider,\
+    CyclicFeatures, CyclicFeaturesSampleTime
+from ModelTraining.feature_engineering.timebasedfeatures import StatisticalFeatures
 import matplotlib.pyplot as plt
 
 if __name__ == "__main__":
@@ -13,6 +14,17 @@ if __name__ == "__main__":
     print(cyc_feats.get_additional_feat_names())
     cyc_feats_s = CyclicFeaturesSampleTime(sample_time=900)
     data_tr_s = cyc_feats_s.transform(data)
+
+    plt.plot(data_tr['weekday_sin'][0:1000])
+    plt.plot(data_tr['weekday_cos'][0:1000])
+    plt.plot(data_tr_s['weekday_sin'][0:1000])
+    plt.plot(data_tr_s['weekday_cos'][0:1000])
+    plt.show()
+
+    cyc_feats_week = CyclicFeatures(selected_feats=['week'])
+    data_tr_w = cyc_feats_week.fit_transform(data)
+    plt.plot(data_tr_w['week_sin'][0:10000])
+    plt.show()
 
     plt.plot(data_tr['weekday_sin'][0:1000])
     plt.plot(data_tr['weekday_cos'][0:1000])

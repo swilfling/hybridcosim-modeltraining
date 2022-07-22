@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 from .compensators import OffsetComp, NaNComp
-from ..interfaces import BasicTransformer
+from ..featureengineeringbasic.interfaces import BasicTransformer
 
 
 class Filter(BasicTransformer):

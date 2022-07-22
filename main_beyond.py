@@ -1,4 +1,3 @@
-import json
 import os
 import logging
 import shutil
@@ -7,17 +6,30 @@ from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 from ModelTraining.dataimport.data_import import DataImport, load_from_json
 from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
+<<<<<<< HEAD
 from ModelTraining.datamodels import datamodels
 from ModelTraining.feature_engineering.featurecreators import CategoricalFeatures, CyclicFeatures
 from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
 from ModelTraining.feature_engineering.feature_selectors import FeatureSelector, MICThreshold, RThreshold
 from ModelTraining.datamodels.datamodels.processing import datascaler, Normalizer
 from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded, TransformerParams
+=======
+from ModelTraining.datamodels.datamodels import Model
+from ModelTraining.feature_engineering.featureengineeringbasic.featurecreators import CategoricalFeatures, CyclicFeatures
+from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
+from ModelTraining.feature_engineering.featureengineeringbasic.featureselectors import FeatureSelector
+from ModelTraining.datamodels.datamodels.processing import DataScaler, Normalizer
+from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded, TransformerParams
+>>>>>>> 2d337dd3d3e0b004c84ea864b210925bbd41d880
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc, MetricsVal
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
 from sklearn.model_selection import GridSearchCV
+<<<<<<< HEAD
 from ModelTraining.feature_engineering.compositetransformers import DynamicFeaturesSampleCut, Transformer_MaskFeats
+=======
+from ModelTraining.feature_engineering.compositetransformers import DynamicFeaturesSampleCut
+>>>>>>> 2d337dd3d3e0b004c84ea864b210925bbd41d880
 
 
 if __name__ == '__main__':
@@ -71,6 +83,7 @@ if __name__ == '__main__':
                                   'transformer_params':{'statistical_features': stat_vals,
                                   'window_size': stat_ws},'mask_type': 'MaskFeats_Addition'},)]
 
+    stat_params = []
     transformer_params = stat_params + [
         #TransformerParams(type='MICThreshold', params={'thresh': 0.05, 'omit_zero_samples': True}),
         TransformerParams(type='PolynomialExpansion', params={'interaction_only': True,'include_bias':False, "degree": 2}),
@@ -119,8 +132,8 @@ if __name__ == '__main__':
     target_data = Normalizer().fit(target_data).transform(target_data)
 
     import numpy as np
-    import pandas as pd
-    from ModelTraining.feature_engineering.filters import ButterworthFilter, Envelope_MA
+    from ModelTraining.feature_engineering.filters import ButterworthFilter
+
     highpass = ButterworthFilter(filter_type='highpass', T=np.array([24]), order=3, remove_offset=True)
     #lowpass = ButterworthFilter(filter_type='lowpass', T=np.array([12]), order=5, remove_offset=True)
     lowpass = ButterworthFilter(filter_type='lowpass', T=np.array([5]), order=2, remove_offset=True)
@@ -179,6 +192,37 @@ if __name__ == '__main__':
             training_params.model_type = model_type
             result_dir_model = os.path.join(result_dir, f"{model_type}_{lookback_horizon}")
             os.makedirs(result_dir_model)
+<<<<<<< HEAD
+=======
+            # Extract data and reshape
+            #micthresh = MICThreshold(thresh=0.005, omit_zero_samples=False)
+            #training_data_thresh = micthresh.fit_transform(training_data, target_data)
+            #feat_names_thresh = micthresh.get_feature_names_out(training_data.columns)
+            training_data_thresh = training_data
+            feat_names_thresh = training_data.columns
+
+            inv_params.params['features_to_transform'] = [name in dict_usecase.get('to_invert',[]) for name in
+                                                          training_data_thresh.columns]
+            from ModelTraining.feature_engineering.compositetransformers import Transformer_MaskFeats
+            tr = Transformer_MaskFeats(**inv_params.params)
+            training_data_thresh = tr.fit_transform(training_data_thresh)
+            feat_names_thresh = tr.get_feature_names_out(feature_names=feat_names_thresh)
+
+            if len(training_params.dynamic_input_features) > 0:
+                dynfeats = DynamicFeaturesSampleCut(features_to_transform=[feat in training_params.dynamic_input_features for feat in feat_names_thresh],
+                                                 lookback_horizon=training_params.lookback_horizon,
+                                                 flatten_dynamic_feats=True)
+                x, y = dynfeats.fit_resample(training_data_thresh, target_data.to_numpy())
+                index = data.index[dynfeats.lookback_horizon:]
+                feature_names = dynfeats.get_feature_names_out(feat_names_thresh)
+            else:
+                x, y, index, feature_names = training_data_thresh, target_data.to_numpy(), training_data.index, feat_names_thresh
+
+            # structure
+            train_data = train_utils.create_train_data(index, x, y, training_params.training_split)
+            x_train, y_train = train_data.train_input, train_data.train_target
+            train_data.target_feat_names = training_params.target_features
+>>>>>>> 2d337dd3d3e0b004c84ea864b210925bbd41d880
             # Create model
             logging.info(f"Training model with input of shape: {x_train.shape} "
                          f"and targets of shape {y_train.shape}")
@@ -192,7 +236,11 @@ if __name__ == '__main__':
             for name, vals in gridsearch_params[training_params.model_type].items():
                 parameters.update({f"{model.model.model.__class__.__name__.lower()}__{name}": vals})
             import json
+<<<<<<< HEAD
             with open(os.path.join(result_dir, f'gridsearch_params{model_type}.json'), "w") as f:
+=======
+            with open(os.path.join(result_dir, f'gridsearch_params_{model_type}.json'), "w") as f:
+>>>>>>> 2d337dd3d3e0b004c84ea864b210925bbd41d880
                 json.dump(parameters, f)
             search = GridSearchCV(model.get_full_pipeline(), parameters, cv=5, scoring=gridsearch_scoring, refit='r2',
                                   verbose=4)

@@ -3,7 +3,7 @@ import pandas as pd
 import os
 
 import ModelTraining.Utilities.Plotting.plot_distributions
-from ModelTraining.feature_engineering.feature_selectors import FeatureSelector
+from ModelTraining.feature_engineering.featureengineeringbasic.featureselectors import FeatureSelector
 
 
 if __name__ == "__main__":

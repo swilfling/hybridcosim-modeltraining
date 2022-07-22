@@ -2,19 +2,16 @@ import os
 import logging
 from sklearn.pipeline import make_pipeline
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
-from ModelTraining.feature_engineering.featurecreators import CyclicFeatures, CategoricalFeatures
-from ModelTraining.feature_engineering.timebasedfeatures import StatisticalFeatures
+from ModelTraining.feature_engineering.featureengineeringbasic.featurecreators import CyclicFeatures, CategoricalFeatures
 from ModelTraining.dataimport.data_import import DataImport, load_from_json
 import ModelTraining.datamodels.datamodels.validation.whitetest
 from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
-from ModelTraining.Training.predict import predict_history_ar
 from ModelTraining.datamodels import datamodels
-from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
 from ModelTraining.datamodels.datamodels.processing import datascaler
-from ModelTraining.Training.GridSearch import best_estimator, best_pipeline
-from ModelTraining.Utilities.Plotting import plot_data as plt_utils
-from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded, TransformerParams
+from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
+from ModelTraining.Training.GridSearch import best_pipeline
+from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded, TransformerParams
 from ModelTraining.Utilities import TrainingData
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
@@ -27,33 +24,33 @@ if __name__ == '__main__':
     usecase_name = 'Solarhouse1_T'
     result_dir = f"./results/{usecase_name}"
     os.makedirs(result_dir, exist_ok=True)
-    dict_usecase = load_from_json(os.path.join(config_path,'UseCaseConfig', f"{usecase_name}.json"))
+    dict_usecase = load_from_json(os.path.join(config_path, 'UseCaseConfig', f"{usecase_name}.json"))
     data_import = DataImport.load(os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
     data = data_import.import_data(os.path.join(data_dir_path, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
     feature_set = FeatureSet(os.path.join("./", dict_usecase['fmu_interface']))
+    #data = data[15000:21000]
 
     # Added: Preprocessing - Smooth features
-    smoothe_data = False
+    smoothe_data = True
     plot_enabled = True
 
     data = dp_utils.preprocess_data(data, filename=dict_usecase['dataset_filename'])
 
     # Cyclic, categorical and statistical features
-    #cyclic_feat_cr = CyclicFeatures(dict_usecase.get('cyclical_feats', []))
-    #categorical_feat_cr = CategoricalFeatures(dict_usecase.get('onehot_feats', []))
-    #statistical_feat_cr = StatisticalFeatures(selected_feats=dict_usecase.get('stat_feats', []), statistical_features=dict_usecase.get('stat_vals', []),
-    #                                          window_size=dict_usecase.get('stat_ws', 1))
-    #preproc_steps = [cyclic_feat_cr, categorical_feat_cr, statistical_feat_cr]
-    ## Smoothing - filter
-    #if smoothe_data:
-    #    preproc_steps.insert(0, ButterworthFilter(order=2, T=10, keep_nans=False, remove_offset=True,
-    #                           features_to_transform=dict_usecase['to_smoothe']))
-    #
-    #preproc = make_pipeline(*preproc_steps, 'passthrough')
-    #data = preproc.fit_transform(data)
 
-    #feature_set.add_cyclic_input_features(cyclic_feat_cr.get_additional_feat_names() + categorical_feat_cr.get_additional_feat_names())
-    #feature_set.add_statistical_input_features(statistical_feat_cr.get_additional_feat_names())
+    cyclic_feat_cr = CyclicFeatures(dict_usecase.get('cyclical_feats', []))
+    categorical_feat_cr = CategoricalFeatures(dict_usecase.get('onehot_feats', []))
+    preproc_steps = [cyclic_feat_cr, categorical_feat_cr]
+    # Smoothing - filter
+    if smoothe_data:
+        preproc_steps.insert(0, ButterworthFilter(order=2, T=10, keep_nans=False, remove_offset=True,
+                               features_to_transform=dict_usecase.get('to_smoothe',[])))
+
+    preproc = make_pipeline(*preproc_steps, 'passthrough')
+    data = preproc.fit_transform(data)
+
+    #data.to_csv(os.path.join(result_dir, f'{usecase_name}_preprocessed.csv'),sep=";", index_label='datetime')
+    feature_set.add_cyclic_input_features(cyclic_feat_cr.get_additional_feat_names() + categorical_feat_cr.get_additional_feat_names())
     target_features = feature_set.get_output_feature_names()
 
     model_type = "LinearRegression"
@@ -72,7 +69,7 @@ if __name__ == '__main__':
                                                  TransformerParams('DynamicFeatures', {'lookback_horizon': 5,
                                                                                        'flatten_dynamic_feats': True,
                                                                                        'features_to_transform':[c in feature_set.get_dynamic_input_feature_names() for c in feature_set.get_input_feature_names()]}),
-                                                 TransformerParams('MICThreshold', {'thresh': 0.05})])
+                                                 TransformerParams('RThreshold', {'thresh': 0.05})])
 
 
     # Extract data and reshape
@@ -94,8 +91,8 @@ if __name__ == '__main__':
     transformers = TransformerSet.from_list_params(training_params.transformer_params)
     model = ExpandedModel(transformers=transformers, model=model_basic, feature_names=feature_names)
     # Grid search
-    parameters = {"micthreshold__thresh": [0.01, 0.02, 0.05, 0.1],
-                  "dynamicfeatures__lookback_horizon": [5,10]}
+    parameters = {"rthreshold__thresh": [0.001, 0.01, 0.02, 0.05, 0.1],
+                  "dynamicfeatures__lookback_horizon": [4,8,12, 24]}
     best_params = best_pipeline(model, x_train, y_train, parameters=parameters)
     #print(best_params)
     for k, val in best_params.items():
@@ -131,11 +128,11 @@ if __name__ == '__main__':
     # Calculate metrics
     metr_exp = MetricsCalc()
     df_metrics = metr_exp.calc_perf_metrics_df(result_data, df_index=[model_type])
-    df_white = metr_exp.white_test_df(result_data, df_index=[model_type])
+    #df_white = metr_exp.white_test_df(result_data, df_index=[model_type])
     df_metrics.to_csv(os.path.join(result_dir, f"Metrics_{metr_utils.create_file_name_timestamp()}.csv"), index_label='Model',
                     float_format='%.3f')
-    df_white.to_csv(os.path.join(result_dir, f"White_{metr_utils.create_file_name_timestamp()}.csv"),
-                      index_label='Model', float_format='%.3f')
+    #df_white.to_csv(os.path.join(result_dir, f"White_{metr_utils.create_file_name_timestamp()}.csv"),
+    #                  index_label='Model', float_format='%.3f')
     # Export results
     result_exp = ResultExport(results_root=result_dir, plot_enabled=True)
     result_exp.export_result(result_data)
