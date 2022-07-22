@@ -20,7 +20,7 @@ class MaskFeats(FeatureNames, BasicInterface):
 
     def mask_feats(self, X, inverse=False):
         """
-        Select features to transform
+        Select features to transformation
         @param X: all features
         @param inverse: invert features_to_transform
         @return: selected features

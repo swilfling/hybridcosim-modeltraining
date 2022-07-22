@@ -1,5 +1,5 @@
 import pandas as pd
-from ..interfaces.basictransformer import BasicTransformer
+from ..interfaces import BasicTransformer
 
 
 class Diff(BasicTransformer):

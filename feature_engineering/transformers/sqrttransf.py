@@ -1,5 +1,5 @@
 import numpy as np
-from ..interfaces.basictransformer import BasicTransformer
+from ..interfaces import BasicTransformer
 
 
 class SqrtTransform(BasicTransformer):

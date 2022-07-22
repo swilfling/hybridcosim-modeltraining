@@ -1,10 +1,3 @@
-from .basicinterface import BasicInterface
-from .pickleinterface import PickleInterface
-from .jsoninterface import JSONInterface
-from .featurenames import FeatureNames
-from .reshape import Reshape
-from .fittransform import FitTransform
-from .basefit import BaseFit
-from .basetransform import BaseTransform
-from .basefittransform import BaseFitTransform
-from .basictransformer import BasicTransformer
+from . storage import BasicInterface, JSONInterface, PickleInterface
+from . transformation import FitTransform, BaseFit, BaseTransform, BaseFitTransform, FeatureNames, Reshape, \
+    BasicTransformer

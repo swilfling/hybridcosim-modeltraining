@@ -1,4 +1,4 @@
-from ..interfaces.basictransformer import BasicTransformer
+from ..interfaces import BasicTransformer
 
 
 class InverseTransform(BasicTransformer):
