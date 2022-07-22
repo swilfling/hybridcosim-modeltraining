@@ -1,3 +1,6 @@
 [submodule "datamodels"]
 	path = datamodels
 	url = https://github.com/tug-cps/datamodels
+[submodule "feature_engineering/featureengineeringbasic"]
+	path = feature_engineering/featureengineeringbasic
+	url = https://github.com/tug-cps/featureengineeringbasic
