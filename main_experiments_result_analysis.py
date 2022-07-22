@@ -2,7 +2,7 @@ import ModelTraining.Preprocessing.add_features as feat_utils
 from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded, TransformerParams
 from ModelTraining.Utilities import TrainingData
 from ModelTraining.feature_engineering.featureselectors import FeatureSelector
-from ModelTraining.feature_engineering.feature_expanders import FeatureExpansion
+from ModelTraining.feature_engineering.featureexpanders import FeatureExpansion
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 from ModelTraining.dataimport.data_import import load_from_json

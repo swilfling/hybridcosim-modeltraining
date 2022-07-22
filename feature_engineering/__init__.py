@@ -1,5 +1,5 @@
 from . import interfaces
-from . import feature_expanders
+from . import featureexpanders
 from . import featureselectors
 from . import featureset
 from . import timebasedfeatures
