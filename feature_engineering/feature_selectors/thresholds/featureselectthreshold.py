@@ -38,7 +38,7 @@ class FeatureSelectThreshold(FeatureSelector):
 
     def calc_coef(self, X, y=None, **fit_params):
         """
-        Calculate coefficients for feature selection trheshold.
+        Calculate coefficients for feature selection threshold.
         @param X: input features (n_samples x n_features)
         @param y: target features
         @return: coefficients
