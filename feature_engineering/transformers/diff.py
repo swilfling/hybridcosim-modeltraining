@@ -1,5 +1,5 @@
 import pandas as pd
-from ..interfaces import BasicTransformer
+from ..featureengineeringbasic.interfaces import BasicTransformer
 
 
 class Diff(BasicTransformer):

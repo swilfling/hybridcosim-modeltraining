@@ -1,4 +1,4 @@
-from ModelTraining.feature_engineering.interfaces import BasicTransformer, Reshape
+from ..interfaces import BasicTransformer, Reshape
 
 
 class FeatureExpansion(BasicTransformer, Reshape):

@@ -1,4 +1,4 @@
-from ModelTraining.feature_engineering.interfaces import BasicTransformer
+from ..interfaces import BasicTransformer
 
 
 class FeatureCreator(BasicTransformer):
