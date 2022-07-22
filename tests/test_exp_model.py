@@ -1,8 +1,8 @@
-from ModelTraining.datamodels.datamodels.processing.datascaler import DataScaler, Normalizer
+from ModelTraining.datamodels.datamodels.processing.datascaler import Normalizer
 from ModelTraining.feature_engineering.expandedmodel import ExpandedModel, TransformerSet
-from ModelTraining.feature_engineering.featureexpanders import FeatureExpansion, PolynomialExpansion, IdentityExpander
-from ModelTraining.feature_engineering.featureselectors import FeatureSelector
-from ModelTraining.datamodels.datamodels import Model, RandomForestRegression
+from ModelTraining.feature_engineering.featureengineeringbasic.featureexpanders import FeatureExpansion, PolynomialExpansion
+from ModelTraining.feature_engineering.featureengineeringbasic.featureselectors import FeatureSelector
+from ModelTraining.datamodels.datamodels import RandomForestRegression
 
 
 def test_instantiate_transformerset_feat_sel():

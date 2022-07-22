@@ -1,4 +1,3 @@
-import json
 import os
 import logging
 import shutil
@@ -8,11 +7,11 @@ from ModelTraining.dataimport.data_import import DataImport, load_from_json
 from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.datamodels.datamodels import Model
-from ModelTraining.feature_engineering.featurecreators import CategoricalFeatures, CyclicFeatures
+from ModelTraining.feature_engineering.featureengineeringbasic.featurecreators import CategoricalFeatures, CyclicFeatures
 from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
-from ModelTraining.feature_engineering.featureselectors import FeatureSelector
+from ModelTraining.feature_engineering.featureengineeringbasic.featureselectors import FeatureSelector
 from ModelTraining.datamodels.datamodels.processing import DataScaler, Normalizer
-from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded, TransformerParams
+from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded, TransformerParams
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc, MetricsVal
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
@@ -115,8 +114,8 @@ if __name__ == '__main__':
     target_data = Normalizer().fit(target_data).transform(target_data)
 
     import numpy as np
-    import pandas as pd
-    from ModelTraining.feature_engineering.filters import ButterworthFilter, Envelope_MA
+    from ModelTraining.feature_engineering.filters import ButterworthFilter
+
     highpass = ButterworthFilter(filter_type='highpass', T=np.array([24]), order=3, remove_offset=True)
     #lowpass = ButterworthFilter(filter_type='lowpass', T=np.array([12]), order=5, remove_offset=True)
     #target_data = pd.DataFrame(data=highpass.fit_transform(target_data[training_params.target_features[0]]),

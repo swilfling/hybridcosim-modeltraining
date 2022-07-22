@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator
 from sklearn.feature_selection import SelectorMixin
-from ..interfaces import PickleInterface, Reshape, BaseFit
+from ModelTraining.feature_engineering.interfaces import PickleInterface, Reshape, BaseFit
 
 
 class FeatureSelector(SelectorMixin, BaseFit, BaseEstimator, PickleInterface, Reshape):
