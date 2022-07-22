@@ -1,11 +1,6 @@
 import numpy as np
-<<<<<<< HEAD
 from ...datamodels.datamodels.processing.shape import get_windows
-from ..interfaces import BasicTransformer
-=======
-from ...datamodels.datamodels.processing.shape import split_into_target_segments
 from ..featureengineeringbasic.interfaces import BasicTransformer
->>>>>>> 2d337dd3d3e0b004c84ea864b210925bbd41d880
 
 
 class DynamicFeatures(BasicTransformer):
