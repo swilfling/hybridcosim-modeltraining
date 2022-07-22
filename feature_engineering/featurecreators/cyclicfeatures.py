@@ -18,9 +18,11 @@ class CyclicFeatures(FeatureCreator):
     Currently supported: daytime, weekday, month, day
     """
     _all_time_vals = {"hour":CyclicFeatureInfo("hour", 24),
-                     "weekday":CyclicFeatureInfo("weekday", 7),
-                     "month":CyclicFeatureInfo("month", 12),
-                     "day":CyclicFeatureInfo("day", 30)}
+                      "weekday":CyclicFeatureInfo("weekday", 7),
+                      "day": CyclicFeatureInfo("day", 30),
+                      "week": CyclicFeatureInfo("week", 52),
+                      "month":CyclicFeatureInfo("month", 12)
+                     }
     selected_feats = ['hour', 'weekday']
 
     def __init__(self, selected_feats=["hour", "weekday"], **kwargs):
@@ -64,8 +66,11 @@ class CyclicFeaturesSampleTime(CyclicFeatures):
     sample_time = 3600
     _all_time_vals = {"hour":CyclicFeatureInfo("hour", 3600 * 24),
                      "weekday":CyclicFeatureInfo("weekday", 3600 * 24 * 7),
-                     "month":CyclicFeatureInfo("month", 3600 * 24 * 365),
-                     "day":CyclicFeatureInfo("day", 3600 * 24 * 30)}
+                     "day": CyclicFeatureInfo("day", 3600 * 24 * 30),
+                     "week": CyclicFeatureInfo("week", 3600 * 24 * 7 * 52),
+                     "month":CyclicFeatureInfo("month", 3600 * 24 * 365)
+                      }
+
 
     def __init__(self, sample_time=3600, selected_feats=["hour", "weekday"], **kwargs):
         super().__init__(selected_feats=selected_feats, **kwargs)
