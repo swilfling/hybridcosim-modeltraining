@@ -11,7 +11,7 @@ import ModelTraining.Preprocessing.data_preprocessing as dp_utils
 from ModelTraining.dataimport.data_import import load_from_json
 from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.feature_engineering.expandedmodel import ExpandedModel
-from ModelTraining.feature_engineering.feature_expanders import FeatureExpansion
+from ModelTraining.feature_engineering.featureexpanders import FeatureExpansion
 import os
 import argparse
 

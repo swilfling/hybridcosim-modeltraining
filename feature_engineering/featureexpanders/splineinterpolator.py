@@ -1,4 +1,4 @@
-from .feature_expansion import FeatureExpansion
+from . import FeatureExpansion
 from sklearn.preprocessing import SplineTransformer
 
 
