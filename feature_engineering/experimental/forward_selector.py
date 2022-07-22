@@ -1,7 +1,7 @@
 from mlxtend.feature_selection import SequentialFeatureSelector as SFS
 from sklearn.linear_model import LinearRegression
 
-from .feature_selector import FeatureSelector
+from ..feature_selectors.feature_selector import FeatureSelector
 
 
 class ForwardSelector(FeatureSelector):
