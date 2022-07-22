@@ -1,6 +1,7 @@
 import numpy as np
 from sklearn.base import TransformerMixin, BaseEstimator
-from ...interfaces import PickleInterface
+from ...featureengineeringbasic.interfaces import PickleInterface
+
 
 class NaNComp(TransformerMixin, PickleInterface, BaseEstimator):
     mask_ = None
