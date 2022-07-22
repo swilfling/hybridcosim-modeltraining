@@ -1,33 +1,10 @@
-from ..interfaces import PickleInterface, MaskFeats_Expanded, BaseFitTransform
-from sklearn.base import TransformerMixin
+from ..interfaces import BasicTransformer
 
 
-class FeatureCreator(MaskFeats_Expanded,PickleInterface, BaseFitTransform, TransformerMixin):
+class FeatureCreator(BasicTransformer):
     """
     Basic feature creator
     """
-
-    def __init__(self, features_to_transform=None, **kwargs):
-        MaskFeats_Expanded.__init__(self, features_to_transform=features_to_transform)
-
-    def fit(self, X, y=None, **fit_params):
-        """
-        Fit transformer to samples. Calls self._fit
-        @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
-        @param y: Target feature vector (n_samples)
-        """
-        self._fit(self.mask_feats(X), y)
-        return self
-
-    def transform(self, X):
-        """
-        Transform features. Calls self._transform
-        @param x: Input feature vector (n_samples, n_features) or (n_samples, lookback, n_features)
-        @return: Transformed sample vector (n_samples, n_features_expanded)
-        """
-        # Reshape if necessary
-        return self.combine_feats(self._transform(self.mask_feats(X)), X)
-
     def get_additional_feat_names(self):
         """
         Get additional feature names
