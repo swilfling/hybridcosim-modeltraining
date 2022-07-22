@@ -27,9 +27,7 @@ def preprocess_data(data: pd.DataFrame, filename=""):
     """
         This is the main preprocessing function.
         @param data: Data
-        @param features_to_smoothe: Names of features for smoothing
-        @param do_smoothe: Activation for smoothing
-        @param keep_nans: keep NaN values during smoothing operation
+        @param filename: filename of data
         @return: pre-processed data
     """
     # Solarhouse 1

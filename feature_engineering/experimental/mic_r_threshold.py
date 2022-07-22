@@ -1,6 +1,6 @@
 import numpy as np
 
-from ..feature_selectors.thresholds import FeatureSelectThreshold, MICThreshold, RThreshold
+from ..featureselectors.thresholds import FeatureSelectThreshold, MICThreshold, RThreshold
 
 
 class MIC_R_selector(FeatureSelectThreshold):

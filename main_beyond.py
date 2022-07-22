@@ -8,16 +8,15 @@ from ModelTraining.dataimport.data_import import DataImport, load_from_json
 from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.datamodels.datamodels import Model
-from ModelTraining.feature_engineering.featurecreators import CategoricalFeatures, CyclicFeatures, StatisticalFeatures
+from ModelTraining.feature_engineering.featurecreators import CategoricalFeatures, CyclicFeatures
 from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
-from ModelTraining.feature_engineering.feature_selectors import FeatureSelector
+from ModelTraining.feature_engineering.featureselectors import FeatureSelector
 from ModelTraining.datamodels.datamodels.processing import DataScaler, Normalizer
 from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded, TransformerParams
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc, MetricsVal
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
 from sklearn.model_selection import GridSearchCV
-from ModelTraining.feature_engineering.feature_selectors import MICThreshold
 from ModelTraining.feature_engineering.compositetransformers import DynamicFeaturesSampleCut
 
 
@@ -68,6 +67,7 @@ if __name__ == '__main__':
                                   'transformer_params':{'statistical_features': stat_vals,
                                   'window_size': stat_ws},'mask_type': 'MaskFeats_Addition'},)]
 
+    stat_params = []
     transformer_params = stat_params + [
         TransformerParams(type='PolynomialExpansion', params={'interaction_only': True, "degree": 2}),
         TransformerParams(type=transformer_type, params={'thresh': 0.05, 'omit_zero_samples':True})]
@@ -152,7 +152,7 @@ if __name__ == '__main__':
             training_data_thresh = training_data
             feat_names_thresh = training_data.columns
 
-            inv_params.params['features_to_transform'] = [name in ['vWind','rain','B20Gas','humidity'] for name in
+            inv_params.params['features_to_transform'] = [name in dict_usecase.get('to_invert',[]) for name in
                                                           training_data_thresh.columns]
             from ModelTraining.feature_engineering.compositetransformers import Transformer_MaskFeats
             tr = Transformer_MaskFeats(**inv_params.params)
@@ -186,8 +186,8 @@ if __name__ == '__main__':
             for name, vals in gridsearch_params[training_params.model_type].items():
                 parameters.update({f"{model_names[model_type]}__{name}": vals})
             import json
-            with open(os.path.join(result_dir, f'gridsearch_params{model_type}.json'), "w") as f:
-                json.dump(gridsearch_params, f)
+            with open(os.path.join(result_dir, f'gridsearch_params_{model_type}.json'), "w") as f:
+                json.dump(parameters, f)
             search = GridSearchCV(model.get_full_pipeline(), parameters, cv=5, scoring=gridsearch_scoring, refit='r2',
                                   verbose=4)
             # Transform x train
