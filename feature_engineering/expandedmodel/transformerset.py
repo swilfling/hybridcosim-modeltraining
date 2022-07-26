@@ -1,5 +1,5 @@
 from typing import List
-from ..featureengineeringbasic.interfaces import PickleInterface, BasicInterface
+from ..featureengineering.interfaces import PickleInterface, BasicInterface
 from ..parameters import TransformerParams
 from sklearn.pipeline import Pipeline, make_pipeline
 from sklearn.base import TransformerMixin

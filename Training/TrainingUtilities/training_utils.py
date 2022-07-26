@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from ...Utilities import feature_combination as fc
 from ...feature_engineering.parameters import TrainingParams, TrainingParamsExpanded
 from ...feature_engineering.expandedmodel import ExpandedModel
-from ModelTraining.feature_engineering.featureengineeringbasic.featureexpanders import PolynomialExpansion
+from ModelTraining.feature_engineering.featureengineering.featureexpanders import PolynomialExpansion
 from ...datamodels.datamodels.processing.shape import split_into_target_segments
 from ...datamodels.datamodels import Model
 from ...Utilities.trainingdata import TrainingData

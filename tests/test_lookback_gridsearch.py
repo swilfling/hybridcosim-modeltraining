@@ -5,7 +5,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import GridSearchCV
 from imblearn.pipeline import Pipeline, make_pipeline
 from ModelTraining.feature_engineering.resamplers import SampleCut, SampleCut_imblearn
-from ModelTraining.feature_engineering.featureengineeringbasic.featurecreators import DynamicFeatures
+from ModelTraining.feature_engineering.featureengineering.featurecreators import DynamicFeatures
 
 
 class SamplingPipeline(Pipeline):

@@ -7,7 +7,7 @@ from ...feature_engineering.expandedmodel import ExpandedModel
 from ...datamodels.datamodels.validation import metrics
 from ...datamodels.datamodels.validation.white_test import white_test
 from ..trainingdata import TrainingData
-from ModelTraining.feature_engineering.featureengineeringbasic.featureselectors import FeatureSelector
+from ModelTraining.feature_engineering.featureengineering.featureselectors import FeatureSelector
 
 
 class MetricsCalc:

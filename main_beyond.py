@@ -7,9 +7,9 @@ from ModelTraining.dataimport.data_import import DataImport, load_from_json
 from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.datamodels.datamodels import Model
-from ModelTraining.feature_engineering.featureengineeringbasic.featurecreators import CategoricalFeatures, CyclicFeatures
+from ModelTraining.feature_engineering.featureengineering.featurecreators import CategoricalFeatures, CyclicFeatures
 from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
-from ModelTraining.feature_engineering.featureengineeringbasic.featureselectors import FeatureSelector
+from ModelTraining.feature_engineering.featureengineering.featureselectors import FeatureSelector
 from ModelTraining.datamodels.datamodels.processing import DataScaler, Normalizer
 from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded, TransformerParams
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc, MetricsVal

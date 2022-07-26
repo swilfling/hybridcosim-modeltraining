@@ -1,4 +1,4 @@
-from ..featureengineeringbasic.interfaces import BasicTransformer, BasicInterface
+from ..featureengineering.interfaces import BasicTransformer, BasicInterface
 
 
 class TransformerWrapper(BasicTransformer):
