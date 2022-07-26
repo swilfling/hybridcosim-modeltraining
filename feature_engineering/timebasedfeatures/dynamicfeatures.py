@@ -1,6 +1,6 @@
 import numpy as np
 from ...datamodels.datamodels.processing.shape import split_into_target_segments
-from ..featureengineeringbasic.interfaces import BasicTransformer
+from ..featureengineering.interfaces import BasicTransformer
 
 
 class DynamicFeatures(BasicTransformer):

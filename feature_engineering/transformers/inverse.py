@@ -1,4 +1,4 @@
-from ..featureengineeringbasic.interfaces import BasicTransformer
+from ..featureengineering.interfaces import BasicTransformer
 
 
 class InverseTransform(BasicTransformer):

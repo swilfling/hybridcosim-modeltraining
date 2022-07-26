@@ -1,6 +1,6 @@
 from imblearn.base import SamplerMixin, BaseSampler
 from sklearn.base import BaseEstimator
-from ..featureengineeringbasic.interfaces import BaseFitTransform, FeatureNames
+from ..featureengineering.interfaces import BaseFitTransform, FeatureNames
 
 
 class SampleCut_imblearn(BaseSampler, FeatureNames):

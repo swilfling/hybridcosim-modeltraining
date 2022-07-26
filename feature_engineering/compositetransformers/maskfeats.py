@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from ..featureengineeringbasic.interfaces import BasicInterface, FeatureNames
+from ..featureengineering.interfaces import BasicInterface, FeatureNames
 
 
 class MaskFeats(FeatureNames, BasicInterface):

@@ -2,7 +2,7 @@ import os
 import logging
 from sklearn.pipeline import make_pipeline
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
-from ModelTraining.feature_engineering.featureengineeringbasic.featurecreators import CyclicFeatures, CategoricalFeatures
+from ModelTraining.feature_engineering.featureengineering.featurecreators import CyclicFeatures, CategoricalFeatures
 from ModelTraining.dataimport.data_import import DataImport, load_from_json
 import ModelTraining.datamodels.datamodels.validation.white_test
 from ModelTraining.feature_engineering.featureset import FeatureSet
