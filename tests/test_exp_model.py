@@ -1,7 +1,7 @@
 from ModelTraining.datamodels.datamodels.processing.datascaler import Normalizer
 from ModelTraining.feature_engineering.expandedmodel import ExpandedModel, TransformerSet
-from ModelTraining.feature_engineering.featureengineeringbasic.featureexpanders import FeatureExpansion, PolynomialExpansion
-from ModelTraining.feature_engineering.featureengineeringbasic.featureselectors import FeatureSelector
+from ModelTraining.feature_engineering.featureengineering.featureexpanders import FeatureExpansion, PolynomialExpansion
+from ModelTraining.feature_engineering.featureengineering.featureselectors import FeatureSelector
 from ModelTraining.datamodels.datamodels import RandomForestRegression
 
 

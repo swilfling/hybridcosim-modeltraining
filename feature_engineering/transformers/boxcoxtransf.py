@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from scipy.stats import boxcox
-from ..featureengineeringbasic.interfaces import BasicTransformer
+from ..featureengineering.interfaces import BasicTransformer
 
 
 class Boxcox(BasicTransformer):
