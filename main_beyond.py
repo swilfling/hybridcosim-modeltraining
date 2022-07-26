@@ -16,7 +16,7 @@ from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc, Metr
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
 from sklearn.model_selection import GridSearchCV
-from ModelTraining.feature_engineering.featureengineering.compositetransformers import DynamicFeaturesSampleCut
+from ModelTraining.feature_engineering.experimental.dynamicfeaturessamplecut import DynamicFeaturesSampleCut
 
 
 if __name__ == '__main__':
