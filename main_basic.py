@@ -16,7 +16,7 @@ from ModelTraining.Utilities import TrainingData
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
-from ModelTraining.feature_engineering.filters import ButterworthFilter
+from ModelTraining.feature_engineering.featureengineering.filters import ButterworthFilter
 
 if __name__ == '__main__':
     data_dir_path = "../"

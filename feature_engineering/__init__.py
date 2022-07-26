@@ -2,9 +2,7 @@ from . import featureengineering
 from . import featureset
 from . import timebasedfeatures
 from . import parameters
-from . import transformers
-from . import filters
+from .featureengineering import filters, transformers, compositetransformers
 from . import resamplers
-from . import compositetransformers
 from . import experimental
 from . import expandedmodel

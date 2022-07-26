@@ -1,8 +1,8 @@
 from imblearn.base import SamplerMixin
 from sklearn.base import BaseEstimator
 
-from ..resamplers import SampleCut_imblearn
-from .transformer_maskfeats import Transformer_MaskFeats
+from ModelTraining.feature_engineering.resamplers import SampleCut_imblearn
+from ModelTraining.feature_engineering.featureengineering.compositetransformers.transformer_maskfeats import Transformer_MaskFeats
 
 
 class DynamicFeaturesSampleCut(SamplerMixin, BaseEstimator):

@@ -2,7 +2,7 @@
 
 import ModelTraining.Preprocessing.add_features as feat_utils
 import ModelTraining.Preprocessing.data_analysis as data_analysis
-from ModelTraining.feature_engineering.transformers import SqrtTransform, Boxcox, Diff
+from ModelTraining.feature_engineering.featureengineering.transformers import SqrtTransform, Boxcox, Diff
 import ModelTraining.dataimport.data_import as data_import
 from ModelTraining.dataimport import DataImport
 import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist

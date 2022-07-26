@@ -1,4 +1,4 @@
-from ModelTraining.feature_engineering.compositetransformers import DynamicFeaturesSampleCut
+from ModelTraining.feature_engineering.featureengineering.compositetransformers import DynamicFeaturesSampleCut
 from ModelTraining.dataimport import DataImport
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression

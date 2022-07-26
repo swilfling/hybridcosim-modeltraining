@@ -1,6 +1,6 @@
 from ModelTraining.dataimport import DataImport
 import matplotlib.pyplot as plt
-from ModelTraining.feature_engineering.compositetransformers import DynamicFeaturesSampleCut
+from ModelTraining.feature_engineering.featureengineering.compositetransformers import DynamicFeaturesSampleCut
 from ModelTraining.feature_engineering.featureengineering.featurecreators import DynamicFeatures
 import numpy as np
 from ModelTraining.feature_engineering.parameters import TrainingParams
