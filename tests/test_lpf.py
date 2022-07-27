@@ -1,6 +1,6 @@
 from ModelTraining.dataimport import DataImport
-from ModelTraining.feature_engineering.filters import ButterworthFilter, Filter
-from ModelTraining.feature_engineering.compositetransformers import Transformer_MaskFeats
+from ModelTraining.feature_engineering.featureengineering.filters import ButterworthFilter, Filter
+from ModelTraining.feature_engineering.featureengineering.compositetransformers import Transformer_MaskFeats
 from sklearn.compose import ColumnTransformer
 import matplotlib.pyplot as plt
 import pandas as pd

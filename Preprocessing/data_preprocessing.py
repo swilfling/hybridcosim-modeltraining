@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-from ..feature_engineering.filters import ChebyshevFilter, Envelope_MA
+from ModelTraining.feature_engineering.featureengineering.filters import ChebyshevFilter, Envelope_MA
 
 def inverse_transf(data, label):
     data[f'{label}_inv'] = 1.0 / data[label]

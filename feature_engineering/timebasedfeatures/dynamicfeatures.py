@@ -1,6 +1,6 @@
 import numpy as np
 from ...datamodels.datamodels.processing.shape import get_windows
-from ..featureengineeringbasic.interfaces import BasicTransformer
+from ..featureengineering.interfaces import BasicTransformer
 
 
 class DynamicFeatures(BasicTransformer):

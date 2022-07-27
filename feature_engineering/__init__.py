@@ -1,10 +1,7 @@
-from . import featureengineeringbasic
+from . import featureengineering
 from . import featureset
 from . import timebasedfeatures
 from . import parameters
-from . import transformers
-from . import filters
-from . import resamplers
-from . import compositetransformers
+from .featureengineering import filters, transformers, compositetransformers, resamplers
 from . import experimental
 from . import expandedmodel

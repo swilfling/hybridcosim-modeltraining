@@ -1,5 +1,5 @@
 import numpy as np
-from ..featureengineeringbasic.interfaces import BasicTransformer
+from ModelTraining.feature_engineering.featureengineering.interfaces import BasicTransformer
 
 
 class SampleReInit(BasicTransformer):

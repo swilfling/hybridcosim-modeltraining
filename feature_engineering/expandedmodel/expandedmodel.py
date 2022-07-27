@@ -1,5 +1,5 @@
 from . import TransformerSet
-from ..featureengineeringbasic.interfaces import PickleInterface
+from ..featureengineering.interfaces import PickleInterface
 from sklearn.pipeline import make_pipeline
 import numpy as np
 
