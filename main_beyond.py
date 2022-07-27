@@ -18,6 +18,7 @@ from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
 from sklearn.model_selection import GridSearchCV
 from ModelTraining.feature_engineering.experimental.dynamicfeaturessamplecut import DynamicFeaturesSampleCut
+from ModelTraining.feature_engineering.featureengineering.compositetransformers import Transformer_MaskFeats
 
 
 if __name__ == '__main__':
@@ -31,9 +32,6 @@ if __name__ == '__main__':
 
     model_type = "RidgeRegression"
     model_types = ['RidgeRegression', 'RandomForestRegression']
-    model_names = {'RidgeRegression': 'ridge', 'RandomForestRegression': 'randomforestregressor',
-                   "LinearRegression": "linearregression", "LassoRegression": "lasso",
-                   'RuleFitRegression': 'rulefit', 'XGBoost': 'xgboost'}
 
     # Get main config
     usecase_config_file = os.path.join(config_path, 'UseCaseConfig', f"{usecase_name}.json")
@@ -50,13 +48,14 @@ if __name__ == '__main__':
     window_sizes = [4, 8, 12, 24, 24 * 7, 24 * 30]
 
     transformer_type = 'RThreshold'
-    stat_feats = [f'{feat}_inv' if feat in feats_to_invert else feat for feat in dict_usecase['stat_feats']]
+    stat_feats = dict_usecase['stat_feats']
     stat_vals = dict_usecase['stat_vals']
     stat_ws = dict_usecase['stat_ws']
 
     inv_params = TransformerParams(type='Transformer_MaskFeats', params={
             'transformer_type':'InverseTransform',
-            'mask_type': 'MaskFeats_Inplace'})
+            'mask_type': 'MaskFeats_Inplace',
+            'mask_params':{'features_to_transform':feats_to_invert, 'rename_df_cols':False}})
 
     if type(stat_ws) == list:
         stat_params = [TransformerParams(type='Transformer_MaskFeats',
@@ -155,11 +154,8 @@ if __name__ == '__main__':
         training_data_thresh = training_data
         feat_names_thresh = training_data.columns
 
-        inv_params.params['features_to_transform'] = feats_to_invert
-        from ModelTraining.feature_engineering.featureengineering.compositetransformers import Transformer_MaskFeats
         tr = Transformer_MaskFeats(**inv_params.params)
         training_data_thresh = tr.fit_transform(training_data_thresh)
-        feat_names_thresh = tr.get_feature_names_out(feature_names=feat_names_thresh)
 
         if len(training_params.dynamic_input_features) > 0:
             dynfeats = DynamicFeaturesSampleCut(
@@ -173,37 +169,8 @@ if __name__ == '__main__':
             x, y, index, feature_names = training_data_thresh, target_data.to_numpy(), training_data.index, feat_names_thresh
 
         for model_type in model_types:
-            train_data = train_utils.create_train_data(index, x, y, training_params.training_split)
-            x_train, y_train = train_data.train_input, train_data.train_target
-            train_data.target_feat_names = training_params.target_features
-
-            training_params.model_type = model_type
             result_dir_model = os.path.join(result_dir, f"{model_type}_{lookback_horizon}")
             os.makedirs(result_dir_model)
-            # Extract data and reshape
-            #micthresh = MICThreshold(thresh=0.005, omit_zero_samples=False)
-            #training_data_thresh = micthresh.fit_transform(training_data, target_data)
-            #feat_names_thresh = micthresh.get_feature_names_out(training_data.columns)
-            training_data_thresh = training_data
-            feat_names_thresh = training_data.columns
-
-            inv_params.params['features_to_transform'] = [name in dict_usecase.get('to_invert',[]) for name in
-                                                          training_data_thresh.columns]
-            from ModelTraining.feature_engineering.featureengineering.compositetransformers import Transformer_MaskFeats
-            tr = Transformer_MaskFeats(**inv_params.params)
-            training_data_thresh = tr.fit_transform(training_data_thresh)
-            feat_names_thresh = tr.get_feature_names_out(feature_names=feat_names_thresh)
-
-            if len(training_params.dynamic_input_features) > 0:
-                dynfeats = DynamicFeaturesSampleCut(features_to_transform=[feat in training_params.dynamic_input_features for feat in feat_names_thresh],
-                                                 lookback_horizon=training_params.lookback_horizon,
-                                                 flatten_dynamic_feats=True)
-                x, y = dynfeats.fit_resample(training_data_thresh, target_data.to_numpy())
-                index = data.index[dynfeats.lookback_horizon:]
-                feature_names = dynfeats.get_feature_names_out(feat_names_thresh)
-            else:
-                x, y, index, feature_names = training_data_thresh, target_data.to_numpy(), training_data.index, feat_names_thresh
-
             # structure
             train_data = train_utils.create_train_data(index, x, y, training_params.training_split)
             x_train, y_train = train_data.train_input, train_data.train_target
