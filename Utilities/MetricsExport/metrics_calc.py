@@ -25,20 +25,13 @@ class MetricsCalc:
     ################################# Metrics calculation #############################################################
 
     def calc_perf_metrics(self, result: TrainingData, n_predictors=0):
-        n_samples = result.train_index.shape[0] + result.test_index.shape[0]
         list_metrs = []
-        perf_metr_names = self.metr_names['Metrics']
         for feat in result.target_feat_names:
-            y_true = result.test_target_vals(feat)
-            y_pred = result.test_pred_vals(feat)
-            # Get metrics
-            metrs = {name: float(getattr(metrics, name)(y_true=y_true, y_pred=y_pred)) for name in perf_metr_names}
-            # Additional metrics
-            if 'RA' in self.metr_names['Metrics']:
-                metrs.update({"RA": metrics.adjusted_rsquared(y_true, y_pred, n_predictors)})
-            for k, v in metrs.items():
-                if k in self.metr_names['Metrics']:
-                    list_metrs.append(MetricsVal(metrics_type='Metrics', metrics_name=k, val=v, target_feat=feat))
+            metrs = self.perf_metr_dict(y_true=result.test_target_vals(feat),
+                                        y_pred=result.test_pred_vals(feat),
+                                        n_predictors=n_predictors,
+                                        perf_metr_names=self.metr_names['Metrics'])
+            list_metrs += [MetricsVal(metrics_type='Metrics', metrics_name=k, val=v, target_feat=feat) for k, v in metrs.items()]
         return list_metrs
 
     def analyze_featsel(self, selectors):
@@ -98,7 +91,7 @@ class MetricsCalc:
             df_white.index = df_index
         return df_white
 
-    def calc_perf_metrics_df(self, result: TrainingData, n_predictors=0, df_index=None):
+    def calc_perf_metrics_df(self, result: TrainingData, n_predictors=0, df_index=["Model1"]):
         """
         Calculate metrics
         @param result: TrainingResults structure
@@ -106,25 +99,30 @@ class MetricsCalc:
         @param df_index: Optional: index for dataframe
         @return pd.Dataframe containing metrics
         """
-        n_samples = result.train_index.shape[0] + result.test_index.shape[0]
-        df_metrs = pd.DataFrame()
+        metrs = {}
         for feat in result.target_feat_names:
-            y_true = result.test_target_vals(feat)
-            y_pred = result.test_pred_vals(feat)
-            # Get metrics
-            metrs = metrics.all_metrics(y_true=y_true, y_pred=y_pred)
-            # Additional metrics
-            if 'RA' in self.metr_names['Metrics']:
-                metrs.update({"RA": metrics.rsquared_adj(y_true, y_pred, n_samples, n_predictors)})
-            if 'RA_SKLEARN' in self.metr_names['Metrics']:
-                metrs.update(
-                    {"RA_SKLEARN": metrics.rsquared_sklearn_adj(y_true, y_pred, n_samples, n_predictors)})
-            metrs = {k: v for k, v in metrs.items() if k in self.metr_names['Metrics']}
-            df_metrs_feat = pd.DataFrame(data=metrs.values(), index=metrs.keys()).transpose()[self.metr_names['Metrics']].add_suffix(f'_{feat}')
-            df_metrs = df_metrs_feat if df_metrs.empty else df_metrs.join(df_metrs_feat)
-        if df_index is not None:
-            df_metrs.index = df_index
-        return df_metrs
+            metrs.update(self.perf_metr_dict(y_true=result.test_target_vals(feat),
+                                             y_pred=result.test_pred_vals(feat),
+                                             n_predictors=n_predictors,
+                                             perf_metr_names=self.metr_names['Metrics'],
+                                             key_suffix=f'_{feat}'))
+        return pd.DataFrame(metrs, index=df_index)
+
+    @staticmethod
+    def perf_metr_dict(y_true, y_pred, n_predictors=0, perf_metr_names=['rsquared'], key_suffix=""):
+        """
+        Calculate performance metrics
+        @param y_true: True vals
+        @param y_pred: predicted vals
+        @param n_predictors: number of predictors
+        @param perf_metr_names: names of metrics
+        @param key_suffix: suffix for dict key
+        @return: dict containing result
+        """
+        metrs = {f'{name}{key_suffix}': float(getattr(metrics, name)(y_true=y_true, y_pred=y_pred)) for name in perf_metr_names}
+        if 'RA' in perf_metr_names:
+            metrs.update({f"RA{key_suffix}": metrics.adjusted_rsquared(y_true, y_pred, n_predictors)})
+        return metrs
 
     def analyze_featsel_df(self, model: ExpandedModel, df_index=None):
         """

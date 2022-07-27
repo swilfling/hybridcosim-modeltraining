@@ -51,6 +51,7 @@ if __name__ == '__main__':
     #data.to_csv(os.path.join(result_dir, f'{usecase_name}_preprocessed.csv'),sep=";", index_label='datetime')
     feature_set.add_cyclic_input_features(cyclic_feat_cr.get_additional_feat_names() + categorical_feat_cr.get_additional_feat_names())
     target_features = feature_set.get_output_feature_names()
+    print(target_features)
 
     model_type = "LinearRegression"
 
@@ -78,9 +79,8 @@ if __name__ == '__main__':
     y = data[training_params.target_features]
     feature_names = training_params.static_input_features + training_params.dynamic_input_features
 
-    index_train, x_train, y_train, index_test, x_test, y_test = ModelTraining.Training.TrainingUtilities.training_utils.split_into_training_and_test_set(
+    index_train, x_train, y_train, index_test, x_test, y_test = train_utils.split_into_training_and_test_set(
         index, x, y, training_params.training_split)
-
 
     # Create model
     logging.info(f"Training model with input of shape: {x_train.shape} and targets of shape {y_train.shape}")
@@ -127,9 +127,10 @@ if __name__ == '__main__':
     # Calculate metrics
     metr_exp = MetricsCalc()
     df_metrics = metr_exp.calc_perf_metrics_df(result_data, df_index=[model_type])
+    print(df_metrics)
     #df_white = metr_exp.white_test_df(result_data, df_index=[model_type])
-    df_metrics.to_csv(os.path.join(result_dir, f"Metrics_{metr_utils.create_file_name_timestamp()}.csv"), index_label='Model',
-                    float_format='%.3f')
+    df_metrics.to_csv(os.path.join(result_dir, f"Metrics_{metr_utils.create_file_name_timestamp()}.csv"),
+                      index_label='Model', float_format='%.3f')
     #df_white.to_csv(os.path.join(result_dir, f"White_{metr_utils.create_file_name_timestamp()}.csv"),
     #                  index_label='Model', float_format='%.3f')
     # Export results
