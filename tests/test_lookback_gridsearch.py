@@ -1,10 +1,10 @@
-from ModelTraining.feature_engineering.compositetransformers import DynamicFeaturesSampleCut
+from ModelTraining.feature_engineering.featureengineering.compositetransformers import DynamicFeaturesSampleCut
 from ModelTraining.dataimport import DataImport
 import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import GridSearchCV
 from imblearn.pipeline import Pipeline, make_pipeline
-from ModelTraining.feature_engineering.resamplers import SampleCut, SampleCut_imblearn
+from ModelTraining.feature_engineering.featureengineering.resamplers import SampleCut
 from ModelTraining.feature_engineering.featureengineering.featurecreators import DynamicFeatures
 
 
@@ -34,9 +34,9 @@ if __name__ == "__main__":
     #reg = SamplingPipeline(steps=[('dynamicfeaturessamplecut', lookback_tr_3), ('linearregression',LinearRegression())])
     #reg = TransformedTargetRegressor(regressor=make_pipeline(DynamicFeatures(lookback_horizon=3, flatten_dynamic_feats=True),LinearRegression()), transformer=SampleCut(lookback), check_inverse=False)
 
-    reg = make_pipeline(DynamicFeatures(lookback_horizon=3, flatten_dynamic_feats=True), SampleCut_imblearn(num_samples=3), LinearRegression())
+    reg = make_pipeline(DynamicFeatures(lookback_horizon=3, flatten_dynamic_feats=True), SampleCut(num_samples=3), LinearRegression())
     reg = SamplingPipeline([('dynamicfeatures',DynamicFeatures(lookback_horizon=3, flatten_dynamic_feats=True)),
-                            ('samplecut_imblearn',SampleCut_imblearn(num_samples=3)),
+                            ('samplecut_imblearn', SampleCut(num_samples=3)),
                             ('linearregression',LinearRegression())])
 
     x_train = data[['TSolarRL','SGlobal','VDSolar']][0:1000]

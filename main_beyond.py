@@ -16,7 +16,7 @@ from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc, Metr
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
 from sklearn.model_selection import GridSearchCV
-from ModelTraining.feature_engineering.compositetransformers import DynamicFeaturesSampleCut
+from ModelTraining.feature_engineering.experimental.dynamicfeaturessamplecut import DynamicFeaturesSampleCut
 
 
 if __name__ == '__main__':
@@ -114,7 +114,7 @@ if __name__ == '__main__':
     target_data = Normalizer().fit(target_data).transform(target_data)
 
     import numpy as np
-    from ModelTraining.feature_engineering.filters import ButterworthFilter
+    from ModelTraining.feature_engineering.featureengineering.filters import ButterworthFilter
 
     highpass = ButterworthFilter(filter_type='highpass', T=np.array([24]), order=3, remove_offset=True)
     #lowpass = ButterworthFilter(filter_type='lowpass', T=np.array([12]), order=5, remove_offset=True)
@@ -153,7 +153,7 @@ if __name__ == '__main__':
 
             inv_params.params['features_to_transform'] = [name in dict_usecase.get('to_invert',[]) for name in
                                                           training_data_thresh.columns]
-            from ModelTraining.feature_engineering.compositetransformers import Transformer_MaskFeats
+            from ModelTraining.feature_engineering.featureengineering.compositetransformers import Transformer_MaskFeats
             tr = Transformer_MaskFeats(**inv_params.params)
             training_data_thresh = tr.fit_transform(training_data_thresh)
             feat_names_thresh = tr.get_feature_names_out(feature_names=feat_names_thresh)
