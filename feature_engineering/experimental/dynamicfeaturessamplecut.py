@@ -1,7 +1,7 @@
 from imblearn.base import SamplerMixin
 from sklearn.base import BaseEstimator
 
-from ModelTraining.feature_engineering.resamplers import SampleCut_imblearn
+from ModelTraining.feature_engineering.featureengineering.resamplers import SampleCut
 from ModelTraining.feature_engineering.featureengineering.compositetransformers.transformer_maskfeats import Transformer_MaskFeats
 
 
@@ -33,7 +33,7 @@ class DynamicFeaturesSampleCut(SamplerMixin, BaseEstimator):
                                                                     'return_3d_array':self.return_3d_array},
                                                 features_to_transform=self.features_to_transform,
                                                 mask_type='MaskFeats_Expanded')
-        self.sample_cut_ = SampleCut_imblearn(self.lookback_horizon)
+        self.sample_cut_ = SampleCut(self.lookback_horizon)
         self.dyn_feats_.fit(X, y)
         self.sample_cut_.fit(X, y)
         return self
