@@ -1,4 +1,3 @@
-import json
 import os
 import logging
 import shutil
@@ -8,12 +7,7 @@ from ModelTraining.dataimport.data_import import DataImport, load_from_json
 from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.datamodels import datamodels
-from ModelTraining.feature_engineering.featurecreators import CategoricalFeatures, CyclicFeatures
-from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
-from ModelTraining.feature_engineering.feature_selectors import FeatureSelector, MICThreshold, RThreshold
 from ModelTraining.datamodels.datamodels.processing import datascaler, Normalizer
-from ModelTraining.feature_engineering.parameters import TrainingParams, TrainingParamsExpanded, TransformerParams
-from ModelTraining.datamodels.datamodels import Model
 from ModelTraining.feature_engineering.featureengineering.featurecreators import CategoricalFeatures, CyclicFeatures
 from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
 from ModelTraining.feature_engineering.featureengineering.featureselectors import FeatureSelector
@@ -162,7 +156,7 @@ if __name__ == '__main__':
         feat_names_thresh = training_data.columns
 
         inv_params.params['features_to_transform'] = feats_to_invert
-        from ModelTraining.feature_engineering.compositetransformers import Transformer_MaskFeats
+        from ModelTraining.feature_engineering.featureengineering.compositetransformers import Transformer_MaskFeats
         tr = Transformer_MaskFeats(**inv_params.params)
         training_data_thresh = tr.fit_transform(training_data_thresh)
         feat_names_thresh = tr.get_feature_names_out(feature_names=feat_names_thresh)
