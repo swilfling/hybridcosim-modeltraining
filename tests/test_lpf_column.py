@@ -43,6 +43,8 @@ def test_store_load_filter_baseclass():
 
 
 def test_columntransformer():
+
+
     data = DataImport.load("../Configuration/DataImport/Resampled15min.json").import_data(
         "../../Data/AEE/Resampled15min")
     data = data[['TSolarVL', 'TSolarRL', 'VDSolar', 'SGlobal']]
