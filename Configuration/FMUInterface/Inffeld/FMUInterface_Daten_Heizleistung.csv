@@ -1,0 +1,6 @@
+EnergyConsumption;;;;;;
+Name;In_Out;Init;Stat_Dyn;Predictions;Type;Description
+t_amb;input;0;static;energy;Real;
+I_glob;input;26;static;energy;Real;
+Qdot_SH_kW;output;0;;energy;Real;
+Qdot_SH_kW;parameter;40;;energy;Real;
