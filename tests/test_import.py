@@ -39,3 +39,7 @@ if __name__ == "__main__":
         t24_import = CSVImport(freq='1H', index_col='dt')
         t24_import.to_file(f"../Configuration/DataImport/Beyond_{name}_full.json")
         data = t24_import.import_data(filename=filename)
+
+#%%
+    data_import = DataImport.load("../Configuration/DataImport/Daten_Heizleistung.json")
+    data = data_import.import_data("../../Data/Inffeldgasse/Heizung/Daten_Heizleistung")

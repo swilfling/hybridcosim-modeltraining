@@ -1,2 +1,1 @@
 from .statistical_features import StatisticalFeatures
-from .dynamicfeatures import DynamicFeatures
