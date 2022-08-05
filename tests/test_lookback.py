@@ -1,6 +1,6 @@
 from ModelTraining.dataimport import DataImport
 import matplotlib.pyplot as plt
-from ModelTraining.feature_engineering.timebasedfeatures import DynamicFeatures
+from ModelTraining.feature_engineering.featureengineering.timebasedfeatures import DynamicFeatures
 from ModelTraining.feature_engineering.experimental import DynamicFeaturesSampleCut
 from ModelTraining.Training.TrainingUtilities.training_utils import extract_training_and_test_set
 from ModelTraining.feature_engineering.parameters import TrainingParams
