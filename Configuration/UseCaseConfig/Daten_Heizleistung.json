@@ -1,7 +1,7 @@
 {
     "name": "Daten_Heizleistung",
     "fmu_interface": "Configuration/FMUInterface/Inffeld/FMUInterface_Daten_Heizleistung.csv",
-    "dataset_dir": "Data/Inffeldgasse/Heizung/",
+    "dataset_dir": "Inffeldgasse/Heizung/",
     "dataset_filename": "Daten_Heizleistung",
     "stat_feats": [
     ],

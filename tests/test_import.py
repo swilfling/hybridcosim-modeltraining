@@ -1,13 +1,13 @@
 from ModelTraining.dataimport import CSVImport, ExcelImport, HDFImport, DataImport
 
 if __name__ == "__main__":
-    data_filename_solarhouse1 = "../../Data/AEE/Resampled15min"
+    data_filename_solarhouse1 = "../../Data/Data/AEE/Resampled15min"
     solarhouse1_import = CSVImport(freq='15T', sep=";", index_col='Zeitraum')
     solarhouse1_import.to_file("../Configuration/DataImport/Resampled15min.json")
     #solarhouse1_import_2 = DataImport.load("../Configuration/DataImport/Resampled15min.json")
     data = solarhouse1_import.import_data(data_filename_solarhouse1)
 
-    data_filename_solarhouse2 = "../../Data/AEE/P2017_20_Solarhouse_2"
+    data_filename_solarhouse2 = "../../Data/Data/AEE/P2017_20_Solarhouse_2"
     solarhouse2_import = HDFImport(freq='15T', index_col='Zeitraum', cols_to_rename={'T_P_oo ': 'T_P_top'}, cols_to_drop=["P_Recool"])
     data = solarhouse2_import.import_data(data_filename_solarhouse2)
     solarhouse2_import.cols_to_rename = {label: label.split(" ")[0] for label in data.columns}
@@ -17,13 +17,13 @@ if __name__ == "__main__":
     #data_3 = DataImport.load(f"../Configuration/DataImport/P2017_20_Solarhouse_2.json").import_data()
     print(data_2.columns)
 
-    data_filename_cps = "../../Data/Inffeldgasse/Datasets_Occupancy_WeatherData/cps_data"
+    data_filename_cps = "../../Data/Data/Inffeldgasse/Datasets_Occupancy_WeatherData/cps_data"
     cps_import = ExcelImport(freq='1H', index_col='datetime', cols_to_rename={"time":"daytime"}, cols_to_drop=['Unnamed: 0'])
     cps_import.import_data(data_filename_cps)
     cps_import.to_file(f"../Configuration/DataImport/cps_data.json")
 
     for name in ['A6','B2','C6']:
-        data_filename_sensor = f"../../Data/Inffeldgasse/Datasets_Occupancy_WeatherData/sensor_{name}"
+        data_filename_sensor = f"../../Data/Data/Inffeldgasse/Datasets_Occupancy_WeatherData/sensor_{name}"
         sensor_import = ExcelImport(freq='1H', index_col='datetime',
                                      cols_to_rename={"time": "daytime", 'consumption [kWh]': 'energy'})
         data_2 = sensor_import.import_data(data_filename_sensor)
