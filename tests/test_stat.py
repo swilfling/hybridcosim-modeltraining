@@ -1,5 +1,6 @@
 from ModelTraining.dataimport import DataImport
-from ModelTraining.feature_engineering.timebasedfeatures import StatisticalFeatures, StatisticalFeaturesNumpy
+from ModelTraining.feature_engineering.experimental import StatisticalFeatures
+from ModelTraining.feature_engineering.featureengineering.timebasedfeatures import StatisticalFeaturesNumpy
 import matplotlib.pyplot as plt
 
 
@@ -17,7 +18,7 @@ if __name__ == "__main__":
     print("Stat feats NP start")
     print(datetime.datetime.now())
     stat_feats = StatisticalFeaturesNumpy(window_size=24)
-    data_stat = stat_feats.fit_transform(data[['TSolarRL','VDSolar']])
+    data_stat_2 = stat_feats.fit_transform(data[['TSolarRL','VDSolar']])
     print(datetime.datetime.now())
     print("Stat feats NP end")
 
