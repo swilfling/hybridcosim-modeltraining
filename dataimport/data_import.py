@@ -26,13 +26,16 @@ class DataImport(JSONInterface):
     index_type: str = "datetime"
     cols_to_rename: dict = {}
     cols_to_drop: List[str] = []
+    fill_values = False
 
-    def __init__(self, freq='15T', index_col="daytime", cols_to_rename={}, cols_to_drop=[], **kwargs):
+    def __init__(self, freq='15T', index_col="daytime", cols_to_rename={}, cols_to_drop=[],
+                 fill_values=False, **kwargs):
         super(DataImport, self).__init__(**kwargs)
         self.freq = freq
         self.index_col = index_col
         self.cols_to_rename = cols_to_rename
         self.cols_to_drop = cols_to_drop
+        self.fill_values = fill_values
 
     def import_data(self, filename=""):
         """
@@ -41,7 +44,8 @@ class DataImport(JSONInterface):
         """
         df = self.read_file(filename)
         df = self.set_index(df)
-        df = self.fill_missing_vals(df)
+        if self.fill_values:
+            df = self.fill_missing_vals(df)
         df = self.rename_columns(df)
         df = self.drop_columns(df)
         return df

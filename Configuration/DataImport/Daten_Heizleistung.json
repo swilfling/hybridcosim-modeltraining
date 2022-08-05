@@ -1,1 +1,1 @@
-{"Type": "CSVImport", "Parameters": {"sep":";", "index_col": "Hour", "cols_to_rename": {}, "cols_to_drop": []}}
+{"Type": "CSVImport", "Parameters": {"sep":";", "index_col": "Hour", "cols_to_rename": {}, "cols_to_drop": [], "freq": "1H"}}
