@@ -66,22 +66,15 @@ if __name__ == '__main__':
                                   'window_size': stat_ws},'mask_type': 'MaskFeats_Addition',
                                   'mask_params':{'features_to_transform': stat_feats}})]
 
-    cyc_params = [TransformerParams(type='Transformer_MaskFeats',
-                      params={'transformer_type':'CyclicFeatures',
-                              'transformer_params':
-                                  {'selected_feats': dict_usecase['cyclical_feats']},
-                              'mask_type': 'MaskFeats_Addition'}
-                                    )]
+    cyc_params = [TransformerParams(type='CyclicFeatures',
+                      params={'selected_feats': dict_usecase['cyclical_feats']})]
 
-    categoric_params = [TransformerParams(type='Transformer_MaskFeats',
-                      params={'transformer_type':'CategoricalFeatures',
-                              'transformer_params':
-                                  {'selected_feats': dict_usecase['onehot_feats']},
-                              'mask_type': 'MaskFeats_Addition',
-                              })]
+    categoric_params = [TransformerParams(type='CategoricalFeatures',
+                      params={'selected_feats': dict_usecase['onehot_feats']})]
 
     stat_params = []
     transformer_params = stat_params + cyc_params + categoric_params + TransformerParams.load_parameters_list("Configuration/TransformerParams/params_transformers_beyond_poly_r.json")
+    transformer_params = cyc_params + categoric_params + TransformerParams.load_parameters_list("Configuration/TransformerParams/params_transformers_beyond_poly_r.json")
     print(transformer_params)
     transformer_name = transformer_type.lower()
     transf_params = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
@@ -229,7 +222,7 @@ if __name__ == '__main__':
                     setattr(model.get_estimator(), k.split("__")[1], val)
 
             # Train model
-            model.train(x_train, y_train)
+            model.fit(x_train, y_train)
             model.transformers.get_transformer_by_name(transformer_name).print_metrics()
             # Save Model
             model_dir = os.path.join(result_dir_model, f"Models/{training_params.model_name}/{training_params.model_type}")
