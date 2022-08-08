@@ -3,7 +3,7 @@ import pandas as pd
 
 from typing import List
 from .metrics_vals import MetricsVal, MetrValsSet
-from ...feature_engineering.expandedmodel import ExpandedModel
+from ...datamodels.datamodels.wrappers.expandedmodel import ExpandedModel
 from ...datamodels.datamodels.validation import metrics
 from ...datamodels.datamodels.validation.whitetest import white_test
 from ..trainingdata import TrainingData

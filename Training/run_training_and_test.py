@@ -7,7 +7,7 @@ from ..feature_engineering.parameters import TrainingParams, TrainingParamsExpan
 from ..Utilities.trainingdata import TrainingData
 from ..datamodels.datamodels.processing import datascaler
 from ..datamodels import datamodels
-from ..feature_engineering.expandedmodel import ExpandedModel, TransformerSet
+from ..datamodels.datamodels.wrappers.expandedmodel import ExpandedModel, TransformerSet
 
 
 def run_training_and_test(data, list_training_parameters: List[TrainingParams], prediction_type="History", **kwargs):

@@ -1,5 +1,5 @@
 from . import TrainingParams
-from .transformer_params import TransformerParams
+from ...datamodels.datamodels.wrappers.expandedmodel import TransformerParams
 from dataclasses import dataclass
 from typing import List
 

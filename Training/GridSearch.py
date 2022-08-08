@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.model_selection import GridSearchCV
-from ..feature_engineering.expandedmodel import ExpandedModel
+from ..datamodels.datamodels.wrappers.expandedmodel import ExpandedModel
 from ..datamodels.datamodels import Model
 
 
