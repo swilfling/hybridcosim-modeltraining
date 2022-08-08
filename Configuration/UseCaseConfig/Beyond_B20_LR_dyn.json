@@ -1,16 +1,20 @@
 {
-    "name":"Beyond_B20_LR",
+    "name":"Beyond_B20_LR_dyn",
     "fmu_interface":"Configuration/FMUInterface/Beyond/B20/FMUInterface_B20_LR_dyn.csv",
     "dataset_dir":"Data/Beyond/B20/",
     "dataset_filename":"Beyond_B20_full",
     "stat_feats": ["TAmbient", "SGlobalH", "vWind","B20Gas", "rain","humidity"],
     "to_smoothe": ["SGlobalH", "vWind", "humidity", "TAmbient", "B20Gas", "TB20LR", "lumB20LR"],
     "stat_vals": ["tmean","tmin","tmax"],
+    "to_invert": ["vWind","rain","B20Gas","humidity"],
     "stat_ws": [24,168,720],
     "onehot_feats": [
-        "month"
+        "month",
+        "week"
     ],
     "cyclical_feats":[
-        "hour"
+        "hour",
+        "week",
+        "month"
     ]
 }
