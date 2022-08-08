@@ -72,7 +72,7 @@ if __name__ == '__main__':
         TransformerParams(type=transformer_type, params={'thresh': 0.05, 'omit_zero_samples':True})]
     transformer_name = transformer_type.lower()
     transf_params = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
-    #transf_params = [0.01, 0.1, 0.2, 0.3, 0.5]
+    transf_params = [0.45]
     thresh_params = {f"{transformer_name}__thresh": transf_params,
                      #f"butterworthfilter__order":[2,3,5],
                      #f"butterworthfilter__T":[5,10,20]
@@ -151,12 +151,13 @@ if __name__ == '__main__':
             training_data_thresh = training_data
             feat_names_thresh = training_data.columns
 
-            inv_params.params['features_to_transform'] = [name in dict_usecase.get('to_invert',[]) for name in
-                                                          training_data_thresh.columns]
-            from ModelTraining.feature_engineering.featureengineering.compositetransformers import Transformer_MaskFeats
-            tr = Transformer_MaskFeats(**inv_params.params)
-            training_data_thresh = tr.fit_transform(training_data_thresh)
+            inv_params.params['mask_params'] = {'features_to_transform':[name in dict_usecase.get('to_invert',[]) for name in
+                                                          training_data_thresh.columns]}
+            tr = TransformerSet.from_list_params([inv_params])
+            training_data_thresh = tr.fit_transform(training_data_thresh, target_data)
             feat_names_thresh = tr.get_feature_names_out(feature_names=feat_names_thresh)
+            print(feat_names_thresh)
+            print(tr.get_transformer_by_index(0).feature_mask_.features_to_transform)
 
             if len(training_params.dynamic_input_features) > 0:
                 dynfeats = DynamicFeaturesSampleCut(features_to_transform=[feat in training_params.dynamic_input_features for feat in feat_names_thresh],

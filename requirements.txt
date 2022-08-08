@@ -25,3 +25,4 @@ ennemi
 minepy
 regscorepy
 imblearn
+scikit-learn-intelex

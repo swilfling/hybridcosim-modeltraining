@@ -31,7 +31,7 @@ class DynamicFeaturesSampleCut(SamplerMixin, BaseEstimator):
                                                 transformer_params={'lookback_horizon':self.lookback_horizon,
                                                                     'flatten_dynamic_feats':self.flatten_dynamic_feats,
                                                                     'return_3d_array':self.return_3d_array},
-                                                features_to_transform=self.features_to_transform,
+                                                mask_params={'features_to_transform':self.features_to_transform},
                                                 mask_type='MaskFeats_Expanded')
         self.sample_cut_ = SampleCut(self.lookback_horizon)
         self.dyn_feats_.fit(X, y)
