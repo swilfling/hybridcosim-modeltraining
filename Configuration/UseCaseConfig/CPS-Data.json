@@ -1,7 +1,7 @@
 {
     "name": "CPS-Data",
     "fmu_interface": "Configuration/FMUInterface/Inffeld/FMUInterface_cps_data.csv",
-    "dataset_dir": "Data/Inffeldgasse/Datasets_Occupancy_WeatherData/",
+    "dataset_dir": "Inffeldgasse/Datasets_Occupancy_WeatherData/",
     "dataset_filename": "cps_data",
     "stat_feats": [
         "temperature",

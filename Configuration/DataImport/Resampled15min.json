@@ -1,1 +1,0 @@
-{"Type": "CSVImport", "Parameters": {"freq": "15T", "index_col": "Zeitraum", "cols_to_rename": {}, "cols_to_drop": [], "sep": ";"}}

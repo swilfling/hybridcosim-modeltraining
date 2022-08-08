@@ -1,12 +1,12 @@
 #%%
 
 import ModelTraining.Preprocessing.add_features as feat_utils
+import ModelTraining.Training.TrainingUtilities.training_utils
 from ModelTraining.feature_engineering.featureset import FeatureSet
-from ModelTraining.dataimport import DataImport
 import ModelTraining.Preprocessing.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils
-import ModelTraining.dataimport.data_import as data_import
+import ModelTraining.Data.DataImport.data_import as data_import
 import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
 import os
 from ModelTraining.datamodels.datamodels.processing.datascaler import Normalizer
@@ -15,13 +15,14 @@ from ModelTraining.datamodels.datamodels.processing.datascaler import Normalizer
 if __name__ == '__main__':
     #%%
     root_dir = "../"
-    data_dir = "../../"
+    data_dir = "../Data/"
+    dataimport_config_path = os.path.join(root_dir, "Data", "Configuration")
     # Added: Preprocessing - Smooth features
     config_path = os.path.join(root_dir, 'Configuration')
     list_usecases = ['CPS-Data', 'SensorA6', 'SensorB2', 'SensorC6', 'Solarhouse1','Solarhouse2']
-    list_usecases = ['Beyond_B20_LR_dyn', 'Beyond_B12_LR_dyn']
+    #list_usecases = ['Beyond_B20_LR_dyn', 'Beyond_B12_LR_dyn']
 
-    dict_usecases = [data_import.load_from_json(os.path.join(config_path,"UseCaseConfig", f"{name}.json")) for name in
+    dict_usecases = [ModelTraining.Training.TrainingUtilities.training_utils.load_from_json(os.path.join(config_path, "UseCaseConfig", f"{name}.json")) for name in
                      list_usecases]
 
     interaction_only=True
@@ -35,10 +36,7 @@ if __name__ == '__main__':
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
         # Get data and feature set
-        data_import = DataImport.load(
-            os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
-        data = data_import.import_data(
-            os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
+        data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         #data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
@@ -46,14 +44,15 @@ if __name__ == '__main__':
         data = dp_utils.preprocess_data(data,dict_usecase['dataset_filename'])
         # Export correlation matrices
         features_for_corrmatrix = [feature.name for feature in feature_set.get_input_feats() if not feature.cyclic and not feature.statistical]
-        if usecase_name == 'Beyond_B20_LR_dyn':
-            features_for_corrmatrix.append('TB20LR')
-        if usecase_name == 'Beyond_B20_BR1':
-            features_for_corrmatrix.append('TB20BR1')
-        if usecase_name == 'Beyond_B12_LR':
-            features_for_corrmatrix.append('TB12LR')
-        data['SGlobalHTAmbientvWind_inv'] = data['SGlobalH']*data['TAmbient'] / data['vWind']
-        features_for_corrmatrix.append('SGlobalHTAmbientvWind_inv')
+        if usecase_name in ['Beyond_B20_LR_dyn','Beyond_B20_BR1', 'Beyond_B12_LR']:
+            if usecase_name == 'Beyond_B20_LR_dyn':
+                features_for_corrmatrix.append('TB20LR')
+            if usecase_name == 'Beyond_B20_BR1':
+                features_for_corrmatrix.append('TB20BR1')
+            if usecase_name == 'Beyond_B12_LR':
+                features_for_corrmatrix.append('TB12LR')
+            data['SGlobalHTAmbientvWind_inv'] = data['SGlobalH']*data['TAmbient'] / data['vWind']
+            features_for_corrmatrix.append('SGlobalHTAmbientvWind_inv')
 
         if data.shape[1] > 1:
             filename_basic = f'Correlation_{usecase_name}_IdentityExpander'
@@ -72,10 +71,7 @@ if __name__ == '__main__':
     for dict_usecase in dict_usecases:
          usecase_name = dict_usecase['name']
          # Get data and feature set
-         data_import = DataImport.load(
-             os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
-         data = data_import.import_data(
-             os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
+         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
          data = feat_utils.add_features_to_data(data, dict_usecase)
          feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
          feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)

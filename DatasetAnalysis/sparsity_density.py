@@ -1,11 +1,12 @@
 #%%
 
 import ModelTraining.Preprocessing.add_features as feat_utils
+import ModelTraining.Training.TrainingUtilities.training_utils
 from ModelTraining.feature_engineering.featureset import FeatureSet
 import ModelTraining.Preprocessing.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
-import ModelTraining.dataimport.data_import as data_import
-from ModelTraining.dataimport import DataImport
+import ModelTraining.Data.DataImport.data_import as data_import
+from ModelTraining.Data.DataImport import DataImport
 import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 import os
@@ -17,12 +18,13 @@ from ModelTraining.datamodels.datamodels.processing.datascaler import Normalizer
 if __name__ == '__main__':
     #%%
     root_dir = "../"
-    data_dir = "../../"
+    data_dir = "../Data/"
+    dataimport_config_path = os.path.join(root_dir, "Data", "Configuration")
     # Added: Preprocessing - Smooth features
     config_path = os.path.join(root_dir, 'Configuration')
     list_usecases = ['CPS-Data', 'SensorA6', 'SensorB2', 'SensorC6', 'Solarhouse1','Solarhouse2']
 
-    dict_usecases = [data_import.load_from_json(os.path.join(config_path,"UseCaseConfig", f"{name}.json")) for name in
+    dict_usecases = [ModelTraining.Training.TrainingUtilities.training_utils.load_from_json(os.path.join(config_path, "UseCaseConfig", f"{name}.json")) for name in
                      list_usecases]
 
     interaction_only=True
@@ -40,10 +42,7 @@ if __name__ == '__main__':
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
         # Get data and feature set
-        data_import = DataImport.load(
-            os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
-        data = data_import.import_data(
-            os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
+        data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
@@ -93,9 +92,7 @@ if __name__ == '__main__':
         # Get data and feature set
         data_import = DataImport.load(
             os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
-        data = data_import.import_data(
-            os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
-        data = feat_utils.add_features_to_data(data, dict_usecase)
+        data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
@@ -137,10 +134,7 @@ if __name__ == '__main__':
         density_dir_usecase = os.path.join(density_dir, usecase_name)
         os.makedirs(density_dir_usecase, exist_ok=True)
         # Get data and feature set
-        data_import = DataImport.load(
-            os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
-        data = data_import.import_data(
-            os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
+        data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
@@ -179,10 +173,7 @@ if __name__ == '__main__':
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
         # Get data and feature set
-        data_import = DataImport.load(
-            os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
-        data = data_import.import_data(
-            os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
+        data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)

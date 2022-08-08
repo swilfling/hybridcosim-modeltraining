@@ -3,7 +3,7 @@ import logging
 import shutil
 from sklearn.pipeline import make_pipeline
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
-from ModelTraining.dataimport.data_import import DataImport, load_from_json
+from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json
 from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.datamodels.datamodels import Model
@@ -20,7 +20,7 @@ from ModelTraining.feature_engineering.experimental.dynamicfeaturessamplecut imp
 
 
 if __name__ == '__main__':
-    data_dir_path = "../"
+    data_dir_path = "./Data"
     config_path = os.path.join("./", 'Configuration')
     usecase_name = 'Beyond_B20_LR_dyn'
     experiment_name = metr_utils.create_file_name_timestamp()
@@ -92,9 +92,8 @@ if __name__ == '__main__':
     ############################### Preprocessing ######################################################################
 
     # Get data
-    data_import = DataImport.load(os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
-    data_filename = os.path.join(data_dir_path, dict_usecase['dataset_dir'], dict_usecase['dataset_filename'])
-    data = data_import.import_data(data_filename)
+
+    data = train_utils.import_data(os.path.join(data_dir_path,"Configuration"),data_dir_path, dict_usecase)
     # Preporocessing
     data = dp_utils.preprocess_data(data, filename=dict_usecase['dataset_filename'])
     cat_feats = CategoricalFeatures(selected_feats=dict_usecase['onehot_feats'])

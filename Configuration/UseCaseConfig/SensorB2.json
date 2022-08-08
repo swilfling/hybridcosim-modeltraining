@@ -1,7 +1,7 @@
 {
     "name": "SensorB2",
     "fmu_interface": "Configuration/FMUInterface/Inffeld/FMUInterface_sensor_A6.csv",
-    "dataset_dir": "Data/Inffeldgasse/Datasets_Occupancy_WeatherData/",
+    "dataset_dir": "Inffeldgasse/Datasets_Occupancy_WeatherData/",
     "dataset_filename": "sensor_B2",
     "stat_feats": [
         "radiation",

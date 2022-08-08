@@ -1,3 +1,4 @@
+import json
 import os
 
 import numpy as np
@@ -13,6 +14,17 @@ from ModelTraining.feature_engineering.featureengineering.featureexpanders impor
 from ...datamodels.datamodels.processing.shape import split_into_target_segments
 from ...datamodels.datamodels import Model
 from ...Utilities.trainingdata import TrainingData
+from ModelTraining.Data.DataImport import DataImport
+
+
+########################### Data import #################################################
+
+def import_data(cfg_path, data_dir, dict_usecase):
+    data_import = DataImport.load(
+        os.path.join(cfg_path, dict_usecase['dataset_dir'], f"{dict_usecase['dataset_filename']}.json"))
+    data = data_import.import_data(
+        os.path.join(data_dir, "Data", dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
+    return data
 
 
 ############################# Model saving and plotting ##############################
@@ -167,3 +179,7 @@ def replace_dataset(data, list_training_parameters, first_train_results_path, lo
 
     return new_dataset
 
+
+def load_from_json(filename):
+    with open(filename) as f:
+        return json.load(f)

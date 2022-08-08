@@ -1,5 +1,5 @@
 from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded, TransformerParams
-from ModelTraining.dataimport.data_import import load_from_json
+from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json
 import os
 
 
