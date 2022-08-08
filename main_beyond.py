@@ -1,18 +1,16 @@
 import os
 import logging
 import shutil
-from sklearn.pipeline import make_pipeline
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 from ModelTraining.dataimport.data_import import DataImport, load_from_json
 from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.datamodels import datamodels
 from ModelTraining.datamodels.datamodels.processing import datascaler
-from ModelTraining.feature_engineering.featureengineering.featurecreators import CategoricalFeatures, CyclicFeatures
-from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
+from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import TransformerSet, TransformerParams, ExpandedModel
 from ModelTraining.feature_engineering.featureengineering.featureselectors import FeatureSelector
 from ModelTraining.datamodels.datamodels.processing import Normalizer
-from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded, TransformerParams
+from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc, MetricsVal
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
