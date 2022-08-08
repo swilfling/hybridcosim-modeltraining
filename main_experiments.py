@@ -5,10 +5,10 @@ from ModelTraining.Utilities import TrainingData
 from ModelTraining.feature_engineering.featureengineering.featureselectors import FeatureSelector
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Training.run_training_and_test import run_training_model
-from ModelTraining.dataimport import DataImport
+from ModelTraining.Data.DataImport import DataImport
 from ModelTraining.Utilities.MetricsExport import MetricsCalc, ResultExport, metr_utils
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils
-from ModelTraining.dataimport.data_import import load_from_json
+from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json
 from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.feature_engineering.expandedmodel import ExpandedModel
 from ModelTraining.feature_engineering.featureengineering.featureexpanders import FeatureExpansion
@@ -23,7 +23,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     model_types = model_names = args.model_types.split(",")
     list_usecases = args.usecase_names.split(",")
-    data_dir = "../"
+    data_dir_path = "./Data/"
     root_dir = "./"
     plot_enabled = False
 
@@ -58,10 +58,7 @@ if __name__ == '__main__':
         usecase_name = dict_usecase['name']
         results_path_dataset = os.path.join(results_path, usecase_name)
         # Get data and feature set
-        data_import = DataImport.load(
-            os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
-        data = data_import.import_data(
-            os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
+        data = train_utils.import_data(os.path.join(data_dir_path, "Configuration"), data_dir_path, dict_usecase)
         data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)

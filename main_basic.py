@@ -3,7 +3,7 @@ import logging
 from sklearn.pipeline import make_pipeline
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 from ModelTraining.feature_engineering.featureengineering.featurecreators import CyclicFeatures, CategoricalFeatures
-from ModelTraining.dataimport.data_import import DataImport, load_from_json
+from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json
 import ModelTraining.datamodels.datamodels.validation.white_test
 from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
@@ -19,14 +19,13 @@ import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
 from ModelTraining.feature_engineering.featureengineering.filters import ButterworthFilter
 
 if __name__ == '__main__':
-    data_dir_path = "../"
+    data_dir_path = "./Data"
     config_path = os.path.join("./", 'Configuration')
     usecase_name = 'Solarhouse1_T'
     result_dir = f"./results/{usecase_name}"
     os.makedirs(result_dir, exist_ok=True)
     dict_usecase = load_from_json(os.path.join(config_path, 'UseCaseConfig', f"{usecase_name}.json"))
-    data_import = DataImport.load(os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
-    data = data_import.import_data(os.path.join(data_dir_path, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
+    data = train_utils.import_data(os.path.join(data_dir_path,"Configuration"),data_dir_path, dict_usecase)
     feature_set = FeatureSet(os.path.join("./", dict_usecase['fmu_interface']))
     #data = data[15000:21000]
 

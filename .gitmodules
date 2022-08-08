@@ -4,3 +4,6 @@
 [submodule "feature_engineering/featureengineering"]
 	path = feature_engineering/featureengineering
 	url = https://github.com/tug-cps/featureengineering
+[submodule "Data"]
+	path = Data
+	url = https://github.com/tug-cps/hybridcosim-data

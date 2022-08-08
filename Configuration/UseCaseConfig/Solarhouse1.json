@@ -1,7 +1,7 @@
 {
     "name":"Solarhouse1",
     "fmu_interface":"Configuration/FMUInterface/Solarhouse1/SolarCollector/FMUInterface_TSolar.csv",
-    "dataset_dir": "Data/AEE/",
+    "dataset_dir": "AEE/Solarhouse1/",
     "dataset_filename": "Resampled15min",
     "stat_feats": ["TAussen", "SGlobal", "TSolarRL"],
     "to_smoothe": ["TAussen", "SGlobal", "TSolarRL", "TSolarVL","VDSolar_inv"],

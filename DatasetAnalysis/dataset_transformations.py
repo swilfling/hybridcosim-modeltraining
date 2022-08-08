@@ -2,26 +2,28 @@
 
 import ModelTraining.Preprocessing.add_features as feat_utils
 import ModelTraining.Preprocessing.data_analysis as data_analysis
+import ModelTraining.Training.TrainingUtilities.training_utils
 from ModelTraining.feature_engineering.featureengineering.transformers import SqrtTransform, Boxcox, Diff
-import ModelTraining.dataimport.data_import as data_import
-from ModelTraining.dataimport import DataImport
+import ModelTraining.Data.DataImport.data_import as data_import
 import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
 import ModelTraining.Utilities.Plotting.plot_data as plt_utils
 from ModelTraining.feature_engineering.featureset import FeatureSet
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 import os
 from ModelTraining.datamodels.datamodels.processing.datascaler import Normalizer
+import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 
 
 if __name__ == '__main__':
     #%%
     root_dir = "../"
-    data_dir = "../../"
+    data_dir = "../Data/"
+    dataimport_config_path = os.path.join(root_dir, "Data", "Configuration")
     # Added: Preprocessing - Smooth features
     config_path = os.path.join(root_dir, 'Configuration')
     list_usecases = ['CPS-Data', 'SensorA6', 'SensorB2', 'SensorC6', 'Solarhouse1','Solarhouse2']
 
-    dict_usecases = [data_import.load_from_json(os.path.join(config_path, "UseCaseConfig", f"{name}.json")) for name in
+    dict_usecases = [ModelTraining.Training.TrainingUtilities.training_utils.load_from_json(os.path.join(config_path, "UseCaseConfig", f"{name}.json")) for name in
                      list_usecases]
     dict_usecases = [dict_usecases[0]]
 
@@ -42,10 +44,7 @@ if __name__ == '__main__':
         usecase_name = dict_usecase['name']
         density_dir_usecase = os.path.join(density_dir, usecase_name)
         os.makedirs(density_dir_usecase, exist_ok=True)
-        data_import = DataImport.load(
-            os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
-        data = data_import.import_data(
-            os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
+        data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         # Get data and feature set
         data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
@@ -103,10 +102,7 @@ if __name__ == '__main__':
         os.makedirs(density_dir_usecase, exist_ok=True)
 
         # Get data and feature set
-        data_import = DataImport.load(
-            os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
-        data = data_import.import_data(
-            os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
+        data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
@@ -166,10 +162,7 @@ if __name__ == '__main__':
         os.makedirs(density_dir_usecase, exist_ok=True)
 
         # Get data and feature set
-        data_import = DataImport.load(
-            os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
-        data = data_import.import_data(
-            os.path.join(data_dir, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
+        data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
@@ -190,7 +183,7 @@ if __name__ == '__main__':
         feats_for_density_full = feats_for_density + feature_set.get_output_feature_names()
 
         data = Normalizer().fit(data).transform(data)
-        diff_df = Diff(features_to_transform=feats_for_density_full).fit_transform(data)[feats_for_density_full]
+        diff_df = Diff().fit_transform(data[feats_for_density_full])
 
         output_dir = os.path.join(density_dir_usecase, 'Differencing')
         os.makedirs(output_dir, exist_ok=True)
