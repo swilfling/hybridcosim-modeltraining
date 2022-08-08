@@ -18,19 +18,20 @@ import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
 from ModelTraining.feature_engineering.featureengineering.filters import ButterworthFilter
 
 if __name__ == '__main__':
-    data_dir_path = "../"
+    data_dir_path = "../Data"
     config_path = os.path.join("./", 'Configuration')
-    usecase_name = 'Solarhouse1_T'
+    usecase_name = 'Daten_Heizleistung'
     result_dir = f"./results/{usecase_name}"
     os.makedirs(result_dir, exist_ok=True)
     dict_usecase = load_from_json(os.path.join(config_path, 'UseCaseConfig', f"{usecase_name}.json"))
-    data_import = DataImport.load(os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
-    data = data_import.import_data(os.path.join(data_dir_path, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
+    data_import_cfg = os.path.join(data_dir_path, "Configuration",dict_usecase['dataset_dir'], f"{dict_usecase['dataset_filename']}.json")
+    data_import = DataImport.load(data_import_cfg)
+    data = data_import.import_data(os.path.join(data_dir_path,"Data", dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
     feature_set = FeatureSet(os.path.join("./", dict_usecase['fmu_interface']))
     #data = data[15000:21000]
 
     # Added: Preprocessing - Smooth features
-    smoothe_data = True
+    smoothe_data = False
     plot_enabled = True
 
     data = dp_utils.preprocess_data(data, filename=dict_usecase['dataset_filename'])
@@ -42,7 +43,7 @@ if __name__ == '__main__':
     preproc_steps = [cyclic_feat_cr, categorical_feat_cr]
     # Smoothing - filter
     if smoothe_data:
-        preproc_steps.insert(0, ButterworthFilter(order=2, T=10, keep_nans=False, remove_offset=True,
+        preproc_steps.insert(0, ButterworthFilter(order=2, T=2, keep_nans=False, remove_offset=True,
                                features_to_transform=dict_usecase.get('to_smoothe',[])))
 
     preproc = make_pipeline(*preproc_steps, 'passthrough')
@@ -53,7 +54,7 @@ if __name__ == '__main__':
     target_features = feature_set.get_output_feature_names()
     print(target_features)
 
-    model_type = "LinearRegression"
+    model_type = "RandomForestRegression"
 
     training_params = TrainingParamsExpanded(model_type=model_type,
                                        model_name="Energy",
@@ -92,7 +93,7 @@ if __name__ == '__main__':
     # Grid search
     parameters = {"rthreshold__thresh": [0.001, 0.01, 0.02, 0.05, 0.1],
                   "dynamicfeatures__lookback_horizon": [4,8,12, 24]}
-    best_params = best_pipeline(model, x_train, y_train, parameters=parameters)
+    best_params = best_pipeline(model, x_train, y_train, parameters=parameters, cv_folds=2)
     #print(best_params)
     for k, val in best_params.items():
         model.transformers.set_transformer_attributes(k.split("__")[0], {k.split("__")[1]: val})
