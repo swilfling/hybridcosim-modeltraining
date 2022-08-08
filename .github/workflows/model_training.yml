@@ -40,7 +40,8 @@ jobs:
     - name: Run model training
       env:
         REPO_PATH: "${{github.workspace}}"
-        PYTHONPATH: "${{github.workspace}};${{github.workspace}}/datamodels;${{github.workspace}};"
+        PYTHONPATH: "${{github.workspace}};${{github.workspace}}/datamodels;${{github.workspace}};${{github.workspace}}/Data;"
       run: |
-        python -m main
+        python -m main_basic
+	  python -m main_beyond
         python -m main_experiments

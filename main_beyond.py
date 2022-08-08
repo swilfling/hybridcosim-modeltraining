@@ -68,8 +68,22 @@ if __name__ == '__main__':
                                   'window_size': stat_ws},'mask_type': 'MaskFeats_Addition',
                                   'mask_params':{'features_to_transform': stat_feats}})]
 
+    cyc_params = [TransformerParams(type='Transformer_MaskFeats',
+                      params={'transformer_type':'CyclicFeatures',
+                              'transformer_params':
+                                  {'selected_feats': dict_usecase['cyclical_feats']},
+                              'mask_type': 'MaskFeats_Addition'}
+                                    )]
+
+    categoric_params = [TransformerParams(type='Transformer_MaskFeats',
+                      params={'transformer_type':'CategoricalFeatures',
+                              'transformer_params':
+                                  {'selected_feats': dict_usecase['onehot_feats']},
+                              'mask_type': 'MaskFeats_Addition',
+                              })]
+
     stat_params = []
-    transformer_params = stat_params + TransformerParams.load_parameters_list("Configuration/TransformerParams/params_transformers_beyond_poly_r.json")
+    transformer_params = stat_params + cyc_params + categoric_params + TransformerParams.load_parameters_list("Configuration/TransformerParams/params_transformers_beyond_poly_r.json")
     print(transformer_params)
     transformer_name = transformer_type.lower()
     transf_params = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
@@ -97,13 +111,13 @@ if __name__ == '__main__':
     data = data_import.import_data(data_filename)
     # Preporocessing
     data = dp_utils.preprocess_data(data, filename=dict_usecase['dataset_filename'])
-    cat_feats = CategoricalFeatures(selected_feats=dict_usecase['onehot_feats'])
-    cyc_feats = CyclicFeatures(selected_feats=dict_usecase['cyclical_feats'])
-    pipe = make_pipeline(cyc_feats, cat_feats)
-    data = pipe.fit_transform(data)
+    #cat_feats = CategoricalFeatures(selected_feats=dict_usecase['onehot_feats'])
+    #cyc_feats = CyclicFeatures(selected_feats=dict_usecase['cyclical_feats'])
+    #pipe = make_pipeline(cyc_feats, cat_feats)
+    #data = pipe.fit_transform(data)
     data = data.astype('float')
     data = data.dropna()
-    feature_set.add_cyclic_input_features(cat_feats.get_additional_feat_names() + cyc_feats.get_additional_feat_names())
+    #feature_set.add_cyclic_input_features(cat_feats.get_additional_feat_names() + cyc_feats.get_additional_feat_names())
 
     # Configure training params
     training_params = train_utils.set_train_params_model(training_params, feature_set, feature_set.get_output_feature_names()[0], model_type,transformer_params)
@@ -183,7 +197,7 @@ if __name__ == '__main__':
                          f"and targets of shape {y_train.shape}")
             model_basic = getattr(datamodels, training_params.model_type)(
                                           x_scaler_class=getattr(datascaler, training_params.normalizer),
-                                          name=training_params.str_target_feats(), parameters={}, **additional_params)
+                                          name=training_params.str_target_feats(), parameters={})
             transformers = TransformerSet.from_list_params(training_params.transformer_params)
             model = ExpandedModel(transformers=transformers, model=model_basic, feature_names=feature_names)
             # Grid search
@@ -196,7 +210,7 @@ if __name__ == '__main__':
             search = GridSearchCV(model.get_full_pipeline(), parameters, cv=5, scoring=gridsearch_scoring, refit='r2',
                                   verbose=4)
             # Transform x train
-            search.fit(*model.scale(x_train, y_train))
+            search.fit(x_train, y_train)
             print(f"Best score for model {model.__class__.__name__} - {model.model.__class__.__name__} is: {search.best_score_}")
             print(f"Best parameters are {search.best_params_}")
             for k, val in search.best_params_.items():
