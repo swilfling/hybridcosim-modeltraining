@@ -4,7 +4,6 @@ import ModelTraining.Preprocessing.add_features as feat_utils
 import ModelTraining.Preprocessing.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils
 from ModelTraining.feature_engineering.featureengineering.transformers import SqrtTransform, Boxcox, Diff
-import ModelTraining.Data.DataImport.data_import as data_import
 import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
 import ModelTraining.Utilities.Plotting.plot_data as plt_utils
 from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
@@ -47,7 +46,8 @@ if __name__ == '__main__':
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         # Get data and feature set
         data = feat_utils.add_features_to_data(data, dict_usecase)
-        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
+        feature_set = FeatureSet(
+            os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
@@ -104,7 +104,8 @@ if __name__ == '__main__':
         # Get data and feature set
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         data = feat_utils.add_features_to_data(data, dict_usecase)
-        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
+        feature_set = FeatureSet(
+            os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
@@ -164,7 +165,8 @@ if __name__ == '__main__':
         # Get data and feature set
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         data = feat_utils.add_features_to_data(data, dict_usecase)
-        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
+        feature_set = FeatureSet(
+            os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing

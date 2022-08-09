@@ -43,7 +43,7 @@ if __name__ == '__main__':
     shutil.copy(interface_file, os.path.join(result_dir, "feature_set.csv"))
 
     # Get feature set
-    feature_set = FeatureSet(interface_file)
+    feature_set = FeatureSet(os.path.join("Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
 
     transformer_type = 'RThreshold'
     stat_feats = dict_usecase['stat_feats']

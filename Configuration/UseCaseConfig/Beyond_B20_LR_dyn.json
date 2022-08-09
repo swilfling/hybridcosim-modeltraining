@@ -1,6 +1,6 @@
 {
     "name":"Beyond_B20_LR_dyn",
-    "fmu_interface":"Configuration/FMUInterface/Beyond/B20/FMUInterface_B20_LR_dyn.csv",
+    "fmu_interface":"Beyond/B20/FMUInterface_B20_LR_dyn.csv",
     "dataset_dir":"Beyond/B20/",
     "dataset_filename":"Beyond_B20_full",
     "stat_feats": ["TAmbient", "SGlobalH", "vWind","B20Gas", "rain","humidity"],

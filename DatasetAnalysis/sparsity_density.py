@@ -5,8 +5,7 @@ import ModelTraining.Training.TrainingUtilities.training_utils
 from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
 import ModelTraining.Preprocessing.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
-import ModelTraining.Data.DataImport.data_import as data_import
-from ModelTraining.Data.DataImport import DataImport
+from ModelTraining.Data.DataImport.dataimport import DataImport
 import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 import os
@@ -44,7 +43,8 @@ if __name__ == '__main__':
         # Get data and feature set
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         data = feat_utils.add_features_to_data(data, dict_usecase)
-        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
+        feature_set = FeatureSet(
+            os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
@@ -93,7 +93,8 @@ if __name__ == '__main__':
         data_import = DataImport.load(
             os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
-        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
+        feature_set = FeatureSet(
+            os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
@@ -136,7 +137,8 @@ if __name__ == '__main__':
         # Get data and feature set
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         data = feat_utils.add_features_to_data(data, dict_usecase)
-        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
+        feature_set = FeatureSet(
+            os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
@@ -175,7 +177,8 @@ if __name__ == '__main__':
         # Get data and feature set
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         data = feat_utils.add_features_to_data(data, dict_usecase)
-        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
+        feature_set = FeatureSet(
+            os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         data = dp_utils.preprocess_data(data, dict_usecase['dataset_filename'])

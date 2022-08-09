@@ -1,6 +1,6 @@
 {
     "name": "SensorA6",
-    "fmu_interface": "Configuration/FMUInterface/Inffeld/FMUInterface_sensor_A6.csv",
+    "fmu_interface": "Inffeld/FMUInterface_sensor_A6.csv",
     "dataset_dir": "Inffeldgasse/Datasets_Occupancy_WeatherData/",
     "dataset_filename": "sensor_A6",
     "stat_feats": [

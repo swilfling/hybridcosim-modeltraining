@@ -1,6 +1,6 @@
 {
     "name":"Solarhouse1",
-    "fmu_interface":"Configuration/FMUInterface/Solarhouse1/Temperature/FMUInterface_TArbeitszimmer.csv",
+    "fmu_interface":"Solarhouse1/Temperature/FMUInterface_TArbeitszimmer.csv",
     "dataset_dir": "AEE/Solarhouse1/",
     "dataset_filename": "Resampled15min",
     "stat_feats": [],
