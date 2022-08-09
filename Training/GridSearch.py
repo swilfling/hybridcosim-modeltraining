@@ -23,14 +23,17 @@ def best_estimator(model: Model, x_train: np.ndarray, y_train: np.ndarray, param
             x_train = model.x_scaler.fit(x_train).transform(x_train)
         if model.y_scaler is not None:
             y_train = model.y_scaler.fit(y_train).transform(y_train)
-        if hasattr(model, 'reshape_x'):
-            x_train = model.reshape_x(x_train)
-        if hasattr(model, 'reshape_y'):
-            y_train = model.reshape_y(y_train)
-        if hasattr(model, 'reshape'):
-            x_train = model.reshape(x_train)
-            y_train = model.reshape(y_train)
-
+        #if hasattr(model, 'reshape_x'):
+        #    x_train = model.reshape_x(x_train)
+        #if hasattr(model, 'reshape_y'):
+        #    y_train = model.reshape_y(y_train)
+        #if hasattr(model, 'reshape'):
+        #    x_train = model.reshape(x_train)
+        #    y_train = model.reshape(y_train)
+    if x_train.ndim > 2:
+        x_train = x_train[:,0,:]
+    if y_train.ndim > 2:
+        y_train = y_train[:,0,:]
     search.fit(x_train, y_train)
     if isinstance(model, ExpandedModel):
         print(f"Best score for model {model.__class__.__name__} - {model.model.__class__.__name__} is: {search.best_score_}")

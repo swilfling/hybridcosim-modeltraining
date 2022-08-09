@@ -75,7 +75,7 @@ class ResultExport:
         @param title: file title
         @param ylabel: ylabel for plotting
         """
-        df = pd.DataFrame(data=coeffs, index=feature_names)
+        df = pd.DataFrame(data=coeffs.T, index=feature_names)
         df.to_csv(os.path.join(dir, f'Coefficients_{title}.csv'), float_format='%.2f', index_label='Feature')
         if self.plot_enabled:
             for col in df.columns:

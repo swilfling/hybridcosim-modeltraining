@@ -47,6 +47,7 @@ class TrainingData(PickleInterface):
         @return: dataframe containing results
         """
         test_prediction = np.zeros(self.test_target.shape) if self.test_prediction is None else self.test_prediction
+        self.test_target = self.test_target.reshape((self.test_target.shape[0],self.test_target.shape[-1]))
         if feat == "":
             return pd.DataFrame(index=self.test_index, data=np.hstack((self.test_target, test_prediction)),
                                 columns=self._get_df_cols() if col_names == [] else col_names)

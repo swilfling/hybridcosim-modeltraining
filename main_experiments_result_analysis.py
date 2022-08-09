@@ -40,12 +40,12 @@ if __name__ == "__main__":
 
 
     # Results output
-    timestamp = "Experiment_20220615_120631"
+    timestamp = "Experiment_20220809_154052"
     results_path = os.path.join(root_dir, 'results', timestamp)
     os.makedirs(results_path, exist_ok=True)
     metrics_path = os.path.join(root_dir, 'results', timestamp, 'Metrics')
     os.makedirs(metrics_path, exist_ok=True)
-    metrics_names = {'FeatureSelect': ['selected_features', 'all_features'], 'Metrics': ['R2_SKLEARN', 'CV-RMS', 'MAPE', 'RA_SKLEARN'], 'pvalues': ['pvalue_lm', 'pvalue_f']}
+    metrics_names = {'FeatureSelect': ['selected_features', 'all_features'], 'Metrics': ['rsquared', 'cvrmse', 'mape'], 'pvalues': ['pvalue_lm', 'pvalue_f']}
 
 # %%
     print('Analyzing results')
