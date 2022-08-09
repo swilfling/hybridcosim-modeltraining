@@ -6,9 +6,9 @@ from ModelTraining.feature_engineering.featureengineering.featurecreators import
 from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json
 from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
-from ModelTraining.datamodels.datamodels import Model
+from ModelTraining.datamodels import datamodels
 from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import TransformerSet, ExpandedModel
-from ModelTraining.datamodels.datamodels.processing import DataScaler
+from ModelTraining.datamodels.datamodels.processing import datascaler
 from ModelTraining.Training.GridSearch import best_pipeline
 from ModelTraining.Training.TrainingUtilities.parameters import TrainingParamsExpanded, TransformerParams
 from ModelTraining.Utilities import TrainingData
@@ -76,14 +76,14 @@ if __name__ == '__main__':
     y = data[training_params.target_features]
     feature_names = training_params.static_input_features + training_params.dynamic_input_features
 
-    index_train, x_train, y_train, index_test, x_test, y_test = ModelTraining.Training.TrainingUtilities.training_utils.split_into_training_and_test_set(
+    index_train, x_train, y_train, index_test, x_test, y_test = train_utils.split_into_training_and_test_set(
         index, x, y, training_params.training_split)
 
 
     # Create model
     logging.info(f"Training model with input of shape: {x_train.shape} and targets of shape {y_train.shape}")
-    model_basic = Model.from_name(training_params.model_type,
-                                  x_scaler_class=DataScaler.cls_from_name(training_params.normalizer),
+    model_basic = getattr(datamodels, training_params.model_type)(
+                                  x_scaler_class=getattr(datascaler,training_params.normalizer),
                                   name=training_params.str_target_feats(), parameters={})
 
     transformers = TransformerSet.from_list_params(training_params.transformer_params)
