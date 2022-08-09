@@ -1,10 +1,11 @@
 from ModelTraining.dataimport import DataImport
 import matplotlib.pyplot as plt
+from ModelTraining.feature_engineering.featureengineering.timebasedfeatures import DynamicFeatures
 from ModelTraining.feature_engineering.experimental import DynamicFeaturesSampleCut
-from ModelTraining.feature_engineering.timebasedfeatures import DynamicFeatures
-import numpy as np
-from ModelTraining.Training.TrainingUtilities.parameters import TrainingParams
 from ModelTraining.Training.TrainingUtilities.training_utils import extract_training_and_test_set
+from ModelTraining.feature_engineering.parameters import TrainingParams
+import numpy as np
+import pandas as pd
 
 
 if __name__ == "__main__":
@@ -12,20 +13,21 @@ if __name__ == "__main__":
 
     # Trial implementation
     data_feats = data[['VDSolar','TSolarRL', 'SGlobal']]
+
     lookback_tr = DynamicFeatures(lookback_horizon=5, flatten_dynamic_feats=True)
 
     lookback_tr.fit(data_feats)
-    data_tr = lookback_tr.transform(data_feats)
-    feat_names = lookback_tr.get_feature_names_out(['VDSolar','TSolarRL', 'SGlobal'])
+    feat_names = lookback_tr.get_feature_names_out(['VDSolar', 'TSolarRL', 'SGlobal'])
+    data_tr = pd.DataFrame(data=lookback_tr.transform(data_feats),columns=feat_names, index=data_feats.index)
     print(feat_names)
 
     # Test 1:
     lookback = 5
     lookback_tr_2 = DynamicFeaturesSampleCut(features_to_transform=[True, True, False], lookback_horizon=lookback, flatten_dynamic_feats=True)
-
     lookback_tr_2.fit(data_feats, data_feats['VDSolar'])
-    data_tr_2, _ = lookback_tr_2.fit_resample(data_feats, data_feats['VDSolar'])
     feat_names_2 = lookback_tr_2.get_feature_names_out(np.array(['VDSolar','TSolarRL', 'SGlobal']))
+    data_tr_2 = pd.DataFrame(data=lookback_tr_2.fit_resample(data_feats, data_feats['VDSolar'])[0], columns=feat_names, index=data_feats.index[5:])
+
     print(feat_names_2)
 
     # Test: non-transformed data should stay the same except for first samples
