@@ -24,7 +24,8 @@ if __name__ == '__main__':
     name = 'CPS-Data'
     dict_usecase = load_from_json(os.path.join(config_path,"UseCaseConfig", f"{name}.json"))
     data_dir_path = "./Data"
-    data = train_utils.import_data(os.path.join(data_dir_path, "Configuration"), data_dir_path, dict_usecase)
+    dataimport_cfg_path = os.path.join(data_dir_path, "Configuration", "DataImport")
+    data = train_utils.import_data(dataimport_cfg_path, data_dir_path, dict_usecase)
     feature_set = FeatureSet(os.path.join("Data","Configuration","FeatureSet", dict_usecase['fmu_interface']))
     # Get training and target features
     target_features = feature_set.get_output_feature_names()

@@ -18,7 +18,7 @@ if __name__ == '__main__':
     #%%
     root_dir = "../"
     data_dir = "../Data/"
-    dataimport_config_path = os.path.join(root_dir, "Data", "Configuration")
+    dataimport_config_path = os.path.join(root_dir, "Data", "Configuration", "DataImport")
     # Added: Preprocessing - Smooth features
     config_path = os.path.join(root_dir, 'Configuration')
     list_usecases = ['CPS-Data', 'SensorA6', 'SensorB2', 'SensorC6', 'Solarhouse1','Solarhouse2']

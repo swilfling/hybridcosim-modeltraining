@@ -38,7 +38,7 @@ if __name__ == '__main__':
     usecase_config_file = os.path.join(config_path, 'UseCaseConfig', f"{usecase_name}.json")
     dict_usecase = load_from_json(usecase_config_file)
 
-    interface_file = os.path.join("./", dict_usecase['fmu_interface'])
+    interface_file = os.path.join("./Data/Configuration/FeatureSet", dict_usecase['fmu_interface'])
     shutil.copy(usecase_config_file, os.path.join(result_dir, f"{usecase_name}.json"))
     shutil.copy(interface_file, os.path.join(result_dir, "feature_set.csv"))
 
@@ -93,8 +93,8 @@ if __name__ == '__main__':
     ############################### Preprocessing ######################################################################
 
     # Get data
-
-    data = train_utils.import_data(os.path.join(data_dir_path,"Configuration"),data_dir_path, dict_usecase)
+    dataimport_cfg_path = os.path.join(data_dir_path,"Configuration","DataImport")
+    data = train_utils.import_data(dataimport_cfg_path,data_dir_path, dict_usecase)
     # Preporocessing
     data = dp_utils.preprocess_data(data, filename=dict_usecase['dataset_filename'])
     cat_feats = CategoricalFeatures(selected_feats=dict_usecase['onehot_feats'])

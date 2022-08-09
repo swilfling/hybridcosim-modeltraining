@@ -24,7 +24,8 @@ if __name__ == '__main__':
     result_dir = f"./results/{usecase_name}"
     os.makedirs(result_dir, exist_ok=True)
     dict_usecase = load_from_json(os.path.join(config_path, 'UseCaseConfig', f"{usecase_name}.json"))
-    data = train_utils.import_data(os.path.join(data_dir_path,"Configuration"),data_dir_path, dict_usecase)
+    dataimport_cfg_path = os.path.join(data_dir_path, "Configuration", "DataImport")
+    data = train_utils.import_data(dataimport_cfg_path, data_dir_path, dict_usecase)
     feature_set = FeatureSet(os.path.join("Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
     #data = data[15000:21000]
 

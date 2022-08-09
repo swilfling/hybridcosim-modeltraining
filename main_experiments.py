@@ -57,7 +57,8 @@ if __name__ == '__main__':
         usecase_name = dict_usecase['name']
         results_path_dataset = os.path.join(results_path, usecase_name)
         # Get data and feature set
-        data = train_utils.import_data(os.path.join(data_dir_path, "Configuration"), data_dir_path, dict_usecase)
+        dataimport_cfg_path = os.path.join(data_dir_path, "Configuration", "DataImport")
+        data = train_utils.import_data(dataimport_cfg_path, data_dir_path, dict_usecase)
         data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
