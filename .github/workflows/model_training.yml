@@ -16,8 +16,8 @@ jobs:
     - name: Checkout repo with submodules
       uses: actions/checkout@v2
       with:        
+        token: ${{ secrets.PAT_SWILFLING }}
         submodules: recursive
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
     - name: Set up Python 3.9
       uses: actions/setup-python@v2
       with:
