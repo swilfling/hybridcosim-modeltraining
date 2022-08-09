@@ -76,7 +76,10 @@ def run_training_model(data, training_params=TrainingParams(), model_parameters=
                               model=model, feature_names=feature_names)
     # Select features + Grid Search
     best_params = best_estimator(model, x_train, y_train, parameters=model_parameters)
-    model.get_estimator().set_params(**best_params)
+    if isinstance(model, ExpandedModel):
+        model.get_estimator().set_params(**best_params)
+    else:
+        model.model.set_params(**best_params)
     # Train final model
     model.train(x_train, y_train)
     # Predict test data
