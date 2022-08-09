@@ -7,7 +7,7 @@ from ModelTraining.feature_engineering.featureengineering.transformers import Sq
 import ModelTraining.Data.DataImport.data_import as data_import
 import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
 import ModelTraining.Utilities.Plotting.plot_data as plt_utils
-from ModelTraining.feature_engineering.featureset import FeatureSet
+from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 import os
 from ModelTraining.datamodels.datamodels.processing.datascaler import Normalizer

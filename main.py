@@ -3,18 +3,17 @@ import logging
 import numpy as np
 import pathlib
 from sklearn.model_selection import TimeSeriesSplit
-from ModelTraining.feature_engineering.featureset import FeatureSet
+from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json
-from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded, TransformerParams
+from ModelTraining.Training.TrainingUtilities.parameters import TrainingParamsExpanded, TransformerParams
 from ModelTraining.Utilities import TrainingData
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Utilities.Plotting.plot_data as plt_utils
 from ModelTraining.Training.predict import predict_gt, predict_with_history
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils
-from ModelTraining.Data.DataImport import DataImport
 import ModelTraining.datamodels.datamodels.validation.metrics as metrics
 from ModelTraining.datamodels.datamodels import Model
-from ModelTraining.feature_engineering.expandedmodel import ExpandedModel, TransformerSet
+from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import ExpandedModel, TransformerSet
 from ModelTraining.datamodels.datamodels.processing import DataScaler
 
 
@@ -24,8 +23,8 @@ if __name__ == '__main__':
     usecase_config_path = os.path.join(hybridcosim_path,'ModelTraining', 'Configuration','UseCaseConfig')
     name = 'CPS-Data'
     dict_usecase = load_from_json(os.path.join(config_path,"UseCaseConfig", f"{name}.json"))
-    data_import = DataImport.load(os.path.join(config_path, "DataImport", f"{dict_usecase['dataset_filename']}.json"))
-    data = data_import.import_data(os.path.join(hybridcosim_path, dict_usecase['dataset_dir'], dict_usecase['dataset_filename']))
+    data_dir_path = "./Data"
+    data = train_utils.import_data(os.path.join(data_dir_path, "Configuration"), data_dir_path, dict_usecase)
     feature_set = FeatureSet(os.path.join("./", dict_usecase['fmu_interface']))
     # Get training and target features
     target_features = feature_set.get_output_feature_names()

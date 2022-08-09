@@ -4,7 +4,7 @@ from numpy.core.multiarray import asarray
 from sklearn.metrics import mean_absolute_error
 
 from .predict import predict_gt
-from ..feature_engineering.parameters import TrainingParams
+from ..Training.TrainingUtilities.parameters import TrainingParams
 from ..datamodels.datamodels.processing.datascaler import DataScaler
 from ..datamodels.datamodels import Model
 from ..Training.TrainingUtilities.training_utils import extract_training_and_test_set, split_into_training_and_test_set

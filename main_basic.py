@@ -4,14 +4,13 @@ from sklearn.pipeline import make_pipeline
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 from ModelTraining.feature_engineering.featureengineering.featurecreators import CyclicFeatures, CategoricalFeatures
 from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json
-import ModelTraining.datamodels.datamodels.validation.white_test
-from ModelTraining.feature_engineering.featureset import FeatureSet
+from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.datamodels.datamodels import Model
-from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
+from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import TransformerSet, ExpandedModel
 from ModelTraining.datamodels.datamodels.processing import DataScaler
 from ModelTraining.Training.GridSearch import best_pipeline
-from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded, TransformerParams
+from ModelTraining.Training.TrainingUtilities.parameters import TrainingParamsExpanded, TransformerParams
 from ModelTraining.Utilities import TrainingData
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport

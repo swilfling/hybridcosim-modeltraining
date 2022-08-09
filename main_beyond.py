@@ -4,14 +4,15 @@ import shutil
 from sklearn.pipeline import make_pipeline
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json
-from ModelTraining.feature_engineering.featureset import FeatureSet
+from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
-from ModelTraining.datamodels.datamodels import Model
+from ModelTraining.datamodels import datamodels as datamodels
+from ModelTraining.datamodels.datamodels.processing import datascaler as datascaler
 from ModelTraining.feature_engineering.featureengineering.featurecreators import CategoricalFeatures, CyclicFeatures
-from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
+from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import TransformerSet, ExpandedModel
 from ModelTraining.feature_engineering.featureengineering.featureselectors import FeatureSelector
-from ModelTraining.datamodels.datamodels.processing import DataScaler, Normalizer
-from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded, TransformerParams
+from ModelTraining.datamodels.datamodels.processing.datascaler import Normalizer
+from ModelTraining.Training.TrainingUtilities.parameters import TrainingParamsExpanded, TransformerParams
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc, MetricsVal
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
@@ -175,8 +176,8 @@ if __name__ == '__main__':
             # Create model
             logging.info(f"Training model with input of shape: {x_train.shape} "
                          f"and targets of shape {y_train.shape}")
-            model_basic = Model.from_name(training_params.model_type,
-                                          x_scaler_class=DataScaler.cls_from_name(training_params.normalizer),
+            model_basic = getattr(datamodels, training_params.model_type)(
+                                          x_scaler_class=getattr(datascaler,training_params.normalizer),
                                           name=training_params.str_target_feats(), parameters={})
             transformers = TransformerSet.from_list_params(training_params.transformer_params)
             model = ExpandedModel(transformers=transformers, model=model_basic, feature_names=feature_names)
@@ -190,7 +191,7 @@ if __name__ == '__main__':
             search = GridSearchCV(model.get_full_pipeline(), parameters, cv=5, scoring=gridsearch_scoring, refit='r2',
                                   verbose=4)
             # Transform x train
-            search.fit(*model.preprocess(x_train, y_train))
+            search.fit(*model.scale(x_train, y_train))
             print(f"Best score for model {model.__class__.__name__} - {model.model.__class__.__name__} is: {search.best_score_}")
             print(f"Best parameters are {search.best_params_}")
             for k, val in search.best_params_.items():

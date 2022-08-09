@@ -2,7 +2,7 @@ from math import ceil
 import pandas as pd
 import scipy.stats
 import numpy as np
-from ..featureengineering.interfaces import BasicTransformer
+from ModelTraining.feature_engineering.featureengineering.interfaces import BasicTransformer
 
 
 class StatisticalFeatures(BasicTransformer):
