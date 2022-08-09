@@ -5,6 +5,6 @@
     "dataset_filename":"Beyond_B12_full",
     "stat_feats": ["SGlobalH", "vWind", "humidity", "TAmbient"],
     "to_smoothe": ["SGlobalH", "vWind", "humidity", "rain","TAmbient", "B12Gas", "TB12LR", "lumB12LR"],
-    "stat_vals": ["tmin","tmax"],
+    "stat_vals": ["min","max"],
     "stat_ws": 24
 }
