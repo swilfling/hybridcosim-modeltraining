@@ -1,13 +1,13 @@
 import ModelTraining.Preprocessing.add_features as feat_utils
-from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded
+from ModelTraining.Training.TrainingUtilities.parameters import TrainingParamsExpanded
 from ModelTraining.Utilities import TrainingData
 from ModelTraining.feature_engineering.featureengineering.featureselectors import FeatureSelector
 from ModelTraining.feature_engineering.featureengineering.featureexpanders import FeatureExpansion
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json
-from ModelTraining.feature_engineering.featureset import FeatureSet
-from ModelTraining.feature_engineering.expandedmodel import ExpandedModel
+from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
+from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import ExpandedModel
 import os
 import argparse
 
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     metr_exp = MetricsCalc(metr_names=metrics_names)
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
-        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
+        feature_set = FeatureSet(os.path.join(root_dir,"Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         for params_name in params_names:
             result_exp = ResultExport(results_root=os.path.join(results_path, usecase_name, params_name),

@@ -3,11 +3,11 @@ from typing import List
 from .TrainingUtilities import training_utils as train_utils
 from .predict import predict_with_history
 from .GridSearch import best_estimator
-from ..feature_engineering.parameters import TrainingParams, TrainingParamsExpanded
+from ..Training.TrainingUtilities.parameters import TrainingParams, TrainingParamsExpanded
 from ..Utilities.trainingdata import TrainingData
 from ..datamodels.datamodels.processing import datascaler
 from ..datamodels import datamodels
-from ..feature_engineering.expandedmodel import ExpandedModel, TransformerSet
+from ..datamodels.datamodels.wrappers.expandedmodel import ExpandedModel, TransformerSet
 
 
 def run_training_and_test(data, list_training_parameters: List[TrainingParams], prediction_type="History", **kwargs):
@@ -76,7 +76,10 @@ def run_training_model(data, training_params=TrainingParams(), model_parameters=
                               model=model, feature_names=feature_names)
     # Select features + Grid Search
     best_params = best_estimator(model, x_train, y_train, parameters=model_parameters)
-    model.get_estimator().set_params(**best_params)
+    if isinstance(model, ExpandedModel):
+        model.get_estimator().set_params(**best_params)
+    else:
+        model.model.set_params(**best_params)
     # Train final model
     model.train(x_train, y_train)
     # Predict test data

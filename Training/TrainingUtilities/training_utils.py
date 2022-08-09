@@ -8,13 +8,13 @@ import copy
 from sklearn.model_selection import train_test_split
 
 from ...Utilities import feature_combination as fc
-from ...feature_engineering.parameters import TrainingParams, TrainingParamsExpanded
-from ...feature_engineering.expandedmodel import ExpandedModel
-from ModelTraining.feature_engineering.featureengineering.featureexpanders import PolynomialExpansion
-from ...datamodels.datamodels.processing.shape import split_into_target_segments
+from ...Training.TrainingUtilities.parameters import TrainingParams, TrainingParamsExpanded
+from ...datamodels.datamodels.wrappers.expandedmodel import ExpandedModel
+from ...feature_engineering.featureengineering.featureexpanders import PolynomialExpansion
+from ...datamodels.datamodels.processing.shape import get_windows
 from ...datamodels.datamodels import Model
 from ...Utilities.trainingdata import TrainingData
-from ModelTraining.Data.DataImport import DataImport
+from ...Data.DataImport.dataimport import DataImport
 
 
 ########################### Data import #################################################
@@ -130,11 +130,11 @@ def extract_training_and_test_set(data: pd.DataFrame, training_params: TrainingP
     """
     dynamic_feat_names = training_params.dynamic_input_features + training_params.dynamic_output_features
     dynamic_features = data[dynamic_feat_names].to_numpy()
-    dynamic_features, y = split_into_target_segments(
+    dynamic_features, y = get_windows(
         features=dynamic_features,
         targets=targets,
-        lookback_horizon=lookback_horizon,
-        prediction_horizon=prediction_horizon
+        lookback=lookback_horizon,
+        lookahead=prediction_horizon
     )
     dynamic_feat_names_lag = [f'{name}_{lag}' for lag in range(1,lookback_horizon+1) for name in dynamic_feat_names]
     dynamic_feature_names_full = dynamic_feat_names + dynamic_feat_names_lag

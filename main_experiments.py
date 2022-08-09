@@ -1,16 +1,15 @@
 #%%
 import ModelTraining.Preprocessing.add_features as feat_utils
-from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded
+from ModelTraining.Training.TrainingUtilities.parameters import TrainingParamsExpanded
 from ModelTraining.Utilities import TrainingData
 from ModelTraining.feature_engineering.featureengineering.featureselectors import FeatureSelector
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Training.run_training_and_test import run_training_model
-from ModelTraining.Data.DataImport import DataImport
 from ModelTraining.Utilities.MetricsExport import MetricsCalc, ResultExport, metr_utils
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils
 from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json
-from ModelTraining.feature_engineering.featureset import FeatureSet
-from ModelTraining.feature_engineering.expandedmodel import ExpandedModel
+from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
+from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import ExpandedModel
 from ModelTraining.feature_engineering.featureengineering.featureexpanders import FeatureExpansion
 import os
 import argparse
@@ -58,9 +57,10 @@ if __name__ == '__main__':
         usecase_name = dict_usecase['name']
         results_path_dataset = os.path.join(results_path, usecase_name)
         # Get data and feature set
-        data = train_utils.import_data(os.path.join(data_dir_path, "Configuration"), data_dir_path, dict_usecase)
+        dataimport_cfg_path = os.path.join(data_dir_path, "Configuration", "DataImport")
+        data = train_utils.import_data(dataimport_cfg_path, data_dir_path, dict_usecase)
         data = feat_utils.add_features_to_data(data, dict_usecase)
-        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
+        feature_set = FeatureSet(os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = dp_utils.preprocess_data(data, dict_usecase['dataset_filename'])
         # Main loop

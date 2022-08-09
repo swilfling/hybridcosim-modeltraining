@@ -1,6 +1,6 @@
 {
     "name":"Beyond_T24",
-    "fmu_interface":"Configuration/FMUInterface/Beyond/T24/FMUInterface_T24.csv",
+    "fmu_interface":"Beyond/T24/FMUInterface_T24.csv",
     "dataset_dir":"Beyond/T24/",
     "dataset_filename":"T24_full",
     "stat_feats": ["Text", "GHI"],

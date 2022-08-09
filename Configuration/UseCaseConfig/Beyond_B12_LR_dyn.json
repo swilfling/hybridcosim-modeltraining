@@ -1,11 +1,11 @@
 {
     "name":"Beyond_B12_LR",
-    "fmu_interface":"Configuration/FMUInterface/Beyond/B12/FMUInterface_B12_LR_dyn.csv",
+    "fmu_interface":"Beyond/B12/FMUInterface_B12_LR_dyn.csv",
     "dataset_dir":"Beyond/B12/",
     "dataset_filename":"Beyond_B12_full",
     "stat_feats": ["TAmbient", "SGlobalH", "vWind","B12Gas", "rain","humidity"],
     "to_smoothe": ["SGlobalH", "vWind", "humidity", "TAmbient", "B12Gas", "TB12LR", "lumB12LR"],
-    "stat_vals": ["tmean","tmin","tmax"],
+    "stat_vals": ["mean","min","max"],
     "stat_ws": 168,
     "onehot_feats": [
         "month",

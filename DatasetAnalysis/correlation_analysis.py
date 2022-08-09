@@ -2,11 +2,10 @@
 
 import ModelTraining.Preprocessing.add_features as feat_utils
 import ModelTraining.Training.TrainingUtilities.training_utils
-from ModelTraining.feature_engineering.featureset import FeatureSet
+from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
 import ModelTraining.Preprocessing.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils
-import ModelTraining.Data.DataImport.data_import as data_import
 import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
 import os
 from ModelTraining.datamodels.datamodels.processing.datascaler import Normalizer
@@ -16,7 +15,7 @@ if __name__ == '__main__':
     #%%
     root_dir = "../"
     data_dir = "../Data/"
-    dataimport_config_path = os.path.join(root_dir, "Data", "Configuration")
+    dataimport_config_path = os.path.join(root_dir, "Data", "Configuration","DataImport")
     # Added: Preprocessing - Smooth features
     config_path = os.path.join(root_dir, 'Configuration')
     list_usecases = ['CPS-Data', 'SensorA6', 'SensorB2', 'SensorC6', 'Solarhouse1','Solarhouse2']
@@ -38,7 +37,7 @@ if __name__ == '__main__':
         # Get data and feature set
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         #data = feat_utils.add_features_to_data(data, dict_usecase)
-        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
+        feature_set = FeatureSet(os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         # Data preprocessing
         data = dp_utils.preprocess_data(data,dict_usecase['dataset_filename'])
@@ -73,7 +72,8 @@ if __name__ == '__main__':
          # Get data and feature set
          data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
          data = feat_utils.add_features_to_data(data, dict_usecase)
-         feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
+         feature_set = FeatureSet(
+             os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
          feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
 
          data = data.astype('float')

@@ -1,10 +1,10 @@
 {
     "name":"Beyond_B20_Gas",
-    "fmu_interface":"Configuration/FMUInterface/Beyond/B20/FMUInterface_B20_Gas.csv",
+    "fmu_interface":"Beyond/B20/FMUInterface_B20_Gas.csv",
     "dataset_dir":"Beyond/B20/",
     "dataset_filename":"Beyond_B20_full",
     "stat_feats": ["SGlobalH", "vWind", "humidity", "TAmbient", "rain"],
     "to_smoothe": ["SGlobalH", "vWind", "humidity", "rain","TAmbient", "B20Gas", "TB20", "lumB20LR"],
-    "stat_vals": ["tmin","tmax"],
+    "stat_vals": ["min","max"],
     "stat_ws": 24
 }

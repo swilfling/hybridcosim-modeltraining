@@ -4,14 +4,13 @@ from sklearn.pipeline import make_pipeline
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 from ModelTraining.feature_engineering.featureengineering.featurecreators import CyclicFeatures, CategoricalFeatures
 from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json
-import ModelTraining.datamodels.datamodels.validation.white_test
-from ModelTraining.feature_engineering.featureset import FeatureSet
+from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
-from ModelTraining.datamodels.datamodels import Model
-from ModelTraining.feature_engineering.expandedmodel import TransformerSet, ExpandedModel
-from ModelTraining.datamodels.datamodels.processing import DataScaler
+from ModelTraining.datamodels import datamodels
+from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import TransformerSet, ExpandedModel
+from ModelTraining.datamodels.datamodels.processing import datascaler
 from ModelTraining.Training.GridSearch import best_pipeline
-from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded, TransformerParams
+from ModelTraining.Training.TrainingUtilities.parameters import TrainingParamsExpanded, TransformerParams
 from ModelTraining.Utilities import TrainingData
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
@@ -25,8 +24,9 @@ if __name__ == '__main__':
     result_dir = f"./results/{usecase_name}"
     os.makedirs(result_dir, exist_ok=True)
     dict_usecase = load_from_json(os.path.join(config_path, 'UseCaseConfig', f"{usecase_name}.json"))
-    data = train_utils.import_data(os.path.join(data_dir_path,"Configuration"),data_dir_path, dict_usecase)
-    feature_set = FeatureSet(os.path.join("./", dict_usecase['fmu_interface']))
+    dataimport_cfg_path = os.path.join(data_dir_path, "Configuration", "DataImport")
+    data = train_utils.import_data(dataimport_cfg_path, data_dir_path, dict_usecase)
+    feature_set = FeatureSet(os.path.join("Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
     #data = data[15000:21000]
 
     # Added: Preprocessing - Smooth features
@@ -77,14 +77,14 @@ if __name__ == '__main__':
     y = data[training_params.target_features]
     feature_names = training_params.static_input_features + training_params.dynamic_input_features
 
-    index_train, x_train, y_train, index_test, x_test, y_test = ModelTraining.Training.TrainingUtilities.training_utils.split_into_training_and_test_set(
+    index_train, x_train, y_train, index_test, x_test, y_test = train_utils.split_into_training_and_test_set(
         index, x, y, training_params.training_split)
 
 
     # Create model
     logging.info(f"Training model with input of shape: {x_train.shape} and targets of shape {y_train.shape}")
-    model_basic = Model.from_name(training_params.model_type,
-                                  x_scaler_class=DataScaler.cls_from_name(training_params.normalizer),
+    model_basic = getattr(datamodels, training_params.model_type)(
+                                  x_scaler_class=getattr(datascaler,training_params.normalizer),
                                   name=training_params.str_target_feats(), parameters={})
 
     transformers = TransformerSet.from_list_params(training_params.transformer_params)
