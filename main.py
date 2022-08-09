@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     # Added: Preprocessing - Smooth features
     smoothe_data = False
-    data = dp_utils.preprocess_data(data, dict_usecase["to_smoothe"],dict_usecase['dataset_filename'], do_smoothe=smoothe_data)
+    data = dp_utils.preprocess_data(data, dict_usecase["dataset_filename"])
 
     print("Starting Training")
 

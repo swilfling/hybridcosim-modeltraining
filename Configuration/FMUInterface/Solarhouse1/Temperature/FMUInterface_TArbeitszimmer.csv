@@ -1,6 +1,0 @@
-SolarCollector;;;;;;
-Name;In_Out;Init;Stat_Dyn;Predictions;Type;Description
-TAussen;input;25;dynamic;TArbeitszimmer;Real;
-SGlobal;input;25;dynamic;TArbeitszimmer;Real;
-TArbeitszimmer;output;26;static;TArbeitszimmer;Real;
-TArbeitszimmer_start;parameter;25;;;Real;
