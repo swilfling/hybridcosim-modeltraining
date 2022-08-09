@@ -1,7 +1,7 @@
 #%%
 
 import ModelTraining.Preprocessing.add_features as feat_utils
-from ModelTraining.feature_engineering.featureset import FeatureSet
+from DataImport.featureset import FeatureSet
 from ModelTraining.dataimport import DataImport
 import ModelTraining.Preprocessing.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils

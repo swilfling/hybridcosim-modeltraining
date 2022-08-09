@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import pathlib
 from sklearn.model_selection import TimeSeriesSplit
-from ModelTraining.feature_engineering.featureset import FeatureSet
+from DataImport.featureset import FeatureSet
 from ModelTraining.dataimport.data_import import load_from_json
 from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded, TransformerParams
 from ModelTraining.Utilities import TrainingData

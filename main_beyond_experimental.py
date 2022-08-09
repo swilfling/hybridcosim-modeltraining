@@ -30,6 +30,7 @@ if __name__ == '__main__':
 
     model_type = "RidgeRegression"
     model_types = [model_type]
+    #model_types = ['RidgeRegression', 'RandomForestRegression']
 
     # Get main config
     usecase_config_file = os.path.join(config_path, 'UseCaseConfig', f"{usecase_name}.json")
@@ -56,6 +57,8 @@ if __name__ == '__main__':
 
     transformer_name = transformer_type.lower()
     transf_params = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
+    transf_params = [0.01, 0.1, 0.2, 0.3,0.45, 0.5]
+    transf_params = [0.45]
     thresh_params = {f"{transformer_name}__thresh": transf_params}
 
     gridsearch_scoring = ['r2', 'neg_mean_squared_error', 'neg_mean_absolute_error']
@@ -87,20 +90,42 @@ if __name__ == '__main__':
     target_data = data[training_params.target_features]
     target_data = Normalizer().fit(target_data).transform(target_data)
 
+    #highpass = ButterworthFilter(filter_type='highpass', T=np.array([24]), order=3, remove_offset=True)
+    #lowpass = ButterworthFilter(filter_type='lowpass', T=np.array([5]), order=2, remove_offset=True)
+    #target_data = pd.DataFrame(data=lowpass.fit_transform(target_data[training_params.target_features[0]]),
+    #                           index=target_data.index)
+    #env = Envelope_MA(T=24*7)
+    #target_data = env.fit_transform(target_data)
+    #data_full = training_data = training_data.join(target_data).dropna()
+    #training_data = data_full[training_params.static_input_features + training_params.dynamic_input_features]
+    #target_data = data_full[training_params.target_features]
+
     lookbacks = [2,4,8,12,24]
     gridsearch_params['RidgeRegression'] = {'alpha': [10,20,50,100,200,500,1000]}
 
+    #gridsearch_params['RidgeRegression'] = {'alpha': [10000]}
+#    gridsearch_params['RidgeRegression'] = {'alpha': [10]}
     gridsearch_params['RandomForestRegression'] = {}
     gridsearch_params['LassoRegression'] = {}
+    #thresh_params[f'{transformer_name}__thresh'] = [0.05,0.1,0.15,0.2]
+    #thresh_params[f'{transformer_name}__thresh'] = [0]
+    model_types = ['RidgeRegression','RandomForestRegression']
+    model_types = ['RidgeRegression','LassoRegression']
     metr_exp = MetricsCalc()
 
     for lookback_horizon in lookbacks:
         training_params.lookback_horizon = lookback_horizon
         metr_label = str(lookback_horizon)
 
+        # Extract data and reshape
+        #micthresh = MICThreshold(thresh=0.005, omit_zero_samples=False)
+        #training_data_thresh = micthresh.fit_transform(training_data, target_data)
+        #feat_names_thresh = micthresh.get_feature_names_out(training_data.columns)
+        training_data_thresh = training_data
+        feat_names_thresh = training_data.columns
+
         tr = Transformer_MaskFeats(**inv_params.params)
-        training_data_thresh = tr.fit_transform(training_data)
-        feat_names_thresh = tr.get_feature_names_out(training_data.columns)
+        training_data_thresh = tr.fit_transform(training_data_thresh)
 
         if len(training_params.dynamic_input_features) > 0:
             dynfeats = DynamicFeaturesSampleCut(
@@ -116,12 +141,17 @@ if __name__ == '__main__':
         for model_type in model_types:
             result_dir_model = os.path.join(result_dir, f"{model_type}_{lookback_horizon}")
             os.makedirs(result_dir_model)
-
-            # TrainingData structure
+            # structure
             train_data = train_utils.create_train_data(index, x, y, training_params.training_split)
             x_train, y_train = train_data.train_input, train_data.train_target
             train_data.target_feat_names = training_params.target_features
 
+           # from ModelTraining.feature_engineering.featureengineering.sampleweight import SampleWeight_DBSCAN
+          #  sampleweight = SampleWeight_DBSCAN(weight_outlier_samples=0.8, weight_core_samples=1)
+          #  sampleweight.fit(x_train, y_train)
+          #  additional_params = {'sample_weight': sampleweight.weights_}
+          #  print(sampleweight.get_num_core_samples())
+          #  print(x_train.shape[0])
            # Create model
             logging.info(f"Training model with input of shape: {x_train.shape} "
                          f"and targets of shape {y_train.shape}")
@@ -134,6 +164,9 @@ if __name__ == '__main__':
             parameters = thresh_params.copy()
             for name, vals in gridsearch_params[training_params.model_type].items():
                 parameters.update({f"{model.model.model.__class__.__name__.lower()}__{name}": vals})
+            import json
+            with open(os.path.join(result_dir, f'gridsearch_params_{model_type}.json'), "w") as f:
+                json.dump(gridsearch_params, f)
             search = GridSearchCV(model.get_full_pipeline(), parameters, cv=5, scoring=gridsearch_scoring, refit='r2',
                                   verbose=4)
             # Transform x train

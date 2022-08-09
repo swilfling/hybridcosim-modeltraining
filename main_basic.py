@@ -4,7 +4,7 @@ from sklearn.pipeline import make_pipeline
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 from ModelTraining.feature_engineering.featureengineering.featurecreators import CyclicFeatures, CategoricalFeatures
 from ModelTraining.dataimport.data_import import DataImport, load_from_json
-from ModelTraining.feature_engineering.featureset import FeatureSet
+from DataImport.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.datamodels import datamodels
 from ModelTraining.datamodels.datamodels.processing import datascaler

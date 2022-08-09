@@ -9,7 +9,7 @@ from ModelTraining.dataimport import DataImport
 from ModelTraining.Utilities.MetricsExport import MetricsCalc, ResultExport, metr_utils
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils
 from ModelTraining.dataimport.data_import import load_from_json
-from ModelTraining.feature_engineering.featureset import FeatureSet
+from DataImport.featureset import FeatureSet
 from ModelTraining.feature_engineering.expandedmodel import ExpandedModel
 from ModelTraining.feature_engineering.featureengineering.featureexpanders import FeatureExpansion
 import os

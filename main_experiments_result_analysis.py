@@ -6,7 +6,7 @@ from ModelTraining.feature_engineering.featureengineering.featureexpanders impor
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport
 from ModelTraining.dataimport.data_import import load_from_json
-from ModelTraining.feature_engineering.featureset import FeatureSet
+from DataImport.featureset import FeatureSet
 from ModelTraining.feature_engineering.expandedmodel import ExpandedModel
 import os
 import argparse
