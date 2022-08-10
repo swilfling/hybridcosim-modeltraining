@@ -1,0 +1,165 @@
+[
+  {
+    "Parameters": {
+      "params": {
+        "transformer_type": "StatisticalFeaturesNumpy",
+        "transformer_params": {
+          "statistical_features": [
+            "mean",
+            "min",
+            "max"
+          ],
+          "window_size": 24
+        },
+        "mask_type": "MaskFeats_Addition",
+        "mask_params": {
+          "features_to_transform": [
+            "TAmbient",
+            "SGlobalH",
+            "vWind",
+            "B20Gas",
+            "rain",
+            "humidity"
+          ]
+        }
+      },
+      "type": "Transformer_MaskFeats"
+    },
+    "Type": "TransformerParams"
+  },
+  {
+    "Parameters": {
+      "type": "Transformer_MaskFeats",
+      "params": {
+        "transformer_type": "StatisticalFeaturesNumpy",
+        "transformer_params": {
+          "statistical_features": [
+            "mean",
+            "min",
+            "max"
+          ],
+          "window_size": 168
+        },
+        "mask_type": "MaskFeats_Addition",
+        "mask_params": {
+          "features_to_transform": [
+            "TAmbient",
+            "SGlobalH",
+            "vWind",
+            "B20Gas",
+            "rain",
+            "humidity"
+          ]
+        }
+      }
+    },
+    "Type": "TransformerParams"
+  },
+  {
+    "Parameters": {
+      "type": "Transformer_MaskFeats",
+      "params": {
+        "transformer_type": "StatisticalFeaturesNumpy",
+        "transformer_params": {
+          "statistical_features": [
+            "mean",
+            "min",
+            "max"
+          ],
+          "window_size": 720
+        },
+        "mask_type": "MaskFeats_Addition",
+        "mask_params": {
+          "features_to_transform": [
+            "TAmbient",
+            "SGlobalH",
+            "vWind",
+            "B20Gas",
+            "rain",
+            "humidity"
+          ]
+        }
+      }
+    },
+    "Type": "TransformerParams"
+  },
+  {
+    "Parameters": {
+      "type": "CyclicFeatures",
+      "params": {
+        "selected_feats": [
+          "hour"
+        ]
+      }
+    },
+    "Type": "TransformerParams"
+  },
+  {
+    "Parameters": {
+      "type": "CategoricalFeatures",
+      "params": {
+        "selected_feats": [
+          "month",
+          "hour"
+        ]
+      }
+    },
+    "Type": "TransformerParams"
+  },
+
+  {
+    "Parameters": {
+      "type": "Transformer_MaskFeats",
+      "params": {
+        "transformer_type": "InverseTransform",
+        "mask_type": "MaskFeats_Inplace",
+        "mask_params": {
+          "features_to_transform": [
+            "vWind",
+            "rain",
+            "B20Gas",
+            "humidity"
+          ],
+          "rename_df_cols": false
+        }
+      }
+    },
+    "Type": "TransformerParams"
+  },
+  {
+    "Parameters": {
+      "type": "Transformer_MaskFeats",
+      "params": {
+        "transformer_type": "DynamicFeatures",
+        "transformer_params": {
+          "flatten_dynamic_feats": true,
+          "lookback_horizon": 2
+        },
+        "mask_type": "MaskFeats_Expanded",
+        "mask_params": {
+          "features_to_transform": [
+            "TAmbient",
+            "SGlobalH",
+            "lumB20LR"
+          ]
+        }
+      }
+    },
+    "Type": "TransformerParams"
+  },
+  {
+    "Parameters": {
+      "type": "PolynomialExpansion",
+      "params": {
+        "interaction_only": true,
+        "include_bias": false,
+        "degree": 2
+      }
+    },
+    "Type": "TransformerParams"
+  },
+  {
+    "Parameters": {
+      "type": "SelectorByName"},
+    "Type": "TransformerParams"
+  }]
