@@ -141,9 +141,7 @@ class MetricsCalc:
             df_featsel = pd.DataFrame(data=sel_metrs.values(), index=sel_metrs.keys()).transpose()
             df_featsel = df_featsel[self.metr_names['FeatureSelect']].add_suffix(f'_{selector_name}_{model_name}_FeatureSelect')
             df_featsel_full = df_featsel if df_featsel_full.empty else df_featsel_full.join(df_featsel)
-        df_featsel_full.index = [model.__class__.__name__]
-        if df_index is not None:
-            df_featsel_full.index = df_index
+        df_featsel_full.index = [model.model.model_type] if df_index is not None else df_index
         return df_featsel_full
 
     ############################################# Store metrics ########################################################
@@ -177,7 +175,7 @@ class MetricsCalc:
         @param results_path: result dir - optional argument
         @param timestamp: timestamp of experiment
         """
-        df_metrs = self.metr_vals.create_df_metrics("",index_col=index_col)
+        df_metrs = self.metr_vals.create_df_metrics("", index_col=index_col)
         df_metrs.to_csv(os.path.join(results_path, f'AllMetrics_full_{timestamp}.csv'),index_label='Model', float_format=self.df_float_fmt)
 
         # Get subsets

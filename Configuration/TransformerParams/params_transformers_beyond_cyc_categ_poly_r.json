@@ -1,0 +1,44 @@
+[
+  {
+    "Parameters": {
+      "type": "CyclicFeatures",
+      "params": {
+        "selected_feats": [
+          "hour"
+        ]
+      }
+    },
+    "Type": "TransformerParams"
+  },
+  {
+    "Parameters": {
+      "type": "CategoricalFeatures",
+      "params": {
+        "selected_feats": [
+          "month"
+        ]
+      }
+    },
+    "Type": "TransformerParams"
+  },
+  {
+    "Parameters": {
+      "type": "PolynomialExpansion",
+      "params": {
+        "interaction_only": true,
+        "include_bias": false,
+        "degree": 2
+      }
+    },
+    "Type": "TransformerParams"
+  },
+  {
+    "Parameters": {
+      "type": "RThreshold",
+      "params": {
+        "thresh": 0.05,
+        "omit_zero_samples": true
+      }
+    },
+    "Type": "TransformerParams"
+  }]

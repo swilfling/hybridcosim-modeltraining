@@ -20,6 +20,7 @@ class ResultExport:
     tseries_dir = 'Timeseries'
     featsel_dir = 'FeatureSelection'
     property_dir = 'ModelProperties'
+    float_fmt = "%.3f"
 
     def __init__(self, results_root="./", plot_enabled=False, **kwargs):
         self.plot_enabled = plot_enabled
@@ -59,7 +60,7 @@ class ResultExport:
         @param title: title for output files
         """
         model_name = f'{model.name}_{model.transformers.type_last_transf()}'
-        model_name_full = f'{model.model.__class__.__name__}_{model_name}'
+        model_name_full = f'{model.model.model_type}_{model_name}'
         self.export_featsel_metrs(model, title)
         self.export_model_properties(model, title)
         self.export_result(result, f'{model_name_full}_{title}')
@@ -76,7 +77,7 @@ class ResultExport:
         @param ylabel: ylabel for plotting
         """
         df = pd.DataFrame(data=coeffs.T, index=feature_names)
-        df.to_csv(os.path.join(dir, f'Coefficients_{title}.csv'), float_format='%.2f', index_label='Feature')
+        df.to_csv(os.path.join(dir, f'Coefficients_{title}.csv'), float_format=self.float_fmt, index_label='Feature')
         if self.plot_enabled:
             for col in df.columns:
                 plt_utils.barplot(df[col], dir, filename=f'Coefficients_{title}', fig_title=f"Coefficients - {title}",
@@ -119,7 +120,7 @@ class ResultExport:
                                     os.path.join(property_dir, f'Program_{title_full}.json'))
         if isinstance(regressor, RuleFitRegression):
             regressor.get_rules().to_csv(os.path.join(property_dir, f'Rules_{title_full}.csv'),
-                                                float_format="%.2f", index_label='Rule')
+                                                float_format=self.float_fmt, index_label='Rule')
 
     def export_result(self, result: TrainingData, title="", show_fig=True):
         """
