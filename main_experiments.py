@@ -73,10 +73,9 @@ if __name__ == '__main__':
                         model, result = run_training_model(data, training_params, model_parameters=parameters_full[model_type],
                                                          prediction_type='ground truth')
                         # Save models
-                        model_dir = f"{training_params.model_name}/{training_params.model_type}_{training_params.str_expansion(range=[2,-1])}"
-                        os.makedirs(model_dir, exist_ok=True)
-                        train_utils.save_model_and_params(model, training_params,
-                                                          os.path.join(results_path_thresh, "Models", model_dir))
+                        model_dir = os.path.join(f"{training_params.model_name}",f"{training_params.model_type}_{training_params.str_expansion(range=[2,-1])}")
+                        result_main_dir = os.path.join(results_path_thresh, "Models", model_dir)
+                        train_utils.save_model_and_params(model, training_params, result_main_dir)
                         result.save_pkl(results_path_thresh, f'results_{model_type}_{training_params.str_target_feats()}_{training_params.str_expansion()}.pkl')
     print('Experiments finished')
 
