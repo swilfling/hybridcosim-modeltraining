@@ -1,1 +1,21 @@
-{"Type": "TrainingParamsExpanded", "Parameters": {"model_type": "LinearRegression", "model_name": "", "static_input_features": [], "dynamic_input_features": [], "target_features": [], "lookback_horizon": 4, "prediction_horizon": 1, "training_split": 0.8, "flatten_dynamic_input_features": true, "normalizer": "Normalizer", "epochs": 0, "dynamic_output_features": [], "transformer_params": [{"type": "MICThreshold", "params": {"thresh": 0.05}}, {"type": "IdentityExpander", "params": {}}, {"type": "RThreshold", "params": {"thresh": 0.05}}]}}
+{
+  "Type": "TrainingParamsExpanded",
+  "Parameters": {
+    "model_type": "LinearRegression",
+    "model_name": "",
+    "static_input_features": [],
+    "dynamic_input_features": [],
+    "target_features": [],
+    "lookback_horizon": 4,
+    "prediction_horizon": 1,
+    "training_split": 0.8,
+    "flatten_dynamic_input_features": true,
+    "normalizer": "Normalizer",
+    "epochs": 0,
+    "dynamic_output_features": [],
+    "transformer_params": [
+      {"type": "CyclicFeatures", "params": {"selected_feats": []}},
+      {"type": "CategoricalFeatures", "params": {"selected_feats": []}},
+      {"type": "MICThreshold", "params": {"thresh": 0.05}},
+      {"type": "IdentityExpander", "params": {}},
+      {"type": "RThreshold", "params": {"thresh": 0.05}}]}}

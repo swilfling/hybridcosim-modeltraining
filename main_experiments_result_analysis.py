@@ -1,5 +1,4 @@
-import ModelTraining.Preprocessing.add_features as feat_utils
-from ModelTraining.Training.TrainingUtilities.parameters import TrainingParamsExpanded
+from ModelTraining.Training.TrainingUtilities.trainingparams_expanded import TrainingParamsExpanded
 from ModelTraining.Utilities import TrainingData
 from ModelTraining.feature_engineering.featureengineering.featureselectors import FeatureSelector
 from ModelTraining.feature_engineering.featureengineering.featureexpanders import FeatureExpansion
@@ -14,7 +13,7 @@ import argparse
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--usecase_names", type=str, default='CPS-Data,SensorA6,SensorB2,SensorC6,Solarhouse1,Solarhouse2')
-    parser.add_argument("--model_types", type=str, default='RidgeRegression,LassoRegression,WeightedLS,PLSRegression,RandomForestRegression,RuleFitRegression')
+    parser.add_argument("--model_types", type=str, default='RidgeRegression,LassoRegression,WeightedLS,PLSRegression,RandomForestRegression')
     args = parser.parse_args()
     model_types = model_names = args.model_types.split(",")
     list_usecases = args.usecase_names.split(",")
@@ -40,12 +39,12 @@ if __name__ == "__main__":
 
 
     # Results output
-    timestamp = "Experiment_20220615_120631"
+    timestamp = "Experiment_20220809_154052"
     results_path = os.path.join(root_dir, 'results', timestamp)
     os.makedirs(results_path, exist_ok=True)
     metrics_path = os.path.join(root_dir, 'results', timestamp, 'Metrics')
     os.makedirs(metrics_path, exist_ok=True)
-    metrics_names = {'FeatureSelect': ['selected_features', 'all_features'], 'Metrics': ['R2_SKLEARN', 'CV-RMS', 'MAPE', 'RA_SKLEARN'], 'pvalues': ['pvalue_lm', 'pvalue_f']}
+    metrics_names = {'FeatureSelect': ['selected_features', 'all_features'], 'Metrics': ['rsquared', 'cvrmse', 'mape'], 'pvalues': ['pvalue_lm', 'pvalue_f']}
 
 # %%
     print('Analyzing results')
@@ -53,7 +52,6 @@ if __name__ == "__main__":
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
         feature_set = FeatureSet(os.path.join(root_dir,"Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
-        feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         for params_name in params_names:
             result_exp = ResultExport(results_root=os.path.join(results_path, usecase_name, params_name),
                                       plot_enabled=True)

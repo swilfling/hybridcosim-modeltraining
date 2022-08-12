@@ -1,6 +1,5 @@
 #%%
-import ModelTraining.Preprocessing.add_features as feat_utils
-from ModelTraining.Training.TrainingUtilities.parameters import TrainingParamsExpanded
+from ModelTraining.Training.TrainingUtilities.trainingparams_expanded import TrainingParamsExpanded
 from ModelTraining.Utilities import TrainingData
 from ModelTraining.feature_engineering.featureengineering.featureselectors import FeatureSelector
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
@@ -9,7 +8,7 @@ from ModelTraining.Utilities.MetricsExport import MetricsCalc, ResultExport, met
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils
 from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json
 from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
-from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import ExpandedModel
+from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import ExpandedModel, TransformerParams
 from ModelTraining.feature_engineering.featureengineering.featureexpanders import FeatureExpansion
 import os
 import argparse
@@ -18,7 +17,7 @@ import argparse
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("--usecase_names", type=str, default='CPS-Data,SensorA6,SensorB2,SensorC6,Solarhouse1,Solarhouse2')
-    parser.add_argument("--model_types", type=str, default='RidgeRegression,LassoRegression,WeightedLS,PLSRegression,RandomForestRegression,RuleFitRegression')
+    parser.add_argument("--model_types", type=str, default='RidgeRegression,LassoRegression,WeightedLS,PLSRegression,RandomForestRegression')
     args = parser.parse_args()
     model_types = model_names = args.model_types.split(",")
     list_usecases = args.usecase_names.split(",")
@@ -59,24 +58,24 @@ if __name__ == '__main__':
         # Get data and feature set
         dataimport_cfg_path = os.path.join(data_dir_path, "Configuration", "DataImport")
         data = train_utils.import_data(dataimport_cfg_path, data_dir_path, dict_usecase)
-        data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
-        feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = dp_utils.preprocess_data(data, dict_usecase['dataset_filename'])
         # Main loop
         for params_name in params_names:
             os.makedirs(os.path.join(results_path, dict_usecase['name'], params_name), exist_ok=True)
             results_path_thresh = os.path.join(results_path_dataset, params_name)
             for training_params_cfg in list_train_params:
+                if isinstance(training_params_cfg, TrainingParamsExpanded):
+                    train_utils.set_train_params_transformers(training_params_cfg, dict_usecase)
                 for model_type in model_types:
                     for feature in feature_set.get_output_feature_names():
                         training_params = train_utils.set_train_params_model(training_params_cfg, feature_set, feature, model_type)
                         model, result = run_training_model(data, training_params, model_parameters=parameters_full[model_type],
                                                          prediction_type='ground truth')
                         # Save models
-                        model_dir = f"{training_params.model_name}/{training_params.model_type}_{training_params.str_expansion()}"
-                        train_utils.save_model_and_params(model, training_params,
-                                                          os.path.join(results_path_thresh, "Models", model_dir))
+                        model_dir = os.path.join(f"{training_params.model_name}",f"{training_params.model_type}_{training_params.str_expansion(range=[2,-1])}")
+                        result_main_dir = os.path.join(results_path_thresh, "Models", model_dir)
+                        train_utils.save_model_and_params(model, training_params, result_main_dir)
                         result.save_pkl(results_path_thresh, f'results_{model_type}_{training_params.str_target_feats()}_{training_params.str_expansion()}.pkl')
     print('Experiments finished')
 
@@ -85,8 +84,8 @@ if __name__ == '__main__':
     metr_exp = MetricsCalc(metr_names=metrics_names)
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
-        feature_set = FeatureSet(os.path.join(root_dir, dict_usecase['fmu_interface']))
-        feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
+        feature_set = FeatureSet(
+            os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
         for params_name in params_names:
             result_exp = ResultExport(results_root=os.path.join(results_path, usecase_name, params_name),
                                       plot_enabled=True)
@@ -95,7 +94,7 @@ if __name__ == '__main__':
                     for feat in feature_set.get_output_feature_names():
                         # Load results
                         result = TrainingData.load_pkl(result_exp.results_root,
-                                                          f'results_{model_type}_{feat}_{training_params.str_expansion()}.pkl') # TODO fix this
+                                                          f'results_{model_type}_{feat}_{training_params.str_expansion(range=[2,-1])}.pkl') # TODO fix this
                         model_dir = os.path.join(result_exp.results_root,
                                                  f'Models/{feat}/{model_type}_{training_params.str_expansion()}/{feat}')
                         model = ExpandedModel.load_pkl(model_dir, "expanded_model.pkl")

@@ -3,8 +3,8 @@ from typing import List
 from .TrainingUtilities import training_utils as train_utils
 from .predict import predict_with_history
 from .GridSearch import best_estimator
-from ..Training.TrainingUtilities.parameters import TrainingParams, TrainingParamsExpanded
-from ..Utilities.trainingdata import TrainingData
+from ..Training.TrainingUtilities.parameters import TrainingParams
+from ..Training.TrainingUtilities.trainingparams_expanded import TrainingParamsExpanded
 from ..datamodels.datamodels.processing import datascaler
 from ..datamodels import datamodels
 from ..datamodels.datamodels.wrappers.expandedmodel import ExpandedModel, TransformerSet
@@ -60,10 +60,11 @@ def run_training_model(data, training_params=TrainingParams(), model_parameters=
         Returns:
             @return model, prediction result: model, Training results
         """
-    index, x, y, feature_names = train_utils.extract_training_and_test_set(data, training_params)
-    index_train, x_train, y_train, index_test, x_test, y_test = train_utils.split_into_training_and_test_set(
-        index, x, y, training_params.training_split)
-
+    create_df = True if isinstance(training_params, TrainingParamsExpanded) else False
+    index, x, y, feature_names = train_utils.extract_training_and_test_set(data, training_params,create_df=create_df)
+    train_data = train_utils.create_train_data(index, x, y, training_split=training_params.training_split)
+    index_train, x_train, y_train = train_data.train_index, train_data.train_input, train_data.train_target
+    index_test, x_test, y_test = train_data.test_index, train_data.test_input, train_data.test_target
     # Create model
     logging.info(f"Training model with input of shape: {x_train.shape} and targets of shape {y_train.shape}")
     model = getattr(datamodels, training_params.model_type)(
@@ -85,11 +86,6 @@ def run_training_model(data, training_params=TrainingParams(), model_parameters=
     # Predict test data
     y_pred = predict_with_history(model, index_test, x_test, y_test, training_params) \
         if prediction_type == 'History' else model.predict(x_test)
-    result = TrainingData(train_index=index_train,
-                          train_target=y_train,
-                          test_index=index_test,
-                          test_target=y_test,
-                          test_prediction=y_pred,
-                          test_input=x_test,
-                          target_feat_names=training_params.target_features)
-    return model, result
+
+    train_data.test_prediction = y_pred
+    return model, train_data

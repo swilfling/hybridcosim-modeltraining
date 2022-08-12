@@ -1,4 +1,4 @@
-from ModelTraining.dataimport import DataImport
+from ModelTraining.Data.DataImport.dataimport import DataImport
 from ModelTraining.feature_engineering.featureengineering.filters import ButterworthFilter, Filter
 from ModelTraining.feature_engineering.featureengineering.compositetransformers import Transformer_MaskFeats
 from sklearn.compose import ColumnTransformer
@@ -65,8 +65,8 @@ if __name__ == "__main__":
     test_store_load_filter()
     test_store_load_filter_baseclass()
 
-    data = DataImport.load("../Configuration/DataImport/Resampled15min.json").import_data(
-        "../../Data/AEE/Resampled15min")
+    data = DataImport.load("../Data/Configuration/DataImport/AEE/Solarhouse1/Resampled15min.json").import_data(
+        "../Data/Data/AEE/Solarhouse1/Resampled15min")
     filter_4 = Transformer_MaskFeats(features_to_transform=[True, False, False, False], transformer_type='ButterworthFilter', transformer_params={'T':20})
     filter_4.fit(data[['TSolarVL', 'TSolarRL', 'VDSolar', 'SGlobal']])
     data_tr = filter_4.transform(data[['TSolarVL', 'TSolarRL', 'VDSolar', 'SGlobal']])

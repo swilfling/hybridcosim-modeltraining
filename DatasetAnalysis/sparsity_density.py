@@ -1,12 +1,11 @@
 #%%
 
-import ModelTraining.Preprocessing.add_features as feat_utils
 import ModelTraining.Training.TrainingUtilities.training_utils
 from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
-import ModelTraining.Preprocessing.data_analysis as data_analysis
+import ModelTraining.DatasetAnalysis.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Data.DataImport.dataimport import DataImport
-import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
+import ModelTraining.Data.Plotting.plot_distributions as plt_dist
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 import os
 import numpy as np
@@ -42,10 +41,8 @@ if __name__ == '__main__':
         usecase_name = dict_usecase['name']
         # Get data and feature set
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
-        data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(
             os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
-        feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
         data = dp_utils.preprocess_data(data, dict_usecase['dataset_filename'])
@@ -60,7 +57,7 @@ if __name__ == '__main__':
         cur_data = cur_data.dropna(axis=0)
         if usecase_name == "Solarhouse1":
             cur_data['SGlobal'][cur_data['SGlobal'] < 30] = 0
-        sparsity = np.array([data_analysis.calc_sparsity_abs(cur_data[feature])for feature in features_for_corrmatrix])
+        sparsity = np.array([data_analysis.calc_sparsity_abs(cur_data[feature]) for feature in features_for_corrmatrix])
         df_sparsity = pd.DataFrame(data=[sparsity], columns=features_for_corrmatrix, index=[usecase_name])
         df_sparsity.to_csv(os.path.join(sparsity_dir, f"Sparsity_{usecase_name}.csv"), float_format="%.2f",
                            index_label="Dataset")
@@ -95,7 +92,6 @@ if __name__ == '__main__':
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         feature_set = FeatureSet(
             os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
-        feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
         data = dp_utils.preprocess_data(data, dict_usecase['dataset_filename'])
@@ -136,10 +132,8 @@ if __name__ == '__main__':
         os.makedirs(density_dir_usecase, exist_ok=True)
         # Get data and feature set
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
-        data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(
             os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
-        feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
         data = dp_utils.preprocess_data(data, dict_usecase['dataset_filename'])
@@ -176,10 +170,8 @@ if __name__ == '__main__':
         usecase_name = dict_usecase['name']
         # Get data and feature set
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
-        data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(
             os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
-        feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         data = dp_utils.preprocess_data(data, dict_usecase['dataset_filename'])
         features_for_corrmatrix = [feature.name for feature in feature_set.get_input_feats() if

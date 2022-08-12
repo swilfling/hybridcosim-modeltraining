@@ -8,14 +8,17 @@ import copy
 from sklearn.model_selection import train_test_split
 
 from ...Utilities import feature_combination as fc
-from ...Training.TrainingUtilities.parameters import TrainingParams, TrainingParamsExpanded
+from ...Training.TrainingUtilities.parameters import TrainingParams
+from ...Training.TrainingUtilities.trainingparams_expanded import TrainingParamsExpanded
 from ...datamodels.datamodels.wrappers.expandedmodel import ExpandedModel
 from ...feature_engineering.featureengineering.featureexpanders import PolynomialExpansion
 from ...datamodels.datamodels.processing.shape import get_windows
 from ...datamodels.datamodels import Model
 from ...Utilities.trainingdata import TrainingData
 from ...Data.DataImport.dataimport import DataImport
-
+from ...Utilities.MetricsExport import ResultExport, MetricsVal, MetricsCalc
+from ...feature_engineering.featureengineering.featureselectors import FeatureSelector
+from ...datamodels.datamodels.wrappers.expandedmodel import TransformerParams
 
 ########################### Data import #################################################
 
@@ -44,6 +47,12 @@ def save_model_and_params(model, training_params: TrainingParams, results_main_d
     if isinstance(model, ExpandedModel):
         model.save_pkl(model_dir, "expanded_model.pkl")
     training_params.to_file(os.path.join(model_dir, f"parameters_{training_params.model_name}.json"))
+
+def set_train_params_transformers(training_params, dict_usecase):
+    cfg_cat_feats = TransformerParams.get_params_of_type(training_params.transformer_params, "CategoricalFeatures")[0]
+    cfg_cyc_feats = TransformerParams.get_params_of_type(training_params.transformer_params, "CyclicFeatures")[0]
+    cfg_cat_feats.params['selected_feats'] = dict_usecase['onehot_feats']
+    cfg_cyc_feats.params['selected_feats'] = dict_usecase['cyclical_feats']
 
 
 def set_train_params_model(training_params_basic_config, feature_set, target_feature, model_type, transformer_params=None):
@@ -108,7 +117,7 @@ def create_train_data(index, x, y, training_split=0.8, shuffle=False):
     return TrainingData(train_index=index_train, test_index=index_test, train_target=y_train, test_target=y_test,
                         train_input=x_train, test_input=x_test)
 
-def extract_training_and_test_set(data: pd.DataFrame, training_params: TrainingParams):
+def extract_training_and_test_set(data: pd.DataFrame, training_params: TrainingParams, create_df=False):
     """
     Extract training and test set
     @param data: full dataset
@@ -158,6 +167,10 @@ def extract_training_and_test_set(data: pd.DataFrame, training_params: TrainingP
 
     x = fc.combine_static_and_dynamic_features(static_features, dynamic_features)
     feature_names = training_params.static_input_features + dynamic_feature_names_full
+
+    if create_df:
+        x = pd.DataFrame(index=index, data=x[:, 0, :], columns=feature_names)
+        y = pd.DataFrame(index=index, data=y[:, 0, :], columns=training_params.target_features)
     return index, x, y, feature_names
 
 """
@@ -179,6 +192,41 @@ def replace_dataset(data, list_training_parameters, first_train_results_path, lo
 
     return new_dataset
 
+################################ Store all results #########################################
+
+def store_results(model,train_data, training_params, metr_exp: MetricsCalc, best_params, result_dir_model, result_id, experiment_name, usecase_name):
+    model_dir = os.path.join(result_dir_model, f"Models/{training_params.model_name}/{training_params.model_type}")
+    save_model_and_params(model, training_params, model_dir)
+    # Calculate and export metrics
+    train_data.save_pkl(result_dir_model, "result_data.pkl")
+    # Calc metrics
+    for k, val in best_params.items():
+            metr_exp.add_metr_val(MetricsVal(model_type=model.model.model_type,
+                                             model_name=model.name,
+                                             featsel_thresh=k.split("__")[0],
+                                             expansion_type=result_id,
+                                             metrics_type="best_params", metrics_name=k, val=val,
+                                             usecase_name=usecase_name))
+
+    metr_vals = metr_exp.calc_all_metrics(train_data, model.transformers.get_transformers_of_type(FeatureSelector))
+    # metr_vals = metr_exp.calc_perf_metrics(train_data, model.get_num_predictors())
+    # Set metrics identifiers
+    transformer_name = model.transformers.get_transformer_by_index(-1).__class__.__name__
+    for metr_val in metr_vals:
+        metr_val.set_metr_properties(model.model.model_type, model.name, result_id, transformer_name, usecase_name)
+    # Store metrics separately
+    metr_exp.add_metr_vals(metr_vals)
+    for type in ['Metrics', 'pvalues', 'FeatureSelect']:
+        filename = os.path.join(result_dir_model, f"{type}_{experiment_name}.csv")
+        metr_exp.store_metr_df(metr_exp.get_metr_df(type), filename)
+    # Export results
+    exp = ResultExport(results_root=result_dir_model, plot_enabled=True)
+    exp.export_result(train_data, result_id, show_fig=False)
+    exp.plot_enabled = False
+    exp.export_model_properties(model, result_id)
+    exp.export_featsel_metrs(model, result_id)
+
+########################## Load from JSON ########################################
 
 def load_from_json(filename):
     with open(filename) as f:

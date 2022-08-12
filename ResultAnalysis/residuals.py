@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import matplotlib.pyplot as plt
-import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
+import ModelTraining.Data.Plotting.plot_distributions as plt_dist
 from ModelTraining.ResultAnalysis.result_utils import env_max, env_min, get_result_df, plot_line
 
 
