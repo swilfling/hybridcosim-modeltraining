@@ -5,7 +5,6 @@ from .predict import predict_with_history
 from .GridSearch import best_estimator
 from ..Training.TrainingUtilities.parameters import TrainingParams
 from ..Training.TrainingUtilities.trainingparams_expanded import TrainingParamsExpanded
-import pandas as pd
 from ..datamodels.datamodels.processing import datascaler
 from ..datamodels import datamodels
 from ..datamodels.datamodels.wrappers.expandedmodel import ExpandedModel, TransformerSet
