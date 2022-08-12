@@ -2,7 +2,7 @@
 
 import ModelTraining.Training.TrainingUtilities.training_utils
 from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
-import ModelTraining.Preprocessing.data_analysis as data_analysis
+import ModelTraining.DatasetAnalysis.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 from ModelTraining.Data.DataImport.dataimport import DataImport
 import ModelTraining.Data.Plotting.plot_distributions as plt_dist
@@ -57,7 +57,7 @@ if __name__ == '__main__':
         cur_data = cur_data.dropna(axis=0)
         if usecase_name == "Solarhouse1":
             cur_data['SGlobal'][cur_data['SGlobal'] < 30] = 0
-        sparsity = np.array([data_analysis.calc_sparsity_abs(cur_data[feature])for feature in features_for_corrmatrix])
+        sparsity = np.array([data_analysis.calc_sparsity_abs(cur_data[feature]) for feature in features_for_corrmatrix])
         df_sparsity = pd.DataFrame(data=[sparsity], columns=features_for_corrmatrix, index=[usecase_name])
         df_sparsity.to_csv(os.path.join(sparsity_dir, f"Sparsity_{usecase_name}.csv"), float_format="%.2f",
                            index_label="Dataset")

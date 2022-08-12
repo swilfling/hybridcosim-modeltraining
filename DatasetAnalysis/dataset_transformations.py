@@ -1,6 +1,6 @@
 #%%
 
-import ModelTraining.Preprocessing.data_analysis as data_analysis
+import ModelTraining.DatasetAnalysis.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils
 from ModelTraining.feature_engineering.featureengineering.transformers import SqrtTransform, Boxcox, Diff
 import ModelTraining.Data.Plotting.plot_distributions as plt_dist

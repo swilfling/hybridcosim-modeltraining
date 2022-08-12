@@ -2,7 +2,7 @@
 
 import ModelTraining.Training.TrainingUtilities.training_utils
 from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
-import ModelTraining.Preprocessing.data_analysis as data_analysis
+import ModelTraining.DatasetAnalysis.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils
 import ModelTraining.Data.Plotting.plot_distributions as plt_dist
