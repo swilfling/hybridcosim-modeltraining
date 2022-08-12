@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from ....feature_engineering.featureengineering.interfaces.storage.jsoninterface import JSONInterface
+from .storage import JSONInterface
 
 @dataclass
 class Parameters(JSONInterface):
