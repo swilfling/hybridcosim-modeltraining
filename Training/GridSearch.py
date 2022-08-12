@@ -2,6 +2,7 @@ import numpy as np
 from sklearn.model_selection import GridSearchCV
 from ..datamodels.datamodels.wrappers.expandedmodel import ExpandedModel
 from ..datamodels.datamodels import Model
+import pandas as pd
 
 
 def best_estimator(model: Model, x_train: np.ndarray, y_train: np.ndarray, parameters={}, cv_folds=5):
@@ -14,10 +15,13 @@ def best_estimator(model: Model, x_train: np.ndarray, y_train: np.ndarray, param
     @return: Best parameters - dict
     """
     # Transform x train
-    estimator = model.model if isinstance(model, Model) else model.model.model
+    estimator = model.model if isinstance(model, Model) else model.get_estimator()
     search = GridSearchCV(estimator, parameters, cv=cv_folds, scoring=['r2','neg_mean_squared_error','neg_mean_absolute_error'],refit='r2', verbose=4)
     if isinstance(model, ExpandedModel):
         x_train, y_train = model.scale(x_train, y_train)
+        model.fit_transformers(x_train, y_train)
+        x_train = model.transform_features(x_train)
+        x_train = x_train.values if isinstance(x_train, pd.DataFrame) else x_train
     else:
         if model.x_scaler is not None:
             x_train = model.x_scaler.fit(x_train).transform(x_train)

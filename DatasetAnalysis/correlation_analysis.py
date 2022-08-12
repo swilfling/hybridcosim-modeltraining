@@ -1,6 +1,5 @@
 #%%
 
-import ModelTraining.Preprocessing.add_features as feat_utils
 import ModelTraining.Training.TrainingUtilities.training_utils
 from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
 import ModelTraining.Preprocessing.data_analysis as data_analysis
@@ -36,9 +35,7 @@ if __name__ == '__main__':
         usecase_name = dict_usecase['name']
         # Get data and feature set
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
-        #data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
-        feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         # Data preprocessing
         data = dp_utils.preprocess_data(data,dict_usecase['dataset_filename'])
         # Export correlation matrices
@@ -71,10 +68,8 @@ if __name__ == '__main__':
          usecase_name = dict_usecase['name']
          # Get data and feature set
          data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
-         data = feat_utils.add_features_to_data(data, dict_usecase)
          feature_set = FeatureSet(
              os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
-         feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
 
          data = data.astype('float')
          # Data preprocessing

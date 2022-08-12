@@ -8,7 +8,8 @@ import copy
 from sklearn.model_selection import train_test_split
 
 from ...Utilities import feature_combination as fc
-from ...Training.TrainingUtilities.parameters import TrainingParams, TrainingParamsExpanded
+from ...Training.TrainingUtilities.parameters import TrainingParams
+from ...Training.TrainingUtilities.trainingparams_expanded import TrainingParamsExpanded
 from ...datamodels.datamodels.wrappers.expandedmodel import ExpandedModel
 from ...feature_engineering.featureengineering.featureexpanders import PolynomialExpansion
 from ...datamodels.datamodels.processing.shape import get_windows
@@ -17,7 +18,7 @@ from ...Utilities.trainingdata import TrainingData
 from ...Data.DataImport.dataimport import DataImport
 from ...Utilities.MetricsExport import ResultExport, MetricsVal, MetricsCalc
 from ...feature_engineering.featureengineering.featureselectors import FeatureSelector
-
+from ...datamodels.datamodels.wrappers.expandedmodel import TransformerParams
 
 ########################### Data import #################################################
 
@@ -46,6 +47,12 @@ def save_model_and_params(model, training_params: TrainingParams, results_main_d
     if isinstance(model, ExpandedModel):
         model.save_pkl(model_dir, "expanded_model.pkl")
     training_params.to_file(os.path.join(model_dir, f"parameters_{training_params.model_name}.json"))
+
+def set_train_params_transformers(training_params, dict_usecase):
+    cfg_cat_feats = TransformerParams.get_params_of_type(training_params.transformer_params, "CategoricalFeatures")[0]
+    cfg_cyc_feats = TransformerParams.get_params_of_type(training_params.transformer_params, "CyclicFeatures")[0]
+    cfg_cat_feats.params['selected_feats'] = dict_usecase['onehot_feats']
+    cfg_cyc_feats.params['selected_feats'] = dict_usecase['cyclical_feats']
 
 
 def set_train_params_model(training_params_basic_config, feature_set, target_feature, model_type, transformer_params=None):
@@ -110,7 +117,7 @@ def create_train_data(index, x, y, training_split=0.8, shuffle=False):
     return TrainingData(train_index=index_train, test_index=index_test, train_target=y_train, test_target=y_test,
                         train_input=x_train, test_input=x_test)
 
-def extract_training_and_test_set(data: pd.DataFrame, training_params: TrainingParams):
+def extract_training_and_test_set(data: pd.DataFrame, training_params: TrainingParams, create_df=False):
     """
     Extract training and test set
     @param data: full dataset
@@ -160,6 +167,10 @@ def extract_training_and_test_set(data: pd.DataFrame, training_params: TrainingP
 
     x = fc.combine_static_and_dynamic_features(static_features, dynamic_features)
     feature_names = training_params.static_input_features + dynamic_feature_names_full
+
+    if create_df:
+        x = pd.DataFrame(index=index, data=x[:, 0, :], columns=feature_names)
+        y = pd.DataFrame(index=index, data=y[:, 0, :], columns=training_params.target_features)
     return index, x, y, feature_names
 
 """

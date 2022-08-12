@@ -1,5 +1,5 @@
-from . import TrainingParams
-from ....datamodels.datamodels.wrappers.expandedmodel.transformer_params import TransformerParams
+from ModelTraining.Training.TrainingUtilities.parameters import TrainingParams
+from ModelTraining.datamodels.datamodels.wrappers.expandedmodel.transformer_params import TransformerParams
 from dataclasses import dataclass
 from typing import List
 
@@ -11,11 +11,11 @@ class TrainingParamsExpanded(TrainingParams):
     """
     transformer_params: List[TransformerParams] = None
 
-    def str_expansion(self):
+    def str_expansion(self, range=[0,-1]):
         """
         String identifier for expansion
         """
-        return "_".join(tr.type for tr in self.transformer_params) if self.transformer_params is not None else ""
+        return "_".join(tr.type for tr in self.transformer_params[range[0]:range[1]]) if self.transformer_params is not None else ""
 
     def _get_attrs(self):
         attrs = self.__dict__.copy()

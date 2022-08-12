@@ -1,6 +1,5 @@
 #%%
 
-import ModelTraining.Preprocessing.add_features as feat_utils
 import ModelTraining.Preprocessing.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils
 from ModelTraining.feature_engineering.featureengineering.transformers import SqrtTransform, Boxcox, Diff
@@ -45,10 +44,8 @@ if __name__ == '__main__':
         os.makedirs(density_dir_usecase, exist_ok=True)
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
         # Get data and feature set
-        data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(
             os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
-        feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
         data = dp_utils.preprocess_data(data, dict_usecase['dataset_filename'])
@@ -103,10 +100,8 @@ if __name__ == '__main__':
 
         # Get data and feature set
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
-        data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(
             os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
-        feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
         data = dp_utils.preprocess_data(data, dict_usecase['dataset_filename'])
@@ -164,10 +159,8 @@ if __name__ == '__main__':
 
         # Get data and feature set
         data = train_utils.import_data(dataimport_config_path, data_dir, dict_usecase)
-        data = feat_utils.add_features_to_data(data, dict_usecase)
         feature_set = FeatureSet(
             os.path.join(root_dir, "Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
-        feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         data = data.astype('float')
         # Data preprocessing
         data = dp_utils.preprocess_data(data, dict_usecase['dataset_filename'])
