@@ -15,6 +15,8 @@ from ...datamodels.datamodels.processing.shape import get_windows
 from ...datamodels.datamodels import Model
 from ...Utilities.trainingdata import TrainingData
 from ...Data.DataImport.dataimport import DataImport
+from ...Utilities.MetricsExport import ResultExport, MetricsVal, MetricsCalc
+from ...feature_engineering.featureengineering.featureselectors import FeatureSelector
 
 
 ########################### Data import #################################################
@@ -179,6 +181,41 @@ def replace_dataset(data, list_training_parameters, first_train_results_path, lo
 
     return new_dataset
 
+################################ Store all results #########################################
+
+def store_results(model,train_data, training_params, metr_exp: MetricsCalc, best_params, result_dir_model, result_id, experiment_name, usecase_name):
+    model_dir = os.path.join(result_dir_model, f"Models/{training_params.model_name}/{training_params.model_type}")
+    save_model_and_params(model, training_params, model_dir)
+    # Calculate and export metrics
+    train_data.save_pkl(result_dir_model, "result_data.pkl")
+    # Calc metrics
+    for k, val in best_params.items():
+            metr_exp.add_metr_val(MetricsVal(model_type=model.model.model_type,
+                                             model_name=model.name,
+                                             featsel_thresh=k.split("__")[0],
+                                             expansion_type=result_id,
+                                             metrics_type="best_params", metrics_name=k, val=val,
+                                             usecase_name=usecase_name))
+
+    metr_vals = metr_exp.calc_all_metrics(train_data, model.transformers.get_transformers_of_type(FeatureSelector))
+    # metr_vals = metr_exp.calc_perf_metrics(train_data, model.get_num_predictors())
+    # Set metrics identifiers
+    transformer_name = model.transformers.get_transformer_by_index(-1).__class__.__name__
+    for metr_val in metr_vals:
+        metr_val.set_metr_properties(model.model.model_type, model.name, result_id, transformer_name, usecase_name)
+    # Store metrics separately
+    metr_exp.add_metr_vals(metr_vals)
+    for type in ['Metrics', 'pvalues', 'FeatureSelect']:
+        filename = os.path.join(result_dir_model, f"{type}_{experiment_name}.csv")
+        metr_exp.store_metr_df(metr_exp.get_metr_df(type), filename)
+    # Export results
+    exp = ResultExport(results_root=result_dir_model, plot_enabled=True)
+    exp.export_result(train_data, result_id, show_fig=False)
+    exp.plot_enabled = False
+    exp.export_model_properties(model, result_id)
+    exp.export_featsel_metrs(model, result_id)
+
+########################## Load from JSON ########################################
 
 def load_from_json(filename):
     with open(filename) as f:
