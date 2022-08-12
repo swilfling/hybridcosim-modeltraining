@@ -4,7 +4,7 @@ import numpy as np
 import os
 import matplotlib.pyplot as plt
 
-import Plotting.plot_data as plt_utils
+import ModelTraining.Data.Plotting.plot_data as plt_utils
 
 
 if __name__ == "__main__":
