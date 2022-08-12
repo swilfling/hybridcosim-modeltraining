@@ -1,7 +1,7 @@
 import os
 import matplotlib.pyplot as plt
 
-import ModelTraining.Utilities.Plotting.plot_data as plt_utils
+import Plotting.plot_data as plt_utils
 import tikzplotlib
 from ModelTraining.ResultAnalysis.result_utils import get_result_df
 

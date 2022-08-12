@@ -1,5 +1,4 @@
-import ModelTraining.Preprocessing.add_features as feat_utils
-from ModelTraining.Training.TrainingUtilities.parameters import TrainingParamsExpanded
+from ModelTraining.Training.TrainingUtilities.trainingparams_expanded import TrainingParamsExpanded
 from ModelTraining.Utilities import TrainingData
 from ModelTraining.feature_engineering.featureengineering.featureselectors import FeatureSelector
 from ModelTraining.feature_engineering.featureengineering.featureexpanders import FeatureExpansion
@@ -53,7 +52,6 @@ if __name__ == "__main__":
     for dict_usecase in dict_usecases:
         usecase_name = dict_usecase['name']
         feature_set = FeatureSet(os.path.join(root_dir,"Data", "Configuration", "FeatureSet", dict_usecase['fmu_interface']))
-        feature_set = feat_utils.add_features_to_featureset(feature_set, dict_usecase)
         for params_name in params_names:
             result_exp = ResultExport(results_root=os.path.join(results_path, usecase_name, params_name),
                                       plot_enabled=True)

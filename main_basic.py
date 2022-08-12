@@ -10,7 +10,7 @@ from ModelTraining.datamodels import datamodels
 from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import TransformerSet, ExpandedModel
 from ModelTraining.datamodels.datamodels.processing import datascaler
 from ModelTraining.Training.GridSearch import best_pipeline
-from ModelTraining.Training.TrainingUtilities.parameters import TrainingParamsExpanded, TransformerParams
+from ModelTraining.Training.TrainingUtilities.trainingparams_expanded import TrainingParamsExpanded, TransformerParams
 from ModelTraining.Utilities import TrainingData
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 from ModelTraining.Utilities.MetricsExport.result_export import ResultExport

@@ -5,7 +5,7 @@ from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
 import ModelTraining.Preprocessing.data_analysis as data_analysis
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils
-import ModelTraining.Utilities.Plotting.plot_distributions as plt_dist
+import ModelTraining.Data.Plotting.plot_distributions as plt_dist
 import os
 from ModelTraining.datamodels.datamodels.processing.datascaler import Normalizer
 

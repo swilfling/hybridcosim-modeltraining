@@ -5,10 +5,11 @@ import pathlib
 from sklearn.model_selection import TimeSeriesSplit
 from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json
-from ModelTraining.Training.TrainingUtilities.parameters import TrainingParamsExpanded, TransformerParams
+from ModelTraining.Training.TrainingUtilities.trainingparams_expanded import TrainingParamsExpanded
+from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import TransformerParams
 from ModelTraining.Utilities import TrainingData
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
-import ModelTraining.Utilities.Plotting.plot_data as plt_utils
+import ModelTraining.Data.Plotting.plot_data as plt_utils
 from ModelTraining.Training.predict import predict_gt, predict_with_history
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils
 import ModelTraining.datamodels.datamodels.validation.metrics as metrics
@@ -142,7 +143,7 @@ if __name__ == '__main__':
             for feat in result.target_feat_names:
                 y_true = result.test_target_vals(feat)
                 y_pred = result.test_pred_vals(feat)
-                metrs.append(metrics.all_metrics(y_true=y_true, y_pred=y_pred))
+                metrs.append(metrics.rsquared(y_true=y_true, y_pred=y_pred))
                 plt_utils.scatterplot(y_pred.flatten(), y_true.flatten(), './results/', f'Scatterplot_{feat}')
         print("Metrics:")
         print(metrs)

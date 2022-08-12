@@ -4,7 +4,7 @@ import pandas as pd
 from ...feature_engineering.featureengineering.featureselectors.thresholds import FeatureSelectThreshold
 from . import metr_utils
 from ..trainingdata import TrainingData
-from ..Plotting import plot_data as plt_utils
+from ModelTraining.Data.Plotting import plot_data as plt_utils
 from ...datamodels.datamodels.wrappers.expandedmodel import ExpandedModel
 from ...datamodels.datamodels import LinearModel, RandomForestRegression, SymbolicRegression, RuleFitRegression
 
