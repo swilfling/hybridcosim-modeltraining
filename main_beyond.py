@@ -12,15 +12,23 @@ from ModelTraining.Training.TrainingUtilities.trainingparams_expanded import Tra
 from ModelTraining.Utilities.MetricsExport.metrics_calc import MetricsCalc
 import ModelTraining.Utilities.MetricsExport.metr_utils as metr_utils
 from sklearn.model_selection import GridSearchCV
+import argparse
 
 
 if __name__ == '__main__':
     data_dir_path = "./Data"
     config_path = os.path.join("./", 'Configuration')
-    usecase_name = 'Beyond_B20_LR_dyn'
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-usecase_name',type=str, default='Beyond_B20_LR')
+    parser.add_argument('-model_types', type=str, default='RidgeRegression,LassoRegression')
+    args = parser.parse_args()
+    model_types = args.model_types.split(",")
+    usecase_name = args.usecase_name
+
     experiment_name = metr_utils.create_file_name_timestamp()
     result_dir = f"./results/{experiment_name}"
     os.makedirs(result_dir, exist_ok=True)
+
 
     # Get main config
     usecase_config_file = os.path.join(config_path, 'UseCaseConfig', f"{usecase_name}.json")
@@ -41,12 +49,9 @@ if __name__ == '__main__':
     transformer_params = TransformerParams.load_parameters_list("./Configuration/TransformerParams/params_transformers_beyond_stat_cyc_categ_inv_dyn_poly_r.json")
     transformer_name = transformer_type.lower()
     transf_params = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5]
-    #transf_params = [0.15]
+    transf_params = [0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4]
     thresh_params = {f"{transformer_name}__thresh": transf_params}
     gridsearch_scoring = ['r2', 'neg_mean_squared_error', 'neg_mean_absolute_error']
-    model_type = 'LassoRegression'
-    model_type = 'SupportVectorRegression'
-    model_types = ['NeuralNetwork_sklearn','LassoRegression','RidgeRegression','SupportVectorRegression']
 
     #gridsearch_params = {model_type:train_utils.load_from_json(os.path.join(config_path, "GridSearchParameters", f'parameters_{model_type}.json')) for model_type in model_types}
     gridsearch_params = {model_type:{} for model_type in model_types}
@@ -63,6 +68,7 @@ if __name__ == '__main__':
     data = train_utils.import_data(dataimport_cfg_path,data_dir_path, dict_usecase)
     data = dp_utils.preprocess_data(data, filename=dict_usecase['dataset_filename'])
     training_params = train_utils.set_train_params_model(training_params, feature_set, feature_set.get_output_feature_names()[0], model_types[0],transformer_params)
+    train_utils.set_train_params_transformers(training_params, dict_usecase)
 
     ####################################### Main loop ##################################################################
     training_data = data[training_params.static_input_features + training_params.dynamic_input_features]
@@ -99,10 +105,10 @@ if __name__ == '__main__':
 
             #transformers.get_transformer_by_name('selectorbyname').selected_feat_names = train_utils.load_from_json("./Configuration/cfg_selectorbyname.json")
             model = ExpandedModel(transformers=transformers, model=model_basic, feature_names=feature_names)
-            pipeline = model.get_full_pipeline()
-            from sklearn.pipeline import make_pipeline
-            from ModelTraining.feature_engineering.featureengineering.resamplers import SampleCut_Transf
-            pipeline = make_pipeline(*[step[1] for step in pipeline.steps[:-2]],SampleCut_Transf(lookback_horizon),pipeline.steps[-1][1])
+            #pipeline = model.get_full_pipeline()
+            #from sklearn.pipeline import make_pipeline
+            #from ModelTraining.feature_engineering.featureengineering.resamplers import SampleCut_Transf
+            #pipeline = make_pipeline(*[step[1] for step in pipeline.steps[:-2]],SampleCut_Transf(lookback_horizon),pipeline.steps[-1][1])
             #data_out = pipeline.fit_transform(x_train, y_train)
             #feat_names_full = pipeline.get_feature_names_out(x_train.columns)
             #print(len(feat_names_full))
@@ -113,7 +119,7 @@ if __name__ == '__main__':
             #parameters = {}
             #for name, vals in gridsearch_params[training_params.model_type].items():
             #    parameters.update({f"{model.model.model.__class__.__name__.lower()}__{name}": vals})
-            from sklearn.compose import TransformedTargetRegressor
+            #from sklearn.compose import TransformedTargetRegressor
             #from ModelTraining.feature_engineering.featureengineering.resamplers import SampleCut_Transf
             #reg = TransformedTargetRegressor(regressor=model.get_full_pipeline(), transformer=SampleCut_Transf(num_samples=lookback_horizon), check_inverse=False)
             search = GridSearchCV(model.get_full_pipeline(), parameters, cv=3, scoring=gridsearch_scoring, refit='r2',
