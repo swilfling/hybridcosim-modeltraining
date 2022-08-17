@@ -19,7 +19,7 @@ class SamplingPipeline(Pipeline):
 
 
 if __name__ == "__main__":
-    data = DataImport.load("../Data/Configuration/DataImport/AEE/Solarhouse1/Resampled15min.json").import_data(
+    data = DataImport.load("../../Data/Configuration/DataImport/AEE/Solarhouse1/Resampled15min.json").import_data(
         "../Data/Data/AEE/Solarhouse1/Resampled15min")
 
     # Trial implementation

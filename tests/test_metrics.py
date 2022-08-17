@@ -18,6 +18,4 @@ def test_metrics_calc():
 
 
 if __name__ == "__main__":
-    metr_val_1 = MetricsVal()
-    metr_val_2 = MetricsVal()
     test_metrics_calc()
