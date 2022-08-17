@@ -3,7 +3,7 @@ from ModelTraining.Training.TrainingUtilities.trainingparams_expanded import Tra
 from ModelTraining.Utilities import TrainingData
 from ModelTraining.feature_engineering.featureengineering.featureselectors import FeatureSelector
 import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
-from ModelTraining.Training.run_training_and_test import run_training_model
+from ModelTraining.Training.run_training_model import run_training_model
 from ModelTraining.Utilities.MetricsExport import MetricsCalc, ResultExport, metr_utils
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils
 from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json

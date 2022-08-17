@@ -23,7 +23,14 @@ from ...datamodels.datamodels.wrappers.expandedmodel import TransformerParams
 ########################### Data import #################################################
 
 
-def import_data(cfg_path, data_dir, dict_usecase):
+def import_data(cfg_path: str, data_dir:str, dict_usecase):
+    """
+    Import data using configuration
+    :param cfg_path: Path to configuration files for data import
+    :param data_dir: path to datasets
+    :param dict_usecase: dict containing information about dataset directory and filename
+    :return: data
+    """
     data_import = DataImport.load(
         os.path.join(cfg_path, dict_usecase['dataset_dir'], f"{dict_usecase['dataset_filename']}.json"))
     data = data_import.import_data(
@@ -49,12 +56,19 @@ def save_model_and_params(model, training_params: TrainingParams, results_main_d
         model.save_pkl(model_dir, "expanded_model.pkl")
     training_params.to_file(os.path.join(model_dir, f"parameters_{training_params.model_name}.json"))
 
+
 def set_train_params_transformers(training_params: TrainingParamsExpanded, dict_usecase):
+    """
+    Set training parameters for transformers based on use case
+    :param training_params:
+    :param dict_usecase:
+    :return: modified training params
+    """
     tr_params = training_params.transformer_params
     for cfg in TransformerParams.get_params_of_type(tr_params, "CategoricalFeatures"):
-        cfg.params['selected_feats'] = dict_usecase.get('cyclical_feats',[])
+        cfg.params['selected_feats'] = dict_usecase.get('cyclical_feats', [])
     for cfg in TransformerParams.get_params_of_type(tr_params, "CyclicFeatures"):
-        cfg.params['selected_feats'] = dict_usecase.get('onehot_feats',[])
+        cfg.params['selected_feats'] = dict_usecase.get('onehot_feats', [])
 
     for cfg in TransformerParams.get_params_of_type(tr_params, 'Transformer_MaskFeats', 'transformer_params',
                                                          'DynamicFeatures'):
@@ -64,7 +78,8 @@ def set_train_params_transformers(training_params: TrainingParamsExpanded, dict_
         cfg.params['mask_params']['features_to_transform'] = dict_usecase['stat_feats']
 
     for cfg in TransformerParams.get_params_of_type(tr_params, 'Transformer_MaskFeats', 'InverseTransform'):
-        cfg.params['mask_params']['features_to_transform'] = dict_usecase.get('to_invert',[])
+        cfg.params['mask_params']['features_to_transform'] = dict_usecase.get('to_invert', [])
+
 
 def set_train_params_model(training_params_basic_config, feature_set, target_feature, model_type, transformer_params=None):
     """
