@@ -8,7 +8,7 @@ from ModelTraining.Training.TrainingUtilities.training_utils import load_from_js
 from ModelTraining.Training.TrainingUtilities.trainingparams_expanded import TrainingParamsExpanded
 from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import TransformerParams
 from ModelTraining.Utilities import TrainingData
-import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
+import ModelTraining.Training.TrainingUtilities.training_utils_expanded as train_utils
 import ModelTraining.Data.Plotting.plot_data as plt_utils
 from ModelTraining.Training.predict import predict_gt, predict_with_history
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils

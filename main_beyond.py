@@ -3,7 +3,7 @@ import logging
 import shutil
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
-from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
+from ModelTraining.Training.TrainingUtilities import training_utils_expanded as train_utils
 from ModelTraining.datamodels import datamodels as datamodels
 from ModelTraining.datamodels.datamodels.processing import datascaler as datascaler
 from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import TransformerSet, ExpandedModel, TransformerParams

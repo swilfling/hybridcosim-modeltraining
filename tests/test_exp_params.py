@@ -1,5 +1,6 @@
-from ModelTraining.feature_engineering.parameters import TrainingParamsExpanded, TransformerParams
+from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import TransformerParams
 from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json
+from ModelTraining.Training.TrainingUtilities.trainingparams_expanded import TrainingParamsExpanded
 import os
 
 

@@ -2,7 +2,7 @@
 from ModelTraining.Training.TrainingUtilities.trainingparams_expanded import TrainingParamsExpanded
 from ModelTraining.Utilities import TrainingData
 from ModelTraining.feature_engineering.featureengineering.featureselectors import FeatureSelector
-import ModelTraining.Training.TrainingUtilities.training_utils as train_utils
+import ModelTraining.Training.TrainingUtilities.training_utils_expanded as train_utils
 from ModelTraining.Training.run_training_model import run_training_model
 from ModelTraining.Utilities.MetricsExport import MetricsCalc, ResultExport, metr_utils
 import ModelTraining.Preprocessing.data_preprocessing as dp_utils

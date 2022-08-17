@@ -5,7 +5,7 @@ from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 from ModelTraining.feature_engineering.featureengineering.featurecreators import CyclicFeatures, CategoricalFeatures
 from ModelTraining.Training.TrainingUtilities.training_utils import load_from_json
 from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
-from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
+from ModelTraining.Training.TrainingUtilities import training_utils_expanded as train_utils
 from ModelTraining.datamodels import datamodels
 from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import TransformerSet, ExpandedModel
 from ModelTraining.datamodels.datamodels.processing import datascaler
