@@ -3,7 +3,8 @@ import logging
 import shutil
 from ModelTraining.Preprocessing import data_preprocessing as dp_utils
 from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
-from ModelTraining.Training.TrainingUtilities import training_utils_expanded as train_utils
+from ModelTraining.Training.TrainingUtilities import training_utils_expanded as train_utils_exp
+from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.datamodels import datamodels as datamodels
 from ModelTraining.datamodels.datamodels.processing import datascaler as datascaler
 from ModelTraining.datamodels.datamodels.wrappers.expandedmodel import TransformerSet, ExpandedModel, TransformerParams
@@ -65,10 +66,10 @@ if __name__ == '__main__':
 
     # Get data
     dataimport_cfg_path = os.path.join(data_dir_path,"Configuration","DataImport")
-    data = train_utils.import_data(dataimport_cfg_path,data_dir_path, dict_usecase)
+    data = train_utils_exp.import_data(dataimport_cfg_path,data_dir_path, dict_usecase)
     data = dp_utils.preprocess_data(data, filename=dict_usecase['dataset_filename'])
-    training_params = train_utils.set_train_params_model(training_params, feature_set, feature_set.get_output_feature_names()[0], model_types[0],transformer_params)
-    train_utils.set_train_params_transformers(training_params, dict_usecase)
+    training_params = train_utils_exp.set_train_params_model(training_params, feature_set, feature_set.get_output_feature_names()[0], model_types[0],transformer_params)
+    train_utils_exp.set_train_params_transformers(training_params, dict_usecase)
 
     ####################################### Main loop ##################################################################
     training_data = data[training_params.static_input_features + training_params.dynamic_input_features]
@@ -139,7 +140,7 @@ if __name__ == '__main__':
 #            model.transformers.get_transformer_by_name(transformer_name).print_metrics()
             train_data.test_prediction = model.predict(train_data.test_input)
             # Save Model and results
-            train_utils.store_results(model, train_data, training_params, metr_exp, search.best_params_, result_dir_model, str(lookback_horizon), experiment_name,
+            train_utils_exp.store_results(model, train_data, training_params, metr_exp, search.best_params_, result_dir_model, str(lookback_horizon), experiment_name,
                           usecase_name)
         # Store all metrics
         metr_exp.store_all_metrics(result_dir, index_col='expansion_type')
