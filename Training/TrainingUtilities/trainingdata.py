@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from ..feature_engineering.featureengineering.interfaces import PickleInterface
+from .parameters.storage import PickleInterface
 import numpy as np
 import os
 import pandas as pd
