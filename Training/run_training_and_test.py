@@ -34,7 +34,7 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams], 
             train_data.test_prediction = predict_with_history(model, train_data.test_index, train_data.test_input,
                                                               train_data.test_target, training_params=training_params)
         else:
-            model.predict(train_data.test_input)
+            train_data.test_prediction = model.predict(train_data.test_input)
         models.append(model)
         results.append(train_data)
     return models, results
