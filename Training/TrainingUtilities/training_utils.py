@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 from ...Utilities import feature_combination as fc
 from ...Training.TrainingUtilities.parameters import TrainingParams
 from ...datamodels.datamodels.processing.shape import get_windows
-from ...Utilities.trainingdata import TrainingData
+from .trainingdata import TrainingData
 
 
 ############################# Model saving and plotting ##############################

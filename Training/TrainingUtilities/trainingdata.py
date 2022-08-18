@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from ..feature_engineering.featureengineering.interfaces import PickleInterface
+from .parameters.storage import PickleInterface
 import numpy as np
 import os
 import pandas as pd
@@ -46,14 +46,22 @@ class TrainingData(PickleInterface):
         @param col_names: optional: define column names for dataframe
         @return: dataframe containing results
         """
-        test_prediction = np.zeros(self.test_target.shape) if self.test_prediction is None else self.test_prediction
-        self.test_target = self.test_target.reshape((self.test_target.shape[0],self.test_target.shape[-1]))
+        if self.test_target.ndim == 1:
+            self.test_target = np.expand_dims(self.test_target, axis=1)
+        if self.test_target.ndim == 3:
+            self.test_target = np.reshape(self.test_target, (self.test_target.shape[0], self.test_target.shape[1] * self.test_target.shape[2]))
+
+        if self.test_prediction is None:
+            self.test_prediction = np.zeros(self.test_target.shape)
+
+        self.test_prediction = np.reshape(self.test_prediction, self.test_target.shape)
+
         if feat == "":
-            return pd.DataFrame(index=self.test_index, data=np.hstack((self.test_target, test_prediction)),
+            return pd.DataFrame(index=self.test_index, data=np.hstack((self.test_target, self.test_prediction)),
                                 columns=self._get_df_cols() if col_names == [] else col_names)
         else:
             feat_ind = self.target_feat_names.index(feat)
-            return pd.DataFrame(index=self.test_index, data=np.vstack((self.test_target[:,feat_ind], test_prediction[:,feat_ind])).T,
+            return pd.DataFrame(index=self.test_index, data=np.vstack((self.test_target[:,feat_ind], self.test_prediction[:,feat_ind])).T,
                                 columns=[f'GroundTruth_{feat}', f'Prediction_{feat}'])
 
     def test_target_vals(self, feat=""):

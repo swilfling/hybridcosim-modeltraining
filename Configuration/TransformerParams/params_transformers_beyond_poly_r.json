@@ -1,1 +1,0 @@
-[{"Type": "TransformerParams", "Parameters": {"type": "PolynomialExpansion", "params": {"interaction_only": true, "include_bias": false, "degree": 2}}},{"Type": "TransformerParams", "Parameters": {"type": "RThreshold", "params": {"thresh": 0.05, "omit_zero_samples": true}}}]

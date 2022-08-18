@@ -1,1 +1,0 @@
-{"function_set": [["add", "sub", "mul", "div", "sin", "cos", "tan", "inv", "log", "max", "min", "sqrt", "neg", "abs"]], "population_size": [100], "metric": ["rmse","mae", "pearson", "spearman"]}
