@@ -3,9 +3,8 @@ import datetime
 from cosimtr.Data.DataImport.featureset.featureset import FeatureSet
 from cosimtr.Training.TrainingUtilities import training_utils as train_utils
 from cosimtr.Training.TrainingUtilities.parameters import TrainingParams
-import ModelTraining.Data.Plotting.plot_data as plt_utils
+import cosimtr.Data.Plotting.plot_data as plt_utils
 from cosimtr.Training.run_training_and_test import run_training_and_test
-import ModelTraining.Preprocessing.data_preprocessing as dp_utils
 from cosimtr.Data.DataImport.dataimport import DataImport
 
 if __name__ == '__main__':
@@ -19,10 +18,6 @@ if __name__ == '__main__':
     feature_set = FeatureSet(feature_set_path)
     # Get training and target features
     target_features = feature_set.get_output_feature_names()
-
-    # Added: Preprocessing - Smooth features
-    data = dp_utils.preprocess_data(data, data_filename)
-
     train_params_cfg = TrainingParams.load("Configuration/TrainingParameters/training_params.json")
     list_train_params = [train_params_cfg for feat in target_features]
     for feat, params in zip(target_features, list_train_params):
