@@ -1,6 +1,7 @@
 import logging
 from typing import List
-from .TrainingUtilities import training_utils as train_utils
+
+from .TrainingUtilities import utils_training_data as train_utils
 from .predict import predict_with_history
 from ..Training.TrainingUtilities.parameters import TrainingParams
 from ..datamodels.datamodels.processing import datascaler
