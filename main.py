@@ -1,27 +1,23 @@
 import os
 import datetime
-from cosimtr.Data.DataImport.featureset.featureset import FeatureSet
-from cosimtr.Training.TrainingUtilities import training_utils as train_utils
-from cosimtr.Training.TrainingUtilities.parameters import TrainingParams
+from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
+from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
+from ModelTraining.Training.TrainingUtilities.parameters import TrainingParams
 import ModelTraining.Data.Plotting.plot_data as plt_utils
-from cosimtr.Training.run_training_and_test import run_training_and_test
-import ModelTraining.Preprocessing.data_preprocessing as dp_utils
-from cosimtr.Data.DataImport.dataimport import DataImport
+from ModelTraining.Training.run_training_and_test import run_training_and_test
+from ModelTraining.Data.DataImport.dataimport import DataImport
 
 if __name__ == '__main__':
 
     data_dir = "AEE/Solarhouse1"
     data_filename = "Resampled15min"
     data_import = DataImport.load(os.path.join("Data", "Configuration", "DataImport", data_dir, f"{data_filename}.json"))
-    data = data_import.import_data(os.path.join("Data","Data",data_dir, data_filename))
+    data = data_import.import_data(os.path.join("Data","Data",data_dir, f'{data_filename}_proc'))
 
     feature_set_path = "Data/Configuration/FeatureSet/Solarhouse1/SolarCollector/FMUInterface_TSolar.csv"
     feature_set = FeatureSet(feature_set_path)
     # Get training and target features
     target_features = feature_set.get_output_feature_names()
-
-    # Added: Preprocessing - Smooth features
-    data = dp_utils.preprocess_data(data, data_filename)
 
     train_params_cfg = TrainingParams.load("Configuration/TrainingParameters/training_params.json")
     list_train_params = [train_params_cfg for feat in target_features]

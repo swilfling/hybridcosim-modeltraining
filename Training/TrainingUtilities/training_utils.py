@@ -1,6 +1,6 @@
 import json
 import os
-
+import copy
 import numpy as np
 import pandas as pd
 
@@ -123,3 +123,18 @@ def extract_training_and_test_set(data: pd.DataFrame, training_params: TrainingP
 def load_from_json(filename):
     with open(filename) as f:
         return json.load(f)
+
+
+
+def set_train_params_model(training_params_basic_config, feature_set, target_feature, model_type):
+    """
+    Set values of training params - Specific for use case with one target feature!
+    """
+    training_params = copy.copy(training_params_basic_config)
+    training_params.model_type = model_type
+    training_params.model_name = target_feature
+    training_params.target_features = [target_feature]
+    training_params.static_input_features = feature_set.get_static_input_feature_names(target_feature)
+    training_params.dynamic_input_features = feature_set.get_dynamic_input_feature_names(target_feature)
+    training_params.dynamic_output_features = feature_set.get_dynamic_output_feature_names(target_feature)
+    return training_params
