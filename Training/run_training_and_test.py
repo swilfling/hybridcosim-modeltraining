@@ -1,7 +1,6 @@
 import logging
 from typing import List
 from .TrainingUtilities import training_utils as train_utils
-from .predict import predict_with_history
 from ..Training.TrainingUtilities.parameters import TrainingParams
 from ..datamodels.datamodels.processing import datascaler
 from ..datamodels import datamodels
@@ -30,11 +29,7 @@ def run_training_and_test(data, list_training_parameters: List[TrainingParams], 
     models, results = [], []
     for training_params in list_training_parameters:
         model, train_data = run_training(data, training_params)
-        if prediction_type == 'History':
-            train_data.test_prediction = predict_with_history(model, train_data.test_index, train_data.test_input,
-                                                              train_data.test_target, training_params=training_params)
-        else:
-            train_data.test_prediction = model.predict(train_data.test_input)
+        train_data.test_prediction = model.predict(train_data.test_input)
         models.append(model)
         results.append(train_data)
     return models, results

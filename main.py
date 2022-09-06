@@ -1,20 +1,20 @@
 import os
 import datetime
-from ModelTraining.Data.DataImport.featureset.featureset import FeatureSet
+from Data.DataImport.featureset.featureset import FeatureSet
 from ModelTraining.Training.TrainingUtilities import training_utils as train_utils
 from ModelTraining.Training.TrainingUtilities.parameters import TrainingParams
-import ModelTraining.Data.Plotting.plot_data as plt_utils
+import Data.Plotting.plot_data as plt_utils
 from ModelTraining.Training.run_training_and_test import run_training_and_test
-from ModelTraining.Data.DataImport.dataimport import DataImport
+from Data.DataImport.dataimport import DataImport
 
 if __name__ == '__main__':
-
+    root_dir = "../"
     data_dir = "AEE/Solarhouse1"
     data_filename = "Resampled15min"
-    data_import = DataImport.load(os.path.join("Data", "Configuration", "DataImport", data_dir, f"{data_filename}.json"))
-    data = data_import.import_data(os.path.join("Data","Data",data_dir, f'{data_filename}_proc'))
+    data_import = DataImport.load(os.path.join(root_dir,"Data", "Configuration", "DataImport", data_dir, f"{data_filename}.json"))
+    data = data_import.import_data(os.path.join(root_dir, "Data","Data",data_dir, f'{data_filename}_proc'))
 
-    feature_set_path = "Data/Configuration/FeatureSet/Solarhouse1/SolarCollector/FMUInterface_TSolar.csv"
+    feature_set_path = f"{root_dir}/Data/Configuration/FeatureSet/Solarhouse1/SolarCollector/FMUInterface_TSolar.csv"
     feature_set = FeatureSet(feature_set_path)
     # Get training and target features
     target_features = feature_set.get_output_feature_names()

@@ -1,9 +1,6 @@
 [submodule "datamodels"]
 	path = datamodels
 	url = https://github.com/tug-cps/datamodels-expansion
-[submodule "Data"]
-	path = Data
-	url = https://github.com/tug-cps/hybridcosim-data
 [submodule "Training/TrainingUtilities/parameters/storage"]
 	path = Training/TrainingUtilities/parameters/storage
 	url = https://github.com/tug-cps/storage

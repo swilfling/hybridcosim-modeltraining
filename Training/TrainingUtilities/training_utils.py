@@ -5,8 +5,6 @@ import numpy as np
 import pandas as pd
 
 from sklearn.model_selection import train_test_split
-
-from ...Utilities import feature_combination as fc
 from ...Training.TrainingUtilities.parameters import TrainingParams
 from ...datamodels.datamodels.processing.shape import get_windows
 from .trainingdata import TrainingData
@@ -109,7 +107,9 @@ def extract_training_and_test_set(data: pd.DataFrame, training_params: TrainingP
         dynamic_features = dynamic_features.reshape(
             (dynamic_features.shape[0], 1, dynamic_features.shape[1] * dynamic_features.shape[2]))
 
-    x = fc.combine_static_and_dynamic_features(static_features, dynamic_features)
+    x = np.dstack([static_features, dynamic_features]) if static_features is not None and dynamic_features is not None \
+        else static_features if static_features is not None else dynamic_features
+
     feature_names = training_params.static_input_features + dynamic_feature_names_full
 
     if create_df:
