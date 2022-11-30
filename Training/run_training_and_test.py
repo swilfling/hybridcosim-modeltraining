@@ -6,22 +6,13 @@ from ..datamodels.datamodels.processing import datascaler
 from ..datamodels import datamodels
 
 
-def run_training_and_test(data, list_training_parameters: List[TrainingParams], prediction_type="History", **kwargs):
+def run_training_and_test(data, list_training_parameters: List[TrainingParams], **kwargs):
     """
     Function: run training and test - Train models based on training data - Train multiple models based on list of training params.
-    Includes:
-        Train-test split
-        Feature expansion
-        Feature selection
-        Grid search
-        Prediction
 
     Parameters:
         @param data: data to run training on
         @param list_training_parameters: list of training parameters
-        @param prediction_type: Type of prediction - choose 'History' or 'ground truth'
-        @param model_parameters: parameters for grid search
-        @param expander_parameters: parameters for polynomial expansion
 
     Returns:
         @return models (trained models), results of prediction for each model
